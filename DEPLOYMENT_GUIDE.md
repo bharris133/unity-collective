@@ -1,400 +1,102 @@
 # Unity Collective - Deployment Guide
 
-This guide provides step-by-step instructions for deploying your Unity Collective website to various hosting platforms.
-
-## 🎯 Pre-Deployment Checklist
-
-### ✅ Before You Deploy
-
-- [ ] Test website locally (`pnpm run dev`)
-- [ ] Build successfully (`pnpm run build`)
-- [ ] Test production build (`pnpm run preview`)
-- [ ] All images loading correctly
-- [ ] Navigation working between pages
-- [ ] Mobile responsiveness verified
-- [ ] Content reviewed and approved
-- [ ] Domain name purchased (if using custom domain)
-
-### 📋 Required Information
-
-Gather this information before starting:
-- [ ] Hosting platform account (Netlify, Vercel, etc.)
-- [ ] Domain name (if using custom domain)
-- [ ] DNS access (for custom domain setup)
-- [ ] Git repository URL (for automatic deployments)
-
-## 🌐 Deployment Options
-
-### Option 1: Netlify (Recommended for Beginners)
-
-**Why Netlify?**
-- Free tier available
-- Easy drag-and-drop deployment
-- Automatic HTTPS
-- Custom domain support
-- Form handling
-- Continuous deployment from Git
-
-#### Method A: Drag and Drop (Easiest)
-
-1. **Build your project:**
-   ```bash
-   cd unity-collective
-   pnpm run build
-   ```
-
-2. **Go to Netlify:**
-   - Visit [netlify.com](https://netlify.com)
-   - Sign up for free account
-   - Click "Deploy to Netlify"
-
-3. **Deploy:**
-   - Drag the `dist` folder to the deployment area
-   - Wait for deployment to complete
-   - Your site will be live at a random URL like `https://amazing-name-123456.netlify.app`
-
-4. **Custom Domain (Optional):**
-   - Go to Site Settings > Domain Management
-   - Click "Add custom domain"
-   - Enter your domain name
-   - Follow DNS configuration instructions
-
-#### Method B: Git Integration (Recommended for ongoing updates)
-
-1. **Push to Git repository:**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin https://github.com/yourusername/unity-collective.git
-   git push -u origin main
-   ```
-
-2. **Connect to Netlify:**
-   - Go to [netlify.com](https://netlify.com)
-   - Click "New site from Git"
-   - Choose your Git provider (GitHub, GitLab, Bitbucket)
-   - Select your repository
-
-3. **Configure build settings:**
-   - Build command: `pnpm run build`
-   - Publish directory: `dist`
-   - Node version: `18` (in Environment variables)
-
-4. **Deploy:**
-   - Click "Deploy site"
-   - Netlify will automatically build and deploy
-   - Future pushes to main branch will auto-deploy
-
-### Option 2: Vercel (Great for React apps)
-
-**Why Vercel?**
-- Optimized for React/Next.js
-- Excellent performance
-- Free tier available
-- Easy Git integration
-- Global CDN
-
-#### Deployment Steps:
-
-1. **Install Vercel CLI:**
-   ```bash
-   npm install -g vercel
-   ```
-
-2. **Login to Vercel:**
-   ```bash
-   vercel login
-   ```
-
-3. **Deploy:**
-   ```bash
-   cd unity-collective
-   vercel --prod
-   ```
-
-4. **Follow prompts:**
-   - Set up and deploy? `Y`
-   - Which scope? Choose your account
-   - Link to existing project? `N`
-   - What's your project's name? `unity-collective`
-   - In which directory is your code located? `./`
-   - Want to override settings? `N`
-
-5. **Custom Domain:**
-   - Go to Vercel dashboard
-   - Select your project
-   - Go to Settings > Domains
-   - Add your custom domain
-
-### Option 3: GitHub Pages (Free with GitHub)
-
-**Why GitHub Pages?**
-- Free hosting
-- Integrated with GitHub
-- Custom domain support
-- HTTPS included
-
-#### Setup Steps:
-
-1. **Install gh-pages:**
-   ```bash
-   cd unity-collective
-   pnpm add -D gh-pages
-   ```
-
-2. **Update package.json:**
-   ```json
-   {
-     "scripts": {
-       "predeploy": "pnpm run build",
-       "deploy": "gh-pages -d dist"
-     },
-     "homepage": "https://yourusername.github.io/unity-collective"
-   }
-   ```
-
-3. **Deploy:**
-   ```bash
-   pnpm run deploy
-   ```
-
-4. **Enable GitHub Pages:**
-   - Go to repository Settings
-   - Scroll to Pages section
-   - Source: Deploy from a branch
-   - Branch: gh-pages
-   - Folder: / (root)
-
-### Option 4: Traditional Web Hosting
-
-**For shared hosting, VPS, or dedicated servers:**
-
-1. **Build the project:**
-   ```bash
-   cd unity-collective
-   pnpm run build
-   ```
-
-2. **Upload files:**
-   - Use FTP/SFTP client (FileZilla, WinSCP)
-   - Upload entire `dist` folder contents to your web root
-   - Common paths: `/public_html/`, `/www/`, `/htdocs/`
-
-3. **Configure server:**
-   - Ensure server supports static files
-   - Set up URL rewriting for React Router (see below)
-
-#### Server Configuration for React Router
-
-**Apache (.htaccess):**
-```apache
-Options -MultiViews
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^ index.html [QSA,L]
-```
-
-**Nginx:**
-```nginx
-location / {
-  try_files $uri $uri/ /index.html;
-}
-```
-
-## 🔧 Custom Domain Setup
-
-### DNS Configuration
-
-1. **For root domain (example.com):**
-   ```
-   Type: A
-   Name: @
-   Value: [Your hosting provider's IP]
-   ```
-
-2. **For subdomain (www.example.com):**
-   ```
-   Type: CNAME
-   Name: www
-   Value: [Your hosting provider's domain]
-   ```
-
-### SSL Certificate
-
-Most modern hosting providers include free SSL certificates. If not:
-
-1. **Let's Encrypt (Free):**
-   - Most hosts support automatic Let's Encrypt
-   - Enable in hosting control panel
-
-2. **Cloudflare (Free):**
-   - Sign up for Cloudflare
-   - Add your domain
-   - Update nameservers
-   - Enable SSL in Cloudflare dashboard
-
-## 📊 Post-Deployment Setup
-
-### 1. Analytics
-
-**Google Analytics:**
-```html
-<!-- Add to index.html before </head> -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'GA_MEASUREMENT_ID');
-</script>
-```
-
-### 2. Search Console
-
-1. Go to [Google Search Console](https://search.google.com/search-console)
-2. Add your domain
-3. Verify ownership
-4. Submit sitemap (if generated)
-
-### 3. Social Media Meta Tags
-
-Add to `index.html`:
-```html
-<!-- Open Graph / Facebook -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://your-domain.com/">
-<meta property="og:title" content="Unity Collective - Empowering Black Community">
-<meta property="og:description" content="Building stronger Black communities through unity and economic strength">
-<meta property="og:image" content="https://your-domain.com/og-image.jpg">
-
-<!-- Twitter -->
-<meta property="twitter:card" content="summary_large_image">
-<meta property="twitter:url" content="https://your-domain.com/">
-<meta property="twitter:title" content="Unity Collective - Empowering Black Community">
-<meta property="twitter:description" content="Building stronger Black communities through unity and economic strength">
-<meta property="twitter:image" content="https://your-domain.com/og-image.jpg">
-```
-
-## 🚨 Troubleshooting Deployment Issues
-
-### Common Problems
-
-#### Build Fails
-```bash
-# Clear cache and rebuild
-rm -rf node_modules dist
-pnpm install
-pnpm run build
-```
-
-#### Images Not Loading
-- Check image paths are correct
-- Ensure images are in `src/assets/`
-- Verify build includes all assets
-
-#### 404 Errors on Page Refresh
-- Configure server for React Router (see server config above)
-- Check hosting provider documentation
-
-#### Slow Loading
-- Optimize images (compress, use WebP)
-- Enable gzip compression on server
-- Use CDN for assets
-
-### Getting Help
-
-1. **Check hosting provider documentation**
-2. **Review build logs for errors**
-3. **Test locally first**
-4. **Contact hosting support**
-
-## 📈 Performance Optimization
-
-### Before Deployment
-
-1. **Optimize images:**
-   ```bash
-   # Install image optimization tools
-   npm install -g imagemin-cli
-   imagemin src/assets/*.png --out-dir=src/assets/optimized
-   ```
-
-2. **Analyze bundle size:**
-   ```bash
-   pnpm run build
-   npx vite-bundle-analyzer dist
-   ```
-
-### After Deployment
-
-1. **Test with Lighthouse**
-2. **Monitor Core Web Vitals**
-3. **Set up performance monitoring**
-
-## 🔄 Continuous Deployment
-
-### Automatic Deployments
-
-**Netlify/Vercel with Git:**
-- Push to main branch = automatic deployment
-- Pull requests = preview deployments
-- Rollback capability
-
-**GitHub Actions (Advanced):**
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy to Production
-on:
-  push:
-    branches: [ main ]
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '18'
-    - run: npm install
-    - run: npm run build
-    - uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./dist
-```
-
-## 📋 Deployment Checklist
-
-### Pre-Launch
-- [ ] Content reviewed and approved
-- [ ] All links working
-- [ ] Contact information updated
-- [ ] Social media links added
-- [ ] Analytics configured
-- [ ] SEO meta tags added
-- [ ] Performance tested
-- [ ] Mobile responsiveness verified
-- [ ] Cross-browser testing completed
-
-### Launch Day
-- [ ] Final build and deploy
-- [ ] DNS propagation verified
-- [ ] SSL certificate active
-- [ ] All pages loading correctly
-- [ ] Forms working (if applicable)
-- [ ] Analytics tracking
-- [ ] Social media announcement
-- [ ] Community notification
-
-### Post-Launch
-- [ ] Monitor for errors
-- [ ] Check analytics data
-- [ ] Gather user feedback
-- [ ] Plan future updates
-- [ ] Regular backups scheduled
+This guide provides comprehensive instructions for deploying the Unity Collective platform to a permanent, production-ready hosting environment. It covers backend configuration, frontend deployment, and post-launch steps.
+
+## 1. Pre-Deployment: Backend Configuration
+
+Before deploying the frontend, you **must** configure and deploy the production backend, which includes Firebase Cloud Functions and Stripe webhooks.
+
+### **Step 1: Set Up Production Firebase Project**
+
+- Create a new Firebase project dedicated to production.
+- Enable **Authentication** (with Email/Password provider), **Firestore**, and **Cloud Functions**.
+- Go to **Project Settings** and create a new **Web App**. Copy the configuration keys; you will need them for the frontend deployment.
+
+### **Step 2: Configure and Deploy Cloud Functions**
+
+1.  **Authenticate with Firebase CLI**:
+    ```bash
+    firebase login
+    ```
+
+2.  **Select Your Production Project**:
+    ```bash
+    firebase use your-production-project-id
+    ```
+
+3.  **Set Production Environment Variables**:
+    Run the following commands, replacing the placeholders with your **LIVE Stripe keys**.
+    ```bash
+    # Set the Stripe secret key (sk_live_...)
+    firebase functions:config:set stripe.secret_key="your_live_stripe_secret_key"
+
+    # Set the Stripe webhook secret (whsec_...)
+    firebase functions:config:set stripe.webhook_secret="your_live_stripe_webhook_secret"
+    ```
+
+4.  **Deploy the Functions**:
+    ```bash
+    firebase deploy --only functions
+    ```
+    After deployment, Firebase will provide a URL for your `stripeWebhook` function. Copy this URL.
+
+### **Step 3: Configure Production Stripe Webhook**
+
+1.  Go to your **Stripe Dashboard** and ensure you are in **LIVE mode**.
+2.  Navigate to **Developers > Webhooks**.
+3.  Click **Add endpoint**.
+4.  For the **Endpoint URL**, paste the function URL you copied from the Firebase deployment.
+5.  For the events to listen to, select `checkout.session.completed`.
+6.  Click **Add endpoint**.
+
+Your backend is now ready for production.
+
+## 2. Frontend Deployment Options
+
+We recommend using a modern hosting platform like Vercel or Netlify for the best performance and developer experience.
+
+### **Option 1: Vercel (Recommended)**
+
+1.  **Sign Up**: Create a free Vercel account using your GitHub account.
+2.  **Import Project**: In the Vercel dashboard, click **Add New... > Project** and select your `unity-collective` GitHub repository.
+3.  **Configure Project**:
+    - **Framework Preset**: Vercel will automatically detect **Vite**.
+    - **Build and Output Settings**: Defaults are correct (`pnpm run build`, `dist` directory).
+    - **Environment Variables**: Add all the `VITE_` variables from your `.env.example` file. Use the **production keys** from your Firebase web app and your **LIVE Stripe Publishable Key** (`pk_live_...`).
+4.  **Deploy**: Click the **Deploy** button. Vercel will build and deploy your site.
+
+### **Option 2: Netlify**
+
+1.  **Sign Up**: Create a free Netlify account.
+2.  **Import Project**: Click **New site from Git**, choose your Git provider, and select the `unity-collective` repository.
+3.  **Configure Build Settings**:
+    - **Build command**: `pnpm run build`
+    - **Publish directory**: `dist`
+4.  **Environment Variables**: Similar to Vercel, add your production `VITE_` keys in the site settings under **Build & deploy > Environment**.
+5.  **Deploy**: Click **Deploy site**.
+
+## 3. Post-Deployment
+
+### **Step 1: Add a Custom Domain**
+
+To make your site permanent, add a custom domain you own:
+
+1.  Go to your project's dashboard on Vercel or Netlify.
+2.  Navigate to the **Domains** tab.
+3.  Add your custom domain and follow the instructions to update your DNS records (usually an `A` or `CNAME` record) with your domain registrar.
+
+Both platforms will automatically provision a free SSL certificate for your domain.
+
+### **Step 2: Final Checks**
+
+- **Test Live Site**: Thoroughly test all features, including user registration, marketplace browsing, and the checkout flow.
+- **Analytics**: Add your Google Analytics tracking ID to `index.html` to monitor traffic.
+- **SEO**: Add Open Graph (OG) and Twitter meta tags to `index.html` for better social media sharing.
+
+## 4. Continuous Deployment
+
+Both Vercel and Netlify set up a Git integration by default. This means every time you push a new commit to your `main` branch, the platform will automatically trigger a new build and deployment, keeping your live site up-to-date seamlessly.
 
 ---
 
-**Need help?** Contact the development team or refer to the main README.md for additional support resources.
-
+Congratulations! Your Unity Collective platform is now permanently deployed and live on the web. ✊🏿
