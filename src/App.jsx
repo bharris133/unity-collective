@@ -49,6 +49,9 @@ import VendorStorefront from './components/VendorStorefront';
 import ProductDetail from './components/ProductDetail';
 import Checkout from './components/Checkout';
 import OrderSuccess from './components/OrderSuccess';
+import OffersPage from './components/OffersPage';
+import CreateOffer from './components/CreateOffer';
+import MessagesPage from './components/MessagesPage';
 
 // Import hooks
 import { useAuth } from './contexts/AuthContext';
@@ -762,6 +765,9 @@ function App() {
                 <Route path="/products/:productId" element={<ProductDetail />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-success" element={<OrderSuccess />} />
+                <Route path="/offers" element={<OffersPage />} />
+                <Route path="/offers/create" element={<CreateOffer />} />
+                <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/education" element={<EducationPage />} />
                 <Route path="/media" element={<MediaCenterPage />} />
                 <Route path="/about" element={<AboutPage />} />
