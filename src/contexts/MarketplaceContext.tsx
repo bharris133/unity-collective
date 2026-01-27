@@ -4,8 +4,8 @@ import { CartState, CartAction, CartItem, Product } from '../types';
 interface MarketplaceContextType {
   cart: CartState;
   addToCart: (product: Product) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   getCartItemCount: () => number;
@@ -30,12 +30,12 @@ export function useMarketplace(): MarketplaceContextType {
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_TO_CART': {
-      const existingItem = state.items.find(item => item.productId === action.payload.productId);
+      const existingItem = state.items.find(item => item.id === action.payload.id);
       if (existingItem) {
         return {
           ...state,
           items: state.items.map(item =>
-            item.productId === action.payload.productId
+            item.id === action.payload.id
               ? { ...item, quantity: item.quantity + 1 }
               : item
           )
@@ -51,14 +51,14 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     case 'REMOVE_FROM_CART':
       return {
         ...state,
-        items: state.items.filter(item => item.productId !== action.payload)
+        items: state.items.filter(item => item.id !== action.payload)
       };
 
     case 'UPDATE_QUANTITY':
       return {
         ...state,
         items: state.items.map(item =>
-          item.productId === action.payload.id
+          item.id === action.payload.id
             ? { ...item, quantity: Math.max(0, action.payload.quantity) }
             : item
         ).filter(item => item.quantity > 0)
@@ -107,14 +107,14 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
   }, [cart.items]);
 
   // Cart actions
-  const addToCart = (product: Product): void => {
-    const cartItem: CartItem = {
-      productId: product.productId,
+  const addToCart = (product: any): void => {
+    const cartItem: any = {
+      id: product.id || product.productId,
       quantity: 1,
       price: product.price,
       name: product.name,
-      image: product.images[0],
-      vendorId: product.vendorId
+      image: product.image || (product.images && product.images[0]),
+      businessId: product.businessId || product.vendorId
     };
     dispatch({ type: 'ADD_TO_CART', payload: cartItem });
   };
@@ -145,12 +145,12 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
   };
 
   const getCartTax = (taxRate: number = 0.08): number => {
-    return getCartSubtotal() * taxRate;
+    return Math.floor(getCartSubtotal() * taxRate);
   };
 
   const getCartShipping = (): number => {
     const subtotal = getCartSubtotal();
-    return subtotal > 5000 ? 0 : 999; // Free shipping over $50 (5000 cents)
+    return subtotal >= 5000 ? 0 : 999; // Free shipping over $50 (5000 cents)
   };
 
   const getCartGrandTotal = (): number => {
@@ -158,15 +158,15 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
   };
 
   // Sample products data (in a real app, this would come from Firestore)
-  const sampleProducts: Product[] = [
+  const sampleProducts: any[] = [
     {
-      productId: 'unity-tshirt-001',
+      id: 'unity-tshirt-001',
       name: 'Unity Collective T-Shirt',
       description: 'Premium cotton t-shirt with Unity Collective logo',
       price: 2499, // in cents
       category: 'Apparel',
-      vendorId: 'unity-collective',
-      images: ['/api/placeholder/300/300'],
+      businessId: 'unity-collective',
+      image: ['/api/placeholder/300/300'],
       inStock: true,
       stockQuantity: 50,
       tags: ['apparel', 'merchandise', 'unity'],
@@ -174,13 +174,13 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
       updatedAt: new Date().toISOString()
     },
     {
-      productId: 'heritage-coffee-001',
+      id: 'heritage-coffee-001',
       name: 'Heritage Blend Coffee',
       description: 'Ethically sourced coffee beans from African farms',
       price: 1899,
       category: 'Food & Beverage',
-      vendorId: 'heritage-foods',
-      images: ['/api/placeholder/300/300'],
+      businessId: 'heritage-foods',
+      image: ['/api/placeholder/300/300'],
       inStock: true,
       stockQuantity: 25,
       tags: ['coffee', 'organic', 'fair-trade'],
@@ -188,13 +188,13 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
       updatedAt: new Date().toISOString()
     },
     {
-      productId: 'sankofa-book-001',
+      id: 'sankofa-book-001',
       name: 'Business Strategy Guide',
       description: 'Comprehensive guide to Black entrepreneurship',
       price: 2999,
       category: 'Books & Education',
-      vendorId: 'sankofa-consulting',
-      images: ['/api/placeholder/300/300'],
+      businessId: 'sankofa-consulting',
+      image: ['/api/placeholder/300/300'],
       inStock: true,
       stockQuantity: 100,
       tags: ['education', 'business', 'entrepreneurship'],
@@ -202,13 +202,13 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
       updatedAt: new Date().toISOString()
     },
     {
-      productId: 'unity-hoodie-001',
+      id: 'unity-hoodie-001',
       name: 'Unity Collective Hoodie',
       description: 'Comfortable hoodie with embroidered logo',
       price: 4999,
       category: 'Apparel',
-      vendorId: 'unity-collective',
-      images: ['/api/placeholder/300/300'],
+      businessId: 'unity-collective',
+      image: ['/api/placeholder/300/300'],
       inStock: true,
       stockQuantity: 30,
       tags: ['apparel', 'merchandise', 'unity'],
@@ -216,13 +216,13 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
       updatedAt: new Date().toISOString()
     },
     {
-      productId: 'heritage-spices-001',
+      id: 'heritage-spices-001',
       name: 'African Spice Collection',
       description: 'Authentic spice blend collection',
       price: 3499,
       category: 'Food & Beverage',
-      vendorId: 'heritage-foods',
-      images: ['/api/placeholder/300/300'],
+      businessId: 'heritage-foods',
+      image: ['/api/placeholder/300/300'],
       inStock: true,
       stockQuantity: 40,
       tags: ['spices', 'cooking', 'authentic'],
@@ -230,13 +230,13 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
       updatedAt: new Date().toISOString()
     },
     {
-      productId: 'tech-course-001',
+      id: 'tech-course-001',
       name: 'Web Development Course',
       description: 'Complete web development training program',
       price: 19999,
       category: 'Digital Products',
-      vendorId: 'unity-tech',
-      images: ['/api/placeholder/300/300'],
+      businessId: 'unity-tech',
+      image: ['/api/placeholder/300/300'],
       inStock: true,
       stockQuantity: 999,
       tags: ['education', 'technology', 'course'],
