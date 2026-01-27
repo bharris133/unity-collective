@@ -52,6 +52,8 @@ import OrderSuccess from './components/OrderSuccess';
 import OffersPage from './components/OffersPage';
 import CreateOffer from './components/CreateOffer';
 import MessagesPage from './components/MessagesPage';
+import FavoritesPage from './components/FavoritesPage';
+import { FavoritesProvider } from './contexts/FavoritesContext';
 
 // Import hooks
 import { useAuth } from './contexts/AuthContext';
@@ -751,7 +753,8 @@ function Footer() {
 function App() {
   return (
     <AuthProvider>
-      <MarketplaceProvider>
+      <FavoritesProvider>
+        <MarketplaceProvider>
         <Router>
           <div className="App">
             <Navigation />
@@ -768,6 +771,7 @@ function App() {
                 <Route path="/offers" element={<OffersPage />} />
                 <Route path="/offers/create" element={<CreateOffer />} />
                 <Route path="/messages" element={<MessagesPage />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/education" element={<EducationPage />} />
                 <Route path="/media" element={<MediaCenterPage />} />
                 <Route path="/about" element={<AboutPage />} />
@@ -777,7 +781,8 @@ function App() {
             <Footer />
           </div>
         </Router>
-      </MarketplaceProvider>
+        </MarketplaceProvider>
+      </FavoritesProvider>
     </AuthProvider>
   );
 }
