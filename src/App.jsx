@@ -45,6 +45,8 @@ import Navigation from './components/Navigation';
 // Import page components
 import MarketplacePage from './components/MarketplacePage';
 import AdminPanel from './components/admin/AdminPanel';
+import VendorStorefront from './components/VendorStorefront';
+import ProductDetail from './components/ProductDetail';
 
 // Import hooks
 import { useAuth } from './contexts/AuthContext';
@@ -754,6 +756,8 @@ function App() {
                 <Route path="/community" element={<CommunityPage />} />
                 <Route path="/directory" element={<BusinessDirectoryPage />} />
                 <Route path="/marketplace" element={<MarketplacePage />} />
+                <Route path="/vendors/:vendorId" element={<VendorStorefront />} />
+                <Route path="/products/:productId" element={<ProductDetail />} />
                 <Route path="/education" element={<EducationPage />} />
                 <Route path="/media" element={<MediaCenterPage />} />
                 <Route path="/about" element={<AboutPage />} />
