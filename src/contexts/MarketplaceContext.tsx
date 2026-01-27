@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { CartState, CartAction, CartItem, Product } from '../types';
+import { mockProducts } from '../data';
 
 interface MarketplaceContextType {
   cart: CartState;
@@ -157,93 +158,8 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
     return getCartSubtotal() + getCartTax() + getCartShipping();
   };
 
-  // Sample products data (in a real app, this would come from Firestore)
-  const sampleProducts: any[] = [
-    {
-      id: 'unity-tshirt-001',
-      name: 'Unity Collective T-Shirt',
-      description: 'Premium cotton t-shirt with Unity Collective logo',
-      price: 2499, // in cents
-      category: 'Apparel',
-      businessId: 'unity-collective',
-      image: ['/api/placeholder/300/300'],
-      inStock: true,
-      stockQuantity: 50,
-      tags: ['apparel', 'merchandise', 'unity'],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    {
-      id: 'heritage-coffee-001',
-      name: 'Heritage Blend Coffee',
-      description: 'Ethically sourced coffee beans from African farms',
-      price: 1899,
-      category: 'Food & Beverage',
-      businessId: 'heritage-foods',
-      image: ['/api/placeholder/300/300'],
-      inStock: true,
-      stockQuantity: 25,
-      tags: ['coffee', 'organic', 'fair-trade'],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    {
-      id: 'sankofa-book-001',
-      name: 'Business Strategy Guide',
-      description: 'Comprehensive guide to Black entrepreneurship',
-      price: 2999,
-      category: 'Books & Education',
-      businessId: 'sankofa-consulting',
-      image: ['/api/placeholder/300/300'],
-      inStock: true,
-      stockQuantity: 100,
-      tags: ['education', 'business', 'entrepreneurship'],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    {
-      id: 'unity-hoodie-001',
-      name: 'Unity Collective Hoodie',
-      description: 'Comfortable hoodie with embroidered logo',
-      price: 4999,
-      category: 'Apparel',
-      businessId: 'unity-collective',
-      image: ['/api/placeholder/300/300'],
-      inStock: true,
-      stockQuantity: 30,
-      tags: ['apparel', 'merchandise', 'unity'],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    {
-      id: 'heritage-spices-001',
-      name: 'African Spice Collection',
-      description: 'Authentic spice blend collection',
-      price: 3499,
-      category: 'Food & Beverage',
-      businessId: 'heritage-foods',
-      image: ['/api/placeholder/300/300'],
-      inStock: true,
-      stockQuantity: 40,
-      tags: ['spices', 'cooking', 'authentic'],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    },
-    {
-      id: 'tech-course-001',
-      name: 'Web Development Course',
-      description: 'Complete web development training program',
-      price: 19999,
-      category: 'Digital Products',
-      businessId: 'unity-tech',
-      image: ['/api/placeholder/300/300'],
-      inStock: true,
-      stockQuantity: 999,
-      tags: ['education', 'technology', 'course'],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-  ];
+  // Sample products data (imported from centralized mock data)
+  const sampleProducts: any[] = mockProducts;
 
   const value: MarketplaceContextType = {
     cart,

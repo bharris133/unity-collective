@@ -1,87 +1,14 @@
 import React, { useState } from 'react';
 import { Search, Send, MoreVertical, ArrowLeft } from 'lucide-react';
 import type { MessageThread, Message } from '../types';
+import { mockThreads, mockMessages } from '../data';
 
 export const MessagesPage: React.FC = () => {
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   const [messageText, setMessageText] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Mock message threads (will be replaced with Firestore)
-  const mockThreads: MessageThread[] = [
-    {
-      id: '1',
-      participants: ['user1', 'user2'],
-      participantNames: ['John Smith', 'Sarah Johnson'],
-      lastMessage: 'That sounds great! When can we start?',
-      lastMessageTime: new Date('2025-01-25T14:30:00'),
-      unreadCount: 2,
-      relatedOfferId: '1',
-      relatedOfferTitle: 'Looking for Web Development Services',
-    },
-    {
-      id: '2',
-      participants: ['user1', 'user3'],
-      participantNames: ['John Smith', 'Marcus Williams'],
-      lastMessage: 'I can help with that. Let me send you my portfolio.',
-      lastMessageTime: new Date('2025-01-24T10:15:00'),
-      unreadCount: 0,
-      relatedOfferId: '3',
-      relatedOfferTitle: 'Need Logo Design',
-    },
-    {
-      id: '3',
-      participants: ['user1', 'user4'],
-      participantNames: ['John Smith', 'Lisa Brown'],
-      lastMessage: 'Thanks for your interest! Here are the details...',
-      lastMessageTime: new Date('2025-01-23T16:45:00'),
-      unreadCount: 1,
-      relatedOfferId: '2',
-      relatedOfferTitle: 'Offering Catering Services',
-    },
-  ];
-
-  // Mock messages for selected thread
-  const mockMessages: Record<string, Message[]> = {
-    '1': [
-      {
-        id: 'm1',
-        threadId: '1',
-        senderId: 'user2',
-        senderName: 'Sarah Johnson',
-        content: 'Hi! I saw your offer for web development. I can help with that.',
-        timestamp: new Date('2025-01-25T14:00:00'),
-        read: true,
-      },
-      {
-        id: 'm2',
-        threadId: '1',
-        senderId: 'user1',
-        senderName: 'John Smith',
-        content: 'Great! What kind of projects have you worked on?',
-        timestamp: new Date('2025-01-25T14:15:00'),
-        read: true,
-      },
-      {
-        id: 'm3',
-        threadId: '1',
-        senderId: 'user2',
-        senderName: 'Sarah Johnson',
-        content: 'I specialize in React and Node.js. I can show you my portfolio.',
-        timestamp: new Date('2025-01-25T14:20:00'),
-        read: true,
-      },
-      {
-        id: 'm4',
-        threadId: '1',
-        senderId: 'user1',
-        senderName: 'John Smith',
-        content: 'That sounds great! When can we start?',
-        timestamp: new Date('2025-01-25T14:30:00'),
-        read: false,
-      },
-    ],
-  };
+  // Mock data (imported from centralized mock data)
 
   const filteredThreads = mockThreads.filter(thread =>
     thread.participantNames.some(name => name.toLowerCase().includes(searchTerm.toLowerCase())) ||
