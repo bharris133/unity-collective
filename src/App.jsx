@@ -47,6 +47,8 @@ import MarketplacePage from './components/MarketplacePage';
 import AdminPanel from './components/admin/AdminPanel';
 import VendorStorefront from './components/VendorStorefront';
 import ProductDetail from './components/ProductDetail';
+import Checkout from './components/Checkout';
+import OrderSuccess from './components/OrderSuccess';
 
 // Import hooks
 import { useAuth } from './contexts/AuthContext';
@@ -758,6 +760,8 @@ function App() {
                 <Route path="/marketplace" element={<MarketplacePage />} />
                 <Route path="/vendors/:vendorId" element={<VendorStorefront />} />
                 <Route path="/products/:productId" element={<ProductDetail />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/education" element={<EducationPage />} />
                 <Route path="/media" element={<MediaCenterPage />} />
                 <Route path="/about" element={<AboutPage />} />
