@@ -1,0 +1,40 @@
+graph TD
+    subgraph User Browser
+        A[React App] --> B{React Router}
+        B --> C[HomePage]
+        B --> D[MarketplacePage]
+        B --> E[OffersPage]
+        B --> F[MessagesPage]
+        B --> G[Checkout]
+    end
+
+    subgraph State Management
+        H[AuthContext] --> A
+        I[MarketplaceContext] --> A
+        J[FavoritesContext] --> A
+    end
+
+    subgraph Firebase Backend
+        K[Firebase Auth] --> H
+        L[Firestore DB] --> D
+        L --> E
+        L --> F
+        M[Cloud Functions] --> N[Stripe API]
+        O[Firebase Storage] --> A
+    end
+
+    subgraph External Services
+        N[Stripe API]
+    end
+
+    A --> H
+    A --> I
+    A --> J
+    G --> M
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style K fill:#f8b,stroke:#333,stroke-width:2px
+    style L fill:#f8b,stroke:#333,stroke-width:2px
+    style M fill:#f8b,stroke:#333,stroke-width:2px
+    style O fill:#f8b,stroke:#333,stroke-width:2px
+    style N fill:#bbf,stroke:#333,stroke-width:2px
