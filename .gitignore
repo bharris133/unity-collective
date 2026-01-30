@@ -12,9 +12,11 @@ pnpm-debug.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-# Package manager lock files (keep package.json but ignore locks for flexibility)
+# Package manager lock files
+# Keep pnpm-lock.yaml for reproducible builds, ignore others
 package-lock.json
 yarn.lock
+# pnpm-lock.yaml - TRACKED for reproducible builds
 
 # ===================================
 # ENVIRONMENT VARIABLES & CONFIG
