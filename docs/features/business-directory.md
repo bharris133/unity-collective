@@ -1,83 +1,140 @@
+# Feature Documentation: Business Directory
+
+**Author**: Manus AI  
+**Date**: January 30, 2026
+
+---
+
 ## 1. What it Does
 
-The Business Directory is a searchable and filterable directory of all Black-owned businesses registered on the Unity Collective platform. It allows users to discover businesses by name, category, or location. Each business is displayed as a card with key information, and clicking a card leads to the vendor's dedicated storefront page.
+The Business Directory is a searchable database of Black-owned businesses. It allows users to discover, learn about, and connect with businesses in the community.
+
+### Key Functionality
+
+- **Search**: Users can search for businesses by name, category, or location.
+- **Filtering**: Users can filter businesses by category.
+- **Business Cards**: Displays a summary of each business with key information.
+- **Vendor Storefront**: Each business has a dedicated page with more details.
+
+---
 
 ## 2. Files Involved
 
-| File | Purpose |
-| :--- | :--- |
-| `src/App.jsx` | Contains the `BusinessDirectoryPage` component, which renders the directory. |
-| `src/data/mockBusinesses.ts` | Provides the complete list of mock data for all businesses in the directory. |
-| `src/components/VendorStorefront.jsx` | The component for the individual vendor storefront page (not yet created). |
+### Core Component
+
+- **`src/App.jsx`**: The `BusinessDirectoryPage` component is defined within this file and rendered when the route is `/directory`.
+
+### Data Sources
+
+- **`src/data/mockBusinesses.ts`**: Provides the data for all businesses in the directory.
+
+### UI Components
+
+- **`src/components/ui/card.jsx`**: Used to display each business as a card.
+- **`src/components/ui/input.jsx`**: Used for the search bar.
+- **`src/components/ui/select.jsx`**: Used for the category filter.
+- **`src/components/ui/badge.jsx`**: Used to display the business category.
+
+---
 
 ## 3. How to Make Changes
 
-### **Changing the Page Layout**
+### Changing the Search Placeholder Text
 
-The layout of the `BusinessDirectoryPage` is defined in `src/App.jsx`. You can modify the JSX to change the arrangement of the search bar, filters, and business cards.
+1.  **Open `src/App.jsx`**.
+2.  **Locate the `BusinessDirectoryPage` component**.
+3.  **Find the `Input` component** with the `placeholder` prop.
+4.  **Modify the `placeholder` text**.
 
-### **Changing Business Card Appearance**
+```javascript
+// src/App.jsx (in BusinessDirectoryPage)
 
-The appearance of each business card is controlled by the JSX within the `.map()` loop inside the `BusinessDirectoryPage` component. You can add or remove elements (e.g., add a "Verified" badge, change the rating style) by editing this section.
-
-```jsx
-// In src/App.jsx, inside BusinessDirectoryPage
-
-<div key={business.id} className="border rounded-lg p-4">
-  <h3 className="font-bold">{business.name}</h3>
-  <p>{business.category}</p>
-  {/* Add a new element here */}
-</div>
+<Input
+  type="text"
+  placeholder="Search businesses by name, category, or location..."
+  className="max-w-lg flex-1"
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+/>
 ```
 
-### **Modifying Filter Logic**
+### Changing the Filter Options
 
-The filtering logic is handled by `useState` hooks (`searchTerm`, `selectedCategory`, etc.) at the top of the `BusinessDirectoryPage` component. The `filteredBusinesses` variable is where the actual filtering happens. You can modify this logic to add new filters (e.g., by rating).
+1.  **Open `src/App.jsx`**.
+2.  **Locate the `BusinessDirectoryPage` component**.
+3.  **Find the `select` element** for filtering.
+4.  **Modify the `option` elements** to change the filter categories.
 
-```jsx
-// In src/App.jsx, inside BusinessDirectoryPage
+```javascript
+// src/App.jsx (in BusinessDirectoryPage)
 
-const filteredBusinesses = mockBusinesses.filter(business => {
-  return (
-    business.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (selectedCategory === 'All' || business.category === selectedCategory)
-    // && business.rating >= 4.9 // Add new filter logic here
-  );
-});
+<select
+  className="bg-gray-800 text-white p-2 rounded-md"
+  value={filterCategory}
+  onChange={(e) => setFilterCategory(e.target.value)}
+>
+  <option value="All">All Categories</option>
+  <option value="Business Services">Business Services</option>
+  <option value="Food & Beverage">Food & Beverage</option>
+  <option value="Technology">Technology</option>
+  <option value="Retail">Retail</option>
+</select>
 ```
+
+---
 
 ## 4. How to Add Items
 
-### **Adding a New Business**
+### Adding a New Business
 
-To add a new business to the directory, simply add a new business object to the `mockBusinesses` array in `src/data/mockBusinesses.ts`. Ensure the new object follows the existing structure.
+1.  **Open `src/data/mockBusinesses.ts`**.
+2.  **Add a new business object** to the `mockBusinesses` array.
+3.  **Ensure the new object follows the `Business` interface**.
 
 ```typescript
-// In src/data/mockBusinesses.ts
+// src/data/mockBusinesses.ts
 
 export const mockBusinesses: Business[] = [
   // ... existing businesses
   {
-    id: '7',
-    name: 'New Age Tech',
-    category: 'Technology',
-    location: 'New York, NY',
-    description: 'Innovative tech solutions for the modern era.',
-    rating: 4.9,
+    id: 7,
+    name: "New Vision Books",
+    category: "Retail",
+    location: "Harlem, NY",
+    rating: 4.7,
+    description: "Independent bookstore specializing in African-American literature.",
+    image: "/api/placeholder/300/200",
     verified: true,
-  },
+    owner: "Aisha Williams",
+    since: 2018,
+    website: "https://newvisionbooks.com",
+    phone: "(212) 555-1234",
+    email: "contact@newvisionbooks.com"
+  }
 ];
 ```
 
-### **Adding a New Filter Category**
+### Adding a New Filter Category
 
-1.  **Add a business** with the new category to `src/data/mockBusinesses.ts`.
-2.  **Add the new category** to the `categories` array inside the `BusinessDirectoryPage` component in `src/App.jsx`.
+1.  **Open `src/App.jsx`**.
+2.  **Locate the `BusinessDirectoryPage` component**.
+3.  **Add a new `option` element** to the category filter `select`.
+4.  **Ensure the `value` of the new option** matches a category in your business data.
 
-    ```jsx
-    // In src/App.jsx, inside BusinessDirectoryPage
+```javascript
+// src/App.jsx (in BusinessDirectoryPage)
 
-    const categories = ['All', 'Business Services', 'Food & Beverage', 'Technology', 'Retail', 'Healthcare', 'Education', 'New Category'];
-    ```
+<select ...>
+  {/* ... existing options */}
+  <option value="Health & Wellness">Health & Wellness</option>
+</select>
+```
 
-The new category will automatically appear in the filter dropdown.
+---
+
+## 5. Future Improvements
+
+- **Componentization**: The `BusinessDirectoryPage` is a large component. It could be broken down into smaller components like `SearchBar.jsx`, `BusinessCard.jsx`, and `FilterControls.jsx`.
+- **Dynamic Data**: The directory should fetch business data from a database (e.g., Firebase) instead of using mock data.
+- **Pagination**: For a large number of businesses, pagination should be implemented to improve performance.
+- **Advanced Filtering**: More advanced filtering options could be added, such as filtering by location, rating, or services offered.

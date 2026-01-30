@@ -1,68 +1,82 @@
+# Feature Documentation: Community Hub
+
+**Author**: Manus AI  
+**Date**: January 30, 2026
+
+---
+
 ## 1. What it Does
 
-The Community Hub is a central gathering place for community members to access resources, view announcements, participate in discussions, and stay informed about community activities. It serves as a social and informational center within the Unity Collective platform.
+The Community Hub is a central place for community members to connect, share information, and engage in discussions. It is designed to be the social heart of the Unity Collective platform.
+
+### Key Functionality
+
+- **Announcements**: A section for important announcements from the platform administrators.
+- **Discussion Forums**: Themed forums for users to discuss various topics.
+- **Resource Library**: A collection of useful articles, videos, and other resources.
+
+---
 
 ## 2. Files Involved
 
-| File | Purpose |
-| :--- | :--- |
-| `src/App.jsx` | Contains the `CommunityPage` component, which renders the community hub (currently a placeholder). |
+### Core Component
+
+- **`src/App.jsx`**: The `CommunityHubPage` component is defined within this file and rendered when the route is `/hub`.
+
+### Data Sources
+
+- **`src/data/mockAnnouncements.ts`** (to be created): Would provide data for the announcements section.
+- **`src/data/mockForumThreads.ts`** (to be created): Would provide data for the discussion forums.
+- **`src/data/mockResources.ts`** (to be created): Would provide data for the resource library.
+
+---
 
 ## 3. How to Make Changes
 
-### **Changing the Page Layout**
+### Changing the Layout
 
-The layout of the `CommunityPage` is defined in `src/App.jsx`. Currently, it is likely a placeholder with minimal content. You can modify the JSX to add sections for announcements, discussions, resources, etc.
+1.  **Open `src/App.jsx`**.
+2.  **Locate the `CommunityHubPage` component**.
+3.  **Modify the JSX** to change the layout of the different sections (Announcements, Forums, Resources).
 
-```jsx
-// In src/App.jsx, inside CommunityPage
+```javascript
+// src/App.jsx (in CommunityHubPage)
 
-function CommunityPage() {
-  return (
-    <div>
-      <h1>Community Hub</h1>
-      <section>
-        <h2>Announcements</h2>
-        {/* Add announcement cards here */}
-      </section>
-      <section>
-        <h2>Discussions</h2>
-        {/* Add discussion threads here */}
-      </section>
-    </div>
-  );
-}
+<div className="container mx-auto py-12">
+  {/* ... modify layout here ... */}
+</div>
 ```
 
-### **Adding a New Section**
-
-To add a new section to the Community Hub (e.g., "Featured Resources"), you would:
-
-1.  **Add a new `<section>` element** in the `CommunityPage` component.
-2.  **Populate it with content** (e.g., a list of resources from a mock data file).
+---
 
 ## 4. How to Add Items
 
-### **Adding an Announcement**
+### Adding a New Announcement
 
-If you create a mock data file for announcements (e.g., `src/data/mockAnnouncements.ts`), you can add a new announcement by adding a new object to the array.
+1.  **Create `src/data/mockAnnouncements.ts`** with an array of announcement objects.
+2.  **Import the mock data** into `src/App.jsx`.
+3.  **In the `CommunityHubPage` component, map over the data** to render the announcements.
 
-```typescript
-// In src/data/mockAnnouncements.ts
+```javascript
+// src/App.jsx (in CommunityHubPage)
 
-export const mockAnnouncements: Announcement[] = [
-  {
-    id: '1',
-    title: 'New Feature Launch',
-    content: 'We are excited to announce...',
-    date: '2025-08-20',
-  },
-  // Add new announcement here
-];
+<div className="mb-12">
+  <h2 className="text-3xl font-bold mb-6">Announcements</h2>
+  <div className="space-y-4">
+    {mockAnnouncements.map((announcement) => (
+      <Card key={announcement.id}>
+        {/* ... render announcement ... */}
+      </Card>
+    ))}
+  </div>
+</div>
 ```
 
-Then, in the `CommunityPage` component, you would import this data and map over it to display each announcement.
+---
 
-### **Adding a Discussion Thread**
+## 5. Future Improvements
 
-Similar to announcements, you would create a mock data file for discussion threads and add new threads by adding objects to the array. You would then render these threads in the `CommunityPage` component.
+- **Full Implementation**: The Community Hub is currently a placeholder. It needs to be fully implemented with all its features.
+- **Dynamic Data**: All data should be fetched from a database.
+- **User-Generated Content**: Users should be able to create new forum threads and posts.
+- **Moderation**: A moderation system will be needed to manage the discussion forums.
