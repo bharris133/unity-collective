@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState, ReactNode } from 'react';
 import { CartState, CartAction, CartItem, Product } from '../types';
-import { mockProducts } from '../data/mockProducts';
+import { productService } from '../services/productService';
 
 interface MarketplaceContextType {
   cart: CartState;
@@ -14,7 +14,10 @@ interface MarketplaceContextType {
   getCartTax: (taxRate?: number) => number;
   getCartShipping: () => number;
   getCartGrandTotal: () => number;
-  sampleProducts: Product[];
+  products: Product[];
+  loading: boolean;
+  error: string | null;
+  refreshProducts: () => Promise<void>;
 }
 
 const MarketplaceContext = createContext<MarketplaceContextType | undefined>(undefined);
@@ -88,6 +91,29 @@ interface MarketplaceProviderProps {
 
 export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
   const [cart, dispatch] = useReducer(cartReducer, { items: [] });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load products from service
+  const refreshProducts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const fetchedProducts = await productService.getAll();
+      setProducts(fetchedProducts);
+    } catch (err) {
+      console.error('Error loading products:', err);
+      setError('Failed to load products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load products on mount
+  useEffect(() => {
+    refreshProducts();
+  }, []);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -158,8 +184,6 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
     return getCartSubtotal() + getCartTax() + getCartShipping();
   };
 
-  // Sample products data imported from centralized mock data
-
   const value: MarketplaceContextType = {
     cart,
     addToCart,
@@ -172,7 +196,10 @@ export function MarketplaceProvider({ children }: MarketplaceProviderProps) {
     getCartTax,
     getCartShipping,
     getCartGrandTotal,
-    sampleProducts: mockProducts
+    products,
+    loading,
+    error,
+    refreshProducts
   };
 
   return (
