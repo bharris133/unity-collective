@@ -24,7 +24,15 @@ The application follows a standard client-server architecture where the frontend
 
 State management is handled through React Contexts, providing a clean and efficient way to manage global state for authentication, marketplace data, and other shared concerns.
 
-## 2. Code Structure
+## 2. Data Sources (Mock vs. Live)
+
+The application can be run with either local mock data or a live Firebase backend. This is controlled by an environment variable and is designed to make UI development fast and efficient.
+
+For complete instructions on how to configure and test this feature, please see the official guide:
+
+**[➡️ Data Source Switching Guide](./DATA_SOURCE_SWITCHING_GUIDE.md)**
+
+## 3. Code Structure
 
 The project is organized into a `src` directory for the frontend application and a `functions` directory for the Firebase Cloud Functions.
 
