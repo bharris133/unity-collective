@@ -1,113 +1,114 @@
+# Feature Documentation: Shopping Cart
+
+**Author**: Manus AI  
+**Date**: January 30, 2026
+
+---
+
 ## 1. What it Does
 
-The Shopping Cart feature allows users to add products to a cart, adjust quantities, remove items, and proceed to checkout. The cart state is managed globally using a React Context, making it accessible from any component in the application. This feature is a core part of the marketplace functionality.
+The Shopping Cart feature provides a temporary holding space for products that a user intends to purchase. It allows users to review their selected items, adjust quantities, and proceed to checkout.
+
+### Key Functionality
+
+- **Add to Cart**: Users can add products to the cart from the marketplace or product detail pages.
+- **View Cart**: A modal or dedicated page that displays all items in the cart.
+- **Adjust Quantity**: Users can increase or decrease the quantity of each item in the cart.
+- **Remove from Cart**: Users can remove items from the cart.
+- **Subtotal Calculation**: The cart automatically calculates the subtotal of all items.
+
+---
 
 ## 2. Files Involved
 
-| File | Purpose |
-| :--- | :--- |
-| `src/contexts/MarketplaceContext.tsx` | Manages the global state for the shopping cart, including the list of items, total price, and functions for adding/removing items. |
-| `src/components/Checkout.jsx` | Renders the checkout form where users finalize their purchase (not yet created). |
+### Context
+
+- **`src/contexts/MarketplaceContext.tsx`**: Manages the global state of the shopping cart, including the list of items, cart total, and all cart-related functions.
+
+### UI Components
+
+- **`src/components/marketplace/ShoppingCart.jsx`**: Renders the shopping cart modal or page.
+- **`src/components/Navigation.jsx`**: Displays the cart icon with the number of items in the cart.
+
+---
 
 ## 3. How to Make Changes
 
-### **Changing Cart Item Display**
+### Modifying the Cart Display
 
-The cart items are typically displayed in a modal or a dedicated cart page. The JSX for rendering each cart item would be in the component that displays the cart (e.g., a `CartModal` component). You can modify this to change what information is shown (e.g., add a thumbnail image).
+1.  **Open `src/components/marketplace/ShoppingCart.jsx`**.
+2.  **Modify the JSX** to change how cart items are displayed (e.g., change the layout, add more product details).
 
-```jsx
-// In a CartModal component or similar
+```javascript
+// src/components/marketplace/ShoppingCart.jsx
 
-{cart.items.map(item => (
-  <div key={item.id}>
-    <h4>{item.name}</h4>
-    <p>Quantity: {item.quantity}</p>
-    <p>Price: ${item.price * item.quantity}</p>
-    {/* Add a thumbnail image here */}
-  </div>
-))}
+<div className="flex flex-col gap-4">
+  {cart.map((item) => (
+    <div key={item.product.id} className="flex justify-between items-center">
+      {/* ... modify how each cart item is displayed ... */}
+    </div>
+  ))}
+</div>
 ```
 
-### **Modifying Cart Logic**
+### Changing the Quantity Adjustment Logic
 
-All cart logic (adding items, calculating totals, etc.) is in `src/contexts/MarketplaceContext.tsx`. You can modify the `addToCart`, `removeFromCart`, and `updateQuantity` functions to change how the cart behaves.
+1.  **Open `src/contexts/MarketplaceContext.tsx`**.
+2.  **Locate the `adjustQuantity` function**.
+3.  **Modify the logic** to change how item quantities are adjusted (e.g., set a maximum quantity).
 
 ```typescript
-// In src/contexts/MarketplaceContext.tsx
+// src/contexts/MarketplaceContext.tsx
 
-const addToCart = (product: Product) => {
+const adjustQuantity = (productId: string, newQuantity: number) => {
   setCart(prevCart => {
-    const existingItem = prevCart.items.find(item => item.id === product.id);
-    if (existingItem) {
-      // Increase quantity if item already in cart
-      return {
-        ...prevCart,
-        items: prevCart.items.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        ),
-      };
+    if (newQuantity <= 0) {
+      return prevCart.filter(item => item.product.id !== productId);
     } else {
-      // Add new item to cart
-      return {
-        ...prevCart,
-        items: [...prevCart.items, { ...product, quantity: 1 }],
-      };
+      return prevCart.map(item => 
+        item.product.id === productId 
+          ? { ...item, quantity: newQuantity } 
+          : item
+      );
     }
   });
 };
 ```
 
-### **Changing the Checkout Process**
-
-The checkout form and submission logic would be in `src/components/Checkout.jsx`. You can add or remove form fields, change validation, or integrate with a payment gateway (e.g., Stripe).
+---
 
 ## 4. How to Add Items
 
-### **Adding an "Add to Cart" Button**
+This feature is about managing a list of products. To add a new product to the cart, you would use the `addToCart` function from the `MarketplaceContext`.
 
-To allow users to add a product to the cart from a page (e.g., the Marketplace or Product Detail page), you need to:
+### Adding a "Add to Cart" Button to a New Component
 
-1.  **Import the Marketplace Context** into the component.
+1.  **Import the `useMarketplace` hook** from `src/contexts/MarketplaceContext.tsx`.
 2.  **Get the `addToCart` function** from the context.
 3.  **Add a button** that calls `addToCart` with the product as an argument.
 
-```jsx
-// In src/components/MarketplacePage.jsx
+```javascript
+// Example: Adding an "Add to Cart" button to a new component
 
-import { useMarketplace } from '../contexts/MarketplaceContext';
+import { useMarketplace } from "../contexts/MarketplaceContext";
 
-function MarketplacePage() {
+const NewProductComponent = ({ product }) => {
   const { addToCart } = useMarketplace();
 
   return (
     <div>
-      {mockProducts.map(product => (
-        <div key={product.id}>
-          <h3>{product.name}</h3>
-          <button onClick={() => addToCart(product)}>Add to Cart</button>
-        </div>
-      ))}
+      <h3>{product.name}</h3>
+      <button onClick={() => addToCart(product)}>Add to Cart</button>
     </div>
   );
-}
+};
 ```
 
-### **Displaying the Cart Total**
+---
 
-To display the cart total in the navigation or a cart modal, you can retrieve it from the context.
+## 5. Future Improvements
 
-```jsx
-// In src/components/Navigation.jsx
-
-import { useMarketplace } from '../contexts/MarketplaceContext';
-
-function Navigation() {
-  const { cart } = useMarketplace();
-
-  return (
-    <nav>
-      <p>Cart Total: ${cart.total.toFixed(2)}</p>
-    </nav>
-  );
-}
-```
+- **Persistence**: The cart state is not persistent. It should be saved to local storage or the user's profile in the database to persist across sessions.
+- **Discount Codes**: A feature to apply discount codes to the cart could be added.
+- **Shipping Calculation**: The cart could be enhanced to calculate shipping costs based on the user's location.
+- **"Save for Later"**: A "Save for Later" feature would allow users to move items from their cart to a separate list without removing them completely.

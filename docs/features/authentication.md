@@ -1,85 +1,120 @@
+# Feature Documentation: Authentication
+
+**Author**: Manus AI  
+**Date**: January 30, 2026
+
+---
+
 ## 1. What it Does
 
-The Authentication feature manages user login, registration, and session state across the application. It uses Firebase Authentication as the backend service and provides a React Context to make the current user's information available throughout the app. This feature is essential for personalizing the user experience and securing access to certain features (e.g., creating offers, messaging).
+The Authentication feature manages user login, signup, and session management. It is the gateway to personalized features and protected routes within the application.
+
+### Key Functionality
+
+- **User Signup**: Allows new users to create an account.
+- **User Login**: Allows existing users to log in.
+- **User Logout**: Allows logged-in users to log out.
+- **Session Management**: Keeps track of the user's authentication state.
+- **Protected Routes**: Restricts access to certain pages to authenticated users only.
+
+---
 
 ## 2. Files Involved
 
-| File | Purpose |
-| :--- | :--- |
-| `src/contexts/AuthContext.jsx` | Provides the `AuthProvider` component and the `useAuth` hook, which manage and expose the current user's authentication state. |
-| `src/firebase.js` | Contains the Firebase configuration and initialization (not yet created or configured). |
+### Context
+
+- **`src/contexts/AuthContext.tsx`**: Manages the global state for authentication, including the current user, loading state, and functions for login, signup, and logout.
+
+### UI Components
+
+- **`src/components/auth/LoginModal.jsx`**: Renders the login form in a modal window.
+- **`src/components/auth/SignupModal.jsx`**: Renders the signup form in a modal window.
+- **`src/components/Navigation.jsx`**: Displays the login/signup buttons or the user's profile information based on the authentication state.
+
+### Firebase
+
+- **`src/firebase.js`**: Initializes the Firebase app and exports the auth service.
+
+---
 
 ## 3. How to Make Changes
 
-### **Changing the Login/Registration Flow**
+### Modifying the Login Form
 
-The login and registration logic would be in the `AuthContext.jsx` file, specifically in the `login` and `register` functions. You can modify these to add additional validation, handle errors differently, or integrate with a different authentication provider.
+1.  **Open `src/components/auth/LoginModal.jsx`**.
+2.  **Modify the JSX** to add, remove, or change form fields.
+3.  **Update the `useState` hooks** to manage the state of the new form fields.
 
-```jsx
-// In src/contexts/AuthContext.jsx
+```javascript
+// src/components/auth/LoginModal.jsx
 
-const login = async (email, password) => {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    setCurrentUser(userCredential.user);
-  } catch (error) {
-    console.error('Login failed:', error);
-    // Add custom error handling here
-  }
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+// ... add new state for new fields
+
+// ... in the return statement
+<form onSubmit={handleSubmit}>
+  {/* ... add new form fields here ... */}
+</form>
+```
+
+### Modifying the Signup Logic
+
+1.  **Open `src/contexts/AuthContext.tsx`**.
+2.  **Locate the `signup` function**.
+3.  **Modify the logic** to change how new users are created (e.g., add email verification, save additional user data to Firestore).
+
+```typescript
+// src/contexts/AuthContext.tsx
+
+const signup = (email, password) => {
+  return createUserWithEmailAndPassword(auth, email, password);
+  // ... add logic to send verification email or create user profile
 };
 ```
 
-### **Adding User Profile Information**
-
-If you want to store additional user information (e.g., display name, profile picture), you can:
-
-1.  **Store this information in Firestore** when the user registers.
-2.  **Fetch this information** in the `AuthContext` when the user logs in.
-3.  **Add it to the `currentUser` state** so it is available throughout the app.
+---
 
 ## 4. How to Add Items
 
-### **Adding a Protected Route**
+### Adding a New Protected Route
 
-To restrict access to a page (e.g., only logged-in users can access the "Create Offer" page), you can create a `ProtectedRoute` component that checks if the user is authenticated.
+To protect a new route so that only authenticated users can access it:
 
-```jsx
-// In src/App.jsx or a new file like src/components/ProtectedRoute.jsx
+1.  **Create a `ProtectedRoute` component** that checks the user's authentication state and redirects to the login page if the user is not authenticated.
+2.  **Wrap the new route** with the `ProtectedRoute` component in `src/App.jsx`.
 
-import { Navigate } from 'react-router-dom';
-import { useAuth } from './contexts/AuthContext';
+```javascript
+// Example ProtectedRoute component
 
-function ProtectedRoute({ children }) {
+import { useAuth } from "./contexts/AuthContext";
+import { Navigate } from "react-router-dom";
+
+const ProtectedRoute = ({ children }) => {
   const { currentUser } = useAuth();
-  return currentUser ? children : <Navigate to="/login" />;
-}
+  return currentUser ? children : <Navigate to="/" />;
+};
 
-// Then use it in your routes:
-<Route path="/offers/create" element={<ProtectedRoute><CreateOffer /></ProtectedRoute>} />
+// In src/App.jsx
+
+<Routes>
+  {/* ... public routes ... */}
+  <Route 
+    path="/profile"
+    element={
+      <ProtectedRoute>
+        <ProfilePage />
+      </ProtectedRoute>
+    }
+  />
+</Routes>
 ```
 
-### **Adding a Logout Button**
+---
 
-To add a logout button to the navigation, you can:
+## 5. Future Improvements
 
-1.  **Import the `useAuth` hook** in the `Navigation` component.
-2.  **Get the `logout` function** from the hook.
-3.  **Add a button** that calls `logout`.
-
-```jsx
-// In src/components/Navigation.jsx
-
-import { useAuth } from '../contexts/AuthContext';
-
-function Navigation() {
-  const { currentUser, logout } = useAuth();
-
-  return (
-    <nav>
-      {currentUser && (
-        <button onClick={logout}>Logout</button>
-      )}
-    </nav>
-  );
-}
-```
+- **Social Login**: Allow users to sign up and log in with their Google, Facebook, or other social media accounts.
+- **Password Reset**: Implement a "Forgot Password" feature that allows users to reset their password via email.
+- **Two-Factor Authentication (2FA)**: Add an extra layer of security with 2FA.
+- **Role-Based Access Control (RBAC)**: Implement different user roles (e.g., user, admin, vendor) with different levels of access.

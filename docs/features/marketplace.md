@@ -1,69 +1,139 @@
+# Feature Documentation: Marketplace
+
+**Author**: Manus AI  
+**Date**: January 30, 2026
+
+---
+
 ## 1. What it Does
 
-The Marketplace is an e-commerce section where users can browse and purchase products sold by the businesses on the platform. It features a product catalog, a shopping cart, and a checkout process. The state of the shopping cart is managed globally using a React Context.
+The Marketplace is the e-commerce hub of the Unity Collective platform. It allows users to browse, search, and purchase products from the various businesses in the community.
+
+### Key Functionality
+
+- **Product Catalog**: Displays a grid of all available products.
+- **Search & Filtering**: Users can search for products and filter them by category.
+- **Add to Cart**: Users can add products to their shopping cart.
+- **Product Detail Page**: Each product has a dedicated page with more information.
+
+---
 
 ## 2. Files Involved
 
-| File | Purpose |
-| :--- | :--- |
-| `src/components/MarketplacePage.jsx` | Renders the main product catalog page (not yet created). |
-| `src/contexts/MarketplaceContext.tsx` | Manages the global state for the shopping cart (items, total, etc.) and provides functions for adding/removing items. |
-| `src/data/mockProducts.ts` | Provides the mock data for all products available in the marketplace. |
-| `src/components/ProductDetail.jsx` | Renders the detailed view for a single product (not yet created). |
-| `src/components/Checkout.jsx` | Renders the checkout form (not yet created). |
+### Core Component
+
+- **`src/components/MarketplacePage.jsx`**: Renders the main product catalog and handles search/filter logic.
+
+### Context
+
+- **`src/contexts/MarketplaceContext.tsx`**: Manages the global state for the shopping cart, including the list of items, adding/removing items, and calculating the total.
+
+### Data Sources
+
+- **`src/data/mockProducts.ts`**: Provides the data for all products in the marketplace.
+
+### UI Components
+
+- **`src/components/ui/card.jsx`**: Used to display each product as a card.
+- **`src/components/ui/input.jsx`**: Used for the search bar.
+- **`src/components/ui/select.jsx`**: Used for the category filter.
+
+---
 
 ## 3. How to Make Changes
 
-### **Changing Product Card Appearance**
+### Changing the Product Card Layout
 
-*This assumes the product cards are rendered in `MarketplacePage.jsx`.*
+1.  **Open `src/components/MarketplacePage.jsx`**.
+2.  **Locate the `.map()` loop** that renders the `filteredProducts`.
+3.  **Modify the JSX inside the loop** to change the appearance of the product cards.
 
-To change how product cards look, you would edit the JSX inside the `.map()` loop within the `MarketplacePage` component. You can add new elements, change styling, or modify what data is displayed.
+```javascript
+// src/components/MarketplacePage.jsx
 
-### **Modifying Cart Logic**
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  {filteredProducts.map((product) => (
+    <Card key={product.id}>
+      {/* ... modify card content here ... */}
+    </Card>
+  ))}
+</div>
+```
 
-All shopping cart logic (adding items, calculating totals, etc.) is located in `src/contexts/MarketplaceContext.tsx`. To change this logic, you need to edit the functions within the `MarketplaceProvider`.
+### Modifying the Add to Cart Logic
+
+1.  **Open `src/contexts/MarketplaceContext.tsx`**.
+2.  **Locate the `addToCart` function**.
+3.  **Modify the logic** to change how items are added to the cart (e.g., add a quantity limit).
 
 ```typescript
-// In src/contexts/MarketplaceContext.tsx
+// src/contexts/MarketplaceContext.tsx
 
 const addToCart = (product: Product) => {
-  // Add logic here to prevent adding more than 10 of a single item
   setCart(prevCart => {
-    // ... existing logic
+    const existingItem = prevCart.find(item => item.product.id === product.id);
+    if (existingItem) {
+      // If item exists, increase quantity
+      return prevCart.map(item => 
+        item.product.id === product.id 
+          ? { ...item, quantity: item.quantity + 1 } 
+          : item
+      );
+    } else {
+      // If item doesn't exist, add it to the cart
+      return [...prevCart, { product, quantity: 1 }];
+    }
   });
 };
 ```
 
-### **Changing the Checkout Process**
-
-The checkout form and its submission logic would be in `src/components/Checkout.jsx`. You can add or remove form fields (e.g., add a field for a discount code) by editing the JSX and the associated state management.
+---
 
 ## 4. How to Add Items
 
-### **Adding a New Product**
+### Adding a New Product
 
-To add a new product to the marketplace, add a new product object to the `mockProducts` array in `src/data/mockProducts.ts`. Make sure the new object follows the `Product` interface.
+1.  **Open `src/data/mockProducts.ts`**.
+2.  **Add a new product object** to the `mockProducts` array.
+3.  **Ensure the new object follows the `Product` interface**.
 
 ```typescript
-// In src/data/mockProducts.ts
+// src/data/mockProducts.ts
 
 export const mockProducts: Product[] = [
   // ... existing products
   {
-    id: 'new-product-001',
-    name: 'New Awesome Product',
-    price: 39.99,
-    description: 'A description for the new awesome product.',
-    businessId: '1', // The ID of the business selling this product
-    category: 'Apparel',
-  },
+    id: "7",
+    name: "Handmade Leather Journal",
+    price: 45.00,
+    description: "A beautiful, handcrafted leather journal.",
+    category: "Gifts",
+    businessId: "3",
+    imageUrl: "/api/placeholder/300/300"
+  }
 ];
 ```
 
-### **Adding a New Product Category for Filtering**
+### Adding a New Product Category
 
-*This assumes filtering is implemented in `MarketplacePage.jsx`.*
+1.  **Open `src/components/MarketplacePage.jsx`**.
+2.  **Locate the category filter `select` element**.
+3.  **Add a new `option` element** with the new category name.
 
-1.  **Add a product** with the new category to `src/data/mockProducts.ts`.
-2.  **Add the new category** to the filter options array within the `MarketplacePage` component. The new category will then appear in the filter dropdown.
+```javascript
+// src/components/MarketplacePage.jsx
+
+<select ...>
+  {/* ... existing options */}
+  <option value="Gifts">Gifts</option>
+</select>
+```
+
+---
+
+## 5. Future Improvements
+
+- **Dynamic Data**: The marketplace should fetch product data from a database instead of using mock data.
+- **Inventory Management**: The `Product` interface could be extended to include an `inventory` field, and the `addToCart` logic could be updated to prevent adding out-of-stock items.
+- **Sorting**: Users should be able to sort products by price, rating, or popularity.
+- **Reviews**: A product review and rating system could be implemented.

@@ -1,91 +1,117 @@
+# Feature Documentation: Favorites
+
+**Author**: Manus AI  
+**Date**: January 30, 2026
+
+---
+
 ## 1. What it Does
 
-The Favorites feature allows users to save businesses, products, or offers to a personal list for easy access later. This feature enhances user experience by providing a way to bookmark items of interest without making a purchase or commitment immediately.
+The Favorites feature allows users to save businesses, products, and other items they are interested in. It provides a personalized space for users to keep track of items they want to revisit later.
+
+### Key Functionality
+
+- **Save to Favorites**: Users can click a "heart" icon to save an item to their favorites.
+- **Favorites Page**: A dedicated page that displays all of the user's saved items.
+- **Remove from Favorites**: Users can remove items from their favorites list.
+
+---
 
 ## 2. Files Involved
 
-| File | Purpose |
-| :--- | :--- |
-| `src/components/FavoritesPage.jsx` | Renders the page that displays all of the user's favorited items (not yet created). |
-| `src/contexts/FavoritesContext.jsx` | Manages the global state for the user's favorites list (not yet created). |
+### Core Component
+
+- **`src/components/FavoritesPage.tsx`**: Renders the list of all favorited items.
+
+### Context
+
+- **`src/contexts/FavoritesContext.tsx`**: Manages the global state for the user's favorites, including the list of favorited items and functions for adding/removing items.
+
+### UI Components
+
+- **`src/components/ui/card.jsx`**: Used to display each favorited item.
+- **`src/components/ui/button.jsx`**: Used for actions like "Remove from Favorites".
+- **`lucide-react`**: The `Heart` icon is used to indicate whether an item is favorited.
+
+---
 
 ## 3. How to Make Changes
 
-### **Changing the Favorites Page Layout**
+### Changing the Appearance of Favorited Items
 
-*This assumes the `FavoritesPage` component exists.*
+1.  **Open `src/components/FavoritesPage.tsx`**.
+2.  **Locate the `.map()` loop** that renders the `favorites`.
+3.  **Modify the JSX inside the loop** to change the appearance of the favorited item cards.
 
-The layout of the favorites page would be controlled by the JSX in `src/components/FavoritesPage.jsx`. You can organize favorites by type (businesses, products, offers) or display them all in a single list.
+```typescript
+// src/components/FavoritesPage.tsx
 
-### **Modifying the Add/Remove Logic**
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  {favorites.map((item) => (
+    <Card key={item.id}>
+      {/* ... modify card content here ... */}
+    </Card>
+  ))}
+</div>
+```
 
-The logic for adding and removing items from favorites would be in `src/contexts/FavoritesContext.jsx`. You can modify this to add validation (e.g., prevent duplicates) or to sync with a backend API.
+### Modifying the Add/Remove Logic
 
-```jsx
-// In src/contexts/FavoritesContext.jsx
+1.  **Open `src/contexts/FavoritesContext.tsx`**.
+2.  **Locate the `toggleFavorite` function**.
+3.  **Modify the logic** to change how items are added to or removed from the favorites list.
 
-const addToFavorites = (item) => {
+```typescript
+// src/contexts/FavoritesContext.tsx
+
+const toggleFavorite = (item: any) => {
   setFavorites(prevFavorites => {
-    if (prevFavorites.some(fav => fav.id === item.id)) {
-      return prevFavorites; // Prevent duplicates
+    const isFavorited = prevFavorites.some(fav => fav.id === item.id);
+    if (isFavorited) {
+      return prevFavorites.filter(fav => fav.id !== item.id);
+    } else {
+      return [...prevFavorites, item];
     }
-    return [...prevFavorites, item];
   });
 };
 ```
 
+---
+
 ## 4. How to Add Items
 
-### **Adding a "Favorite" Button to a Component**
+This feature is about adding existing items (like businesses or products) to a personalized list. To make a new type of item "favoritable":
 
-To allow users to favorite an item from a page (e.g., the Business Directory), you need to:
+1.  **Identify the component** where the new item type is rendered (e.g., `EventCard.jsx`).
+2.  **Import the `useFavorites` hook** from `src/contexts/FavoritesContext.tsx`.
+3.  **Add a `Heart` icon button** to the component.
+4.  **Call the `toggleFavorite` function** when the button is clicked.
 
-1.  **Import the Favorites Context** into the component.
-2.  **Get the `addToFavorites` function** from the context.
-3.  **Add a button** that calls `addToFavorites` with the item as an argument.
+```javascript
+// Example: Adding favorites to an EventCard component
 
-```jsx
-// In src/App.jsx, inside BusinessDirectoryPage
+import { useFavorites } from "../contexts/FavoritesContext";
+import { Heart } from "lucide-react";
 
-import { useFavorites } from './contexts/FavoritesContext';
-
-function BusinessDirectoryPage() {
-  const { addToFavorites } = useFavorites();
-
-  return (
-    <div>
-      {mockBusinesses.map(business => (
-        <div key={business.id}>
-          <h3>{business.name}</h3>
-          <button onClick={() => addToFavorites(business)}>Add to Favorites</button>
-        </div>
-      ))}
-    </div>
-  );
-}
-```
-
-### **Displaying Favorited Items**
-
-In `src/components/FavoritesPage.jsx`, you would retrieve the favorites list from the context and map over it to display each item.
-
-```jsx
-// In src/components/FavoritesPage.jsx
-
-import { useFavorites } from '../contexts/FavoritesContext';
-
-function FavoritesPage() {
-  const { favorites } = useFavorites();
+const EventCard = ({ event }) => {
+  const { favorites, toggleFavorite } = useFavorites();
+  const isFavorited = favorites.some(fav => fav.id === event.id);
 
   return (
-    <div>
-      <h1>My Favorites</h1>
-      {favorites.map(item => (
-        <div key={item.id}>
-          <h3>{item.name}</h3>
-        </div>
-      ))}
-    </div>
+    <Card>
+      {/* ... event details ... */}
+      <Button variant="ghost" size="icon" onClick={() => toggleFavorite(event)}>
+        <Heart className={isFavorited ? "fill-red-500 text-red-500" : "text-gray-500"} />
+      </Button>
+    </Card>
   );
-}
+};
 ```
+
+---
+
+## 5. Future Improvements
+
+- **Persistence**: The favorites state is currently not persistent. It should be saved to the user's profile in the database so that it persists across sessions.
+- **Categorization**: The favorites page could be improved by allowing users to categorize their saved items (e.g., "Businesses", "Products", "Events").
+- **Notifications**: Users could be notified when a favorited item goes on sale or has a related event.

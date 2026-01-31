@@ -1,92 +1,128 @@
+# Feature Documentation: Private Messaging
+
+**Author**: Manus AI  
+**Date**: January 30, 2026
+
+---
+
 ## 1. What it Does
 
-The Private Messaging feature allows users to communicate directly with each other in a secure, private environment. It is designed to facilitate conversations related to community offers, business inquiries, or general networking. The interface is a classic two-panel layout with a list of conversation threads on the left and the selected conversation on the right.
+The Private Messaging feature allows users to communicate directly with each other in a secure and private environment. It is essential for facilitating communication related to marketplace transactions, community offers, and general networking.
+
+### Key Functionality
+
+- **Two-Panel Layout**: A list of conversation threads on the left and the selected conversation on the right.
+- **Conversation Threads**: Displays a list of all conversations with the most recent message.
+- **Message View**: Shows the full history of a selected conversation.
+- **Message Sending**: Allows users to send new messages in a conversation.
+
+---
 
 ## 2. Files Involved
 
-| File | Purpose |
-| :--- | :--- |
-| `src/components/MessagesPage.tsx` | Renders the entire two-panel messaging interface. |
-| `src/data/mockThreads.ts` | Provides the mock data for the list of conversation threads. |
-| `src/data/mockMessages.ts` | Provides the mock data for the messages within each conversation. |
+### Core Component
+
+- **`src/components/MessagesPage.tsx`**: Renders the entire private messaging interface.
+
+### Data Sources
+
+- **`src/data/mockMessages.ts`**: Provides the mock data for all conversation threads and messages.
+
+### UI Components
+
+- **`src/components/ui/card.jsx`**: Used to structure the two-panel layout.
+- **`src/components/ui/input.jsx`**: Used for the message input field.
+- **`src/components/ui/button.jsx`**: Used for the "Send" button.
+- **`src/components/ui/avatar.jsx`**: Used to display user avatars.
+
+---
 
 ## 3. How to Make Changes
 
-### **Changing the Layout**
+### Changing the Message Bubble Style
 
-The two-panel layout is controlled by the JSX in `src/components/MessagesPage.tsx`. You can adjust the relative widths of the panels or change the overall structure by modifying the flexbox or grid classes.
+1.  **Open `src/components/MessagesPage.tsx`**.
+2.  **Locate the `.map()` loop** that renders the messages for the `selectedThread`.
+3.  **Modify the JSX** to change the appearance of the message bubbles. You can change the colors, alignment, and other styles based on whether the message is from the current user or the other user.
 
-### **Changing Message Bubble Appearance**
+```typescript
+// src/components/MessagesPage.tsx
 
-The appearance of each message bubble is controlled by the JSX inside the `.map()` loop that renders the messages of the `selectedThread`. You can change the colors, add timestamps, or add read receipts by editing this section.
-
-```tsx
-// In src/components/MessagesPage.tsx
-
-<div key={message.id} className={`message-bubble ${message.sender.id === currentUser.id ? 'sent' : 'received'}`}>
-  <p>{message.text}</p>
-  {/* Add a timestamp here */}
+<div className="flex flex-col gap-4">
+  {selectedThread.messages.map((message) => (
+    <div 
+      key={message.id}
+      className={`flex items-end gap-2 ${message.sender === "You" ? "justify-end" : ""}`}>
+      {/* ... modify message bubble style here ... */}
+    </div>
+  ))}
 </div>
 ```
 
-### **Modifying Message Sending Logic**
+### Modifying the Send Message Logic
 
-The logic for sending a new message would be in the event handler for the "Send" button in `src/components/MessagesPage.tsx`. You can modify this to add validation (e.g., prevent sending empty messages) or to integrate with a backend API.
+1.  **Open `src/components/MessagesPage.tsx`**.
+2.  **Locate the `handleSendMessage` function**.
+3.  **Modify the logic** to change how new messages are created and added to the conversation.
 
-```tsx
-// In src/components/MessagesPage.tsx
+```typescript
+// src/components/MessagesPage.tsx
 
 const handleSendMessage = () => {
-  if (newMessage.trim() === '') return; // Validation
-  // Add logic to send the message
-  setNewMessage(''); // Clear the input
+  if (newMessage.trim() === "" || !selectedThread) return;
+
+  const newMsg: Message = {
+    id: Date.now().toString(),
+    sender: "You",
+    text: newMessage,
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+
+  // ... logic to update the threads state
+
+  setNewMessage("");
 };
 ```
 
+---
+
 ## 4. How to Add Items
 
-### **Adding a New Conversation Thread**
+### Adding a New Conversation Thread
 
-To add a new conversation thread, add a new thread object to the `mockThreads` array in `src/data/mockThreads.ts`. You will also need to add corresponding messages to `mockMessages.ts` using the same `threadId`.
+1.  **Open `src/data/mockMessages.ts`**.
+2.  **Add a new thread object** to the `mockThreads` array.
+3.  **Ensure the new object follows the `Thread` interface**.
 
 ```typescript
-// In src/data/mockThreads.ts
+// src/data/mockMessages.ts
 
 export const mockThreads: Thread[] = [
   // ... existing threads
   {
-    id: '4',
-    participants: [{ id: '1', name: 'John Smith' }, { id: '5', name: 'New User' }],
-    lastMessage: 'Hello, I saw your offer...',
-    lastMessageTime: '10:00 AM',
-    unreadCount: 1,
-    relatedOffer: { id: '1', title: 'Looking for Web Development Services' },
-  },
+    id: "4",
+    participant: "Community Support",
+    avatar: "/api/placeholder/40/40",
+    lastMessage: "How can we help you today?",
+    timestamp: "9:00 AM",
+    unread: 0,
+    messages: [
+      { id: "msg1", sender: "Community Support", text: "Welcome to Unity Collective! How can we help you today?", timestamp: "9:00 AM" }
+    ]
+  }
 ];
 ```
 
-```typescript
-// In src/data/mockMessages.ts
+### Adding a New Message to a Conversation
 
-export const mockMessages: { [threadId: string]: Message[] } = {
-  // ... existing messages
-  '4': [
-    { id: 'm1', sender: { id: '5', name: 'New User' }, text: 'Hello, I saw your offer...', timestamp: '10:00 AM' },
-  ],
-};
-```
+To add a new message to an existing conversation, you would modify the `messages` array within the corresponding thread object in `src/data/mockMessages.ts`.
 
-### **Adding a Message to an Existing Thread**
+---
 
-To add a new message to an existing conversation, add a new message object to the corresponding array in `mockMessages.ts`.
+## 5. Future Improvements
 
-```typescript
-// In src/data/mockMessages.ts
-
-export const mockMessages: { [threadId: string]: Message[] } = {
-  '1': [
-    // ... existing messages
-    { id: 'm5', sender: { id: '1', name: 'John Smith' }, text: 'Sounds good!', timestamp: '11:00 AM' },
-  ],
-};
-```
+- **Real-Time Messaging**: The messaging system should be connected to a real-time database like Firebase Firestore to enable instant message delivery.
+- **User Authentication**: The `currentUser` should be determined by the authenticated user, not hardcoded.
+- **New Conversation Creation**: Users should be able to start new conversations with other users, not just reply to existing threads.
+- **Search**: A search functionality to find specific messages or conversations would be useful.
+- **Rich Media**: The messaging system could be enhanced to support sending images, files, and other rich media.
