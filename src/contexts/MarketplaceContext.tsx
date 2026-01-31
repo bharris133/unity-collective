@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect, useState, ReactNode } from 'react';
-import { CartState, CartAction, CartItem, Product } from '../types';
+import React, { createContext, useContext, useReducer, useEffect, useState, type ReactNode } from 'react';
+import { type CartState, type CartAction, type CartItem, type Product } from '../types';
 import { productService } from '../services/productService';
 
 interface MarketplaceContextType {

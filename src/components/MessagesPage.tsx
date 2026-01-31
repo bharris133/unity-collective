@@ -89,7 +89,7 @@ export const MessagesPage: React.FC = () => {
   );
 
   const handleSendMessage = () => {
-    if (!messageText.trim() || !selectedThread) return;
+    if (!messageText.trim() || !selectedThread) {return;}
     
     // TODO: Send message to Firestore
     console.log('Sending message:', messageText);

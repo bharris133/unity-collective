@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Store, MapPin, Phone, Mail, Globe, Star, ShoppingCart, Search, Filter } from 'lucide-react';
-import { Vendor, Product } from '../types';
+import { type Vendor, type Product } from '../types';
 
 // Mock data - will be replaced with Firestore queries
 const mockVendors: Record<string, Vendor> = {

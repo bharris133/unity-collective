@@ -32,6 +32,8 @@ For complete instructions on how to configure and test this feature, please see 
 
 **[➡️ Data Source Switching Guide](./DATA_SOURCE_SWITCHING_GUIDE.md)**
 
+**[➡️ ESLint Configuration Guide](./ESLINT_GUIDE.md)**
+
 ### **Firebase Setup**
 
 For detailed instructions on setting up Firebase for this project, see the official guide:

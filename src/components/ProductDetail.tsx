@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ShoppingCart, Store, ArrowLeft, Heart, Share2, Check, AlertCircle } from 'lucide-react';
-import { Product, Vendor } from '../types';
+import { type Product, type Vendor } from '../types';
 import { useMarketplace } from '../contexts/MarketplaceContext';
 
 // Mock data - will be replaced with Firestore queries
@@ -83,7 +83,7 @@ export const ProductDetail: React.FC = () => {
   }, [productId]);
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product) {return;}
 
     // Check if cart has items from a different vendor
     const cartVendorId = cart.items.length > 0 ? cart.items[0].vendorId : null;

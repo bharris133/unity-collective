@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { 
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -7,12 +7,12 @@ import {
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
-  User as FirebaseUser,
-  UserCredential
+  type User as FirebaseUser,
+  type UserCredential
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
-import { User, CreateUserData, UpdateUserData } from '../types';
+import { type User, type CreateUserData, type UpdateUserData } from '../types';
 
 interface AuthContextType {
   currentUser: FirebaseUser | null;

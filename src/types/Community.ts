@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import { type Timestamp } from 'firebase/firestore';
 
 // Offers / Barter System
 export type OfferType = 'barter' | 'discount_request' | 'trade';

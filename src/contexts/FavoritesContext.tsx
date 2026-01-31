@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 
 interface FavoritesContextType {
@@ -66,7 +66,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
   }, [favoriteProducts, currentUser]);
 
   const addFavoriteVendor = (vendorId: string) => {
-    if (!currentUser) return;
+    if (!currentUser) {return;}
     setFavoriteVendors(prev => [...new Set([...prev, vendorId])]);
     
     // TODO: Save to Firestore
@@ -77,7 +77,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
   };
 
   const removeFavoriteVendor = (vendorId: string) => {
-    if (!currentUser) return;
+    if (!currentUser) {return;}
     setFavoriteVendors(prev => prev.filter(id => id !== vendorId));
     
     // TODO: Remove from Firestore
@@ -100,14 +100,14 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
   };
 
   const addFavoriteProduct = (productId: string) => {
-    if (!currentUser) return;
+    if (!currentUser) {return;}
     setFavoriteProducts(prev => [...new Set([...prev, productId])]);
     
     // TODO: Save to Firestore
   };
 
   const removeFavoriteProduct = (productId: string) => {
-    if (!currentUser) return;
+    if (!currentUser) {return;}
     setFavoriteProducts(prev => prev.filter(id => id !== productId));
     
     // TODO: Remove from Firestore
