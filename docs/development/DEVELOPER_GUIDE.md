@@ -10,7 +10,7 @@ The Unity Collective platform is a modern web application built with a robust an
 
 | Category      | Technology                                       |
 |---------------|--------------------------------------------------|
-| **Frontend**  | React 19, TypeScript, Vite, React Router         |
+| **Frontend**  | React 19, TypeScript (fully migrated), Vite, React Router         |
 | **Styling**   | TailwindCSS, Lucide React (icons)                |
 | **Backend**   | Firebase (Authentication, Firestore, Cloud Functions) |
 | **Payments**  | Stripe                                           |
@@ -46,7 +46,7 @@ For comprehensive testing procedures and guidelines, see the official guide:
 
 ## 3. Code Structure
 
-The project is organized into a `src` directory for the frontend application and a `functions` directory for the Firebase Cloud Functions.
+The project is organized into a `src` directory for the frontend application and a `functions` directory for the Firebase Cloud Functions. All frontend code is written in TypeScript.
 
 ### **Directory Overview**
 

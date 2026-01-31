@@ -203,3 +203,5 @@ export const OffersPage: React.FC = () => {
     </div>
   );
 };
+
+export default OffersPage;

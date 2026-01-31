@@ -108,13 +108,13 @@ pnpm run dev
 
 Always use the service layer to fetch data. Do not import from `src/data/` directly.
 
-```javascript
+```typescript
 // Correct way
 import { businessService } from '../services';
 
 useEffect(() => {
   const loadData = async () => {
-    const businesses = await businessService.getAll();
+    const businesses: Business[] = await businessService.getAll();
     // ...
   };
   loadData();
