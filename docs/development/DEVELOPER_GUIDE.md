@@ -32,6 +32,18 @@ For complete instructions on how to configure and test this feature, please see 
 
 **[➡️ Data Source Switching Guide](./DATA_SOURCE_SWITCHING_GUIDE.md)**
 
+### **Firebase Setup**
+
+For detailed instructions on setting up Firebase for this project, see the official guide:
+
+**[➡️ Firebase Setup Guide](./FIREBASE_SETUP_GUIDE.md)**
+
+### **Testing**
+
+For comprehensive testing procedures and guidelines, see the official guide:
+
+**[➡️ Testing Procedures Guide](../testing/TESTING_PROCEDURES_GUIDE.md)**
+
 ## 3. Code Structure
 
 The project is organized into a `src` directory for the frontend application and a `functions` directory for the Firebase Cloud Functions.
