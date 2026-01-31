@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle, Globe, MapPin, Phone, Search, Star } from 'lucide-react';
+import { businessService } from '../services';
 import { Button } from '../components/ui/button.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Badge } from '../components/ui/badge.jsx';
@@ -15,79 +16,39 @@ const colors = {
   gray: '#333333'
 };
 
-const featuredBusinesses = [
-  {
-    id: 1,
-    name: "Sankofa Consulting",
-    category: "Business Services",
-    location: "Atlanta, GA",
-    rating: 4.9,
-    description: "Strategic business consulting for Black entrepreneurs",
-    image: "/api/placeholder/300/200",
-    verified: true
-  },
-  {
-    id: 2,
-    name: "Heritage Foods Market",
-    category: "Food & Beverage",
-    location: "Detroit, MI",
-    rating: 4.8,
-    description: "Authentic African and Caribbean cuisine and groceries",
-    image: "/api/placeholder/300/200",
-    verified: true
-  },
-  {
-    id: 3,
-    name: "Unity Tech Solutions",
-    category: "Technology",
-    location: "Oakland, CA",
-    rating: 5.0,
-    description: "Custom software development and IT services",
-    image: "/api/placeholder/300/200",
-    verified: true
-  }
-];
-
-const upcomingEvents = [
-  {
-    id: 1,
-    title: "Economic Empowerment Webinar",
-    date: "2025-08-25",
-    time: "7:00 PM EST",
-    type: "Virtual",
-    attendees: 234
-  },
-  {
-    id: 2,
-    title: "Black Business Networking Mixer",
-    date: "2025-09-02",
-    time: "6:00 PM EST",
-    type: "In-Person",
-    location: "Atlanta, GA",
-    attendees: 89
-  },
-  {
-    id: 3,
-    title: "Financial Literacy Workshop",
-    date: "2025-09-10",
-    time: "2:00 PM EST",
-    type: "Virtual",
-    attendees: 156
-  }
-];
-
-const communityStats = {
-  members: "15,247",
-  businesses: "3,892",
-  events: "156",
-  impact: "$2.3M"
-};
-
 function BusinessDirectoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [businesses, setBusinesses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = ['All', 'Business Services', 'Food & Beverage', 'Technology', 'Retail', 'Healthcare', 'Education'];
+  // Load businesses from service
+  useEffect(() => {
+    const loadBusinesses = async () => {
+      try {
+        setLoading(true);
+        const data = await businessService.getAll();
+        setBusinesses(data);
+      } catch (error) {
+        console.error('Error loading businesses:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadBusinesses();
+  }, []);
+
+  // Get unique categories from businesses
+  const categories = ['All', ...new Set(businesses.map(b => b.category))];
+
+  // Filter businesses based on search and category
+  const filteredBusinesses = businesses.filter(business => {
+    const matchesSearch = business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         business.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'All' || business.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="min-h-screen py-8">
@@ -124,53 +85,80 @@ function BusinessDirectoryPage() {
           </select>
         </div>
 
-        {/* Business Listings */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredBusinesses.map((business) => (
-            <Card key={business.id} className="hover:shadow-lg transition-shadow">
-              <div className="aspect-video bg-gray-200 rounded-t-lg"></div>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="flex items-center">
-                      {business.name}
-                      {business.verified && (
-                        <CheckCircle size={16} className="ml-2 text-green-600" />
-                      )}
-                    </CardTitle>
-                    <Badge variant="secondary" className="mt-1">
-                      {business.category}
-                    </Badge>
+        {/* Loading State */}
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">Loading businesses...</p>
+          </div>
+        ) : filteredBusinesses.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">No businesses found matching your criteria.</p>
+          </div>
+        ) : (
+          /* Business Listings */
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredBusinesses.map((business) => (
+              <Card key={business.id} className="hover:shadow-lg transition-shadow">
+                <div className="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
+                  {business.image && (
+                    <img 
+                      src={business.image} 
+                      alt={business.name}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="flex items-center">
+                        {business.name}
+                        {business.verified && (
+                          <CheckCircle size={16} className="ml-2 text-green-600" />
+                        )}
+                      </CardTitle>
+                      <Badge variant="secondary" className="mt-1">
+                        {business.category}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center">
+                      <Star size={16} className="text-yellow-400 fill-current mr-1" />
+                      <span className="text-sm font-medium">{business.rating}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center">
-                    <Star size={16} className="text-yellow-400 fill-current mr-1" />
-                    <span className="text-sm font-medium">{business.rating}</span>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-3">{business.description}</p>
+                  <div className="flex items-center text-sm text-gray-500 mb-4">
+                    <MapPin size={16} className="mr-1" />
+                    {business.location}
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 mb-3">{business.description}</p>
-                <div className="flex items-center text-sm text-gray-500 mb-4">
-                  <MapPin size={16} className="mr-1" />
-                  {business.location}
-                </div>
-                <div className="flex gap-2">
-                  <Link to={`/directory/${business.id}`} className="flex-1">
-                    <Button className="w-full bg-red-600 hover:bg-red-700">
-                      View Details
-                    </Button>
-                  </Link>
-                  <Button variant="outline" size="sm">
-                    <Phone size={16} />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Globe size={16} />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  <div className="flex gap-2">
+                    <Link to={`/directory/${business.id}`} className="flex-1">
+                      <Button className="w-full bg-red-600 hover:bg-red-700">
+                        View Details
+                      </Button>
+                    </Link>
+                    {business.phone && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={`tel:${business.phone}`}>
+                          <Phone size={16} />
+                        </a>
+                      </Button>
+                    )}
+                    {business.website && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={business.website} target="_blank" rel="noopener noreferrer">
+                          <Globe size={16} />
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

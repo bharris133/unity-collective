@@ -19,6 +19,9 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useMarketplace } from '../contexts/MarketplaceContext';
 
+// Import services
+import { messageService } from '../services';
+
 // Import authentication components
 import LoginModal from './auth/LoginModal';
 import SignupModal from './auth/SignupModal';
@@ -50,9 +53,26 @@ function Navigation() {
   const [showSignup, setShowSignup] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showResourcesDropdown, setShowResourcesDropdown] = useState(false);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const { currentUser, userProfile, logout } = useAuth();
   const { getCartItemCount } = useMarketplace();
   const location = useLocation();
+
+  // Load unread message count
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      if (currentUser) {
+        try {
+          const count = await messageService.getUnreadCount();
+          setUnreadMessageCount(count);
+        } catch (error) {
+          console.error('Error loading unread message count:', error);
+        }
+      }
+    };
+    
+    loadUnreadCount();
+  }, [currentUser]);
 
   // Main navigation items (public)
   const mainNavigation = [
@@ -171,7 +191,11 @@ function Navigation() {
                     >
                       <MessageCircle size={20} />
                       {/* Badge for unread messages */}
-                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">3</span>
+                      {unreadMessageCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                          {unreadMessageCount}
+                        </span>
+                      )}
                     </Link>
                   )}
 

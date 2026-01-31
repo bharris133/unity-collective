@@ -1,63 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Filter, MessageCircle, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { offerService } from '../services';
 import type { Offer } from '../types';
 
 export const OffersPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'open' | 'in-progress' | 'completed'>('all');
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock offers data (will be replaced with Firestore)
-  const mockOffers: Offer[] = [
-    {
-      id: '1',
-      userId: 'user1',
-      userName: 'John Smith',
-      title: 'Looking for Web Development Services',
-      description: 'Need a professional website for my new business. Willing to trade graphic design services or pay.',
-      category: 'Services',
-      status: 'open',
-      responses: 3,
-      createdAt: new Date('2025-01-20'),
-      updatedAt: new Date('2025-01-20'),
-    },
-    {
-      id: '2',
-      userId: 'user2',
-      userName: 'Sarah Johnson',
-      title: 'Offering Catering Services',
-      description: 'Professional catering for events. Looking for marketing help or photography services in exchange.',
-      category: 'Food & Beverage',
-      status: 'in-progress',
-      responses: 5,
-      createdAt: new Date('2025-01-19'),
-      updatedAt: new Date('2025-01-21'),
-    },
-    {
-      id: '3',
-      userId: 'user3',
-      userName: 'Marcus Williams',
-      title: 'Need Logo Design',
-      description: 'Starting a new clothing brand and need a professional logo. Can trade social media management or cash.',
-      category: 'Design',
-      status: 'open',
-      responses: 8,
-      createdAt: new Date('2025-01-18'),
-      updatedAt: new Date('2025-01-18'),
-    },
-    {
-      id: '4',
-      userId: 'user4',
-      userName: 'Lisa Brown',
-      title: 'Photography Services Available',
-      description: 'Professional photographer offering portrait and event photography. Open to trades or cash.',
-      category: 'Services',
-      status: 'completed',
-      responses: 2,
-      createdAt: new Date('2025-01-15'),
-      updatedAt: new Date('2025-01-22'),
-    },
-  ];
+  // Load offers from service
+  useEffect(() => {
+    const loadOffers = async () => {
+      try {
+        setLoading(true);
+        const data = await offerService.getAll();
+        setOffers(data);
+      } catch (error) {
+        console.error('Error loading offers:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadOffers();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -85,12 +53,24 @@ export const OffersPage: React.FC = () => {
     }
   };
 
-  const filteredOffers = mockOffers.filter(offer => {
+  const filteredOffers = offers.filter(offer => {
     const matchesSearch = offer.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          offer.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'all' || offer.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <p className="text-gray-600">Loading offers...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
@@ -143,24 +123,24 @@ export const OffersPage: React.FC = () => {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-3xl font-bold text-red-600 mb-1">{mockOffers.length}</div>
+            <div className="text-3xl font-bold text-red-600 mb-1">{offers.length}</div>
             <div className="text-sm text-gray-600">Total Offers</div>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-3xl font-bold text-green-600 mb-1">
-              {mockOffers.filter(o => o.status === 'open').length}
+              {offers.filter(o => o.status === 'open').length}
             </div>
             <div className="text-sm text-gray-600">Open Offers</div>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-3xl font-bold text-yellow-600 mb-1">
-              {mockOffers.filter(o => o.status === 'in-progress').length}
+              {offers.filter(o => o.status === 'in-progress').length}
             </div>
             <div className="text-sm text-gray-600">In Progress</div>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-3xl font-bold text-gray-600 mb-1">
-              {mockOffers.reduce((sum, o) => sum + o.responses, 0)}
+              {offers.reduce((sum, o) => sum + o.responses, 0)}
             </div>
             <div className="text-sm text-gray-600">Total Responses</div>
           </div>
@@ -203,16 +183,17 @@ export const OffersPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <div className="flex items-center gap-4">
-                    <span className="font-medium text-gray-700">{offer.userName}</span>
-                    <span className="px-2 py-1 bg-gray-100 rounded text-xs">{offer.category}</span>
-                    <span>{new Date(offer.createdAt).toLocaleDateString()}</span>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-4 text-gray-600">
+                    <span className="flex items-center gap-1">
+                      <MessageCircle className="h-4 w-4" />
+                      {offer.responses} responses
+                    </span>
+                    <span>Posted by {offer.userName}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-red-600 font-medium">
-                    <MessageCircle className="h-4 w-4" />
-                    {offer.responses} {offer.responses === 1 ? 'response' : 'responses'}
-                  </div>
+                  <span className="text-gray-500">
+                    {new Date(offer.createdAt).toLocaleDateString()}
+                  </span>
                 </div>
               </Link>
             ))
@@ -222,5 +203,3 @@ export const OffersPage: React.FC = () => {
     </div>
   );
 };
-
-export default OffersPage;
