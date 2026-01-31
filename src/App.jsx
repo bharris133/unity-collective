@@ -61,6 +61,8 @@ import OffersPage from './components/OffersPage';
 import CreateOffer from './components/CreateOffer';
 import MessagesPage from './components/MessagesPage';
 import FavoritesPage from './components/FavoritesPage';
+import BusinessDetail from './components/BusinessDetail';
+import OfferDetail from './components/OfferDetail';
 import { FavoritesProvider } from './contexts/FavoritesContext';
 
 // Import hooks
@@ -241,12 +243,14 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/community" element={<CommunityPage />} />
                 <Route path="/directory" element={<BusinessDirectoryPage />} />
+                <Route path="/directory/:businessId" element={<BusinessDetail />} />
                 <Route path="/marketplace" element={<MarketplacePage />} />
                 <Route path="/vendors/:vendorId" element={<VendorStorefront />} />
                 <Route path="/products/:productId" element={<ProductDetail />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/offers" element={<OffersPage />} />
+                <Route path="/offers/:offerId" element={<OfferDetail />} />
                 <Route path="/offers/create" element={<CreateOffer />} />
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/favorites" element={<FavoritesPage />} />

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CheckCircle, Globe, MapPin, Phone, Search, Star } from 'lucide-react';
 import { Button } from '../components/ui/button.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card.jsx';
@@ -154,9 +155,11 @@ function BusinessDirectoryPage() {
                   {business.location}
                 </div>
                 <div className="flex gap-2">
-                  <Button className="flex-1 bg-red-600 hover:bg-red-700">
-                    View Details
-                  </Button>
+                  <Link to={`/directory/${business.id}`} className="flex-1">
+                    <Button className="w-full bg-red-600 hover:bg-red-700">
+                      View Details
+                    </Button>
+                  </Link>
                   <Button variant="outline" size="sm">
                     <Phone size={16} />
                   </Button>

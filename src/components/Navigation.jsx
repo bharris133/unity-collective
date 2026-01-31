@@ -170,8 +170,8 @@ function Navigation() {
                       title="Messages"
                     >
                       <MessageCircle size={20} />
-                      {/* Badge for unread messages (placeholder) */}
-                      {/* <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span> */}
+                      {/* Badge for unread messages */}
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">3</span>
                     </Link>
                   )}
 
