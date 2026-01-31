@@ -86,6 +86,12 @@ For detailed instructions on how to switch between data sources, see the officia
 
 Always test all three scenarios to ensure the data layer is robust.
 
+### **Mock Authentication Testing**
+
+For detailed instructions on testing with different user roles, see the official guide:
+
+**[➡️ Mock Authentication System Guide](./MOCK_AUTHENTICATION_GUIDE.md)**
+
 ---
 
 This centralized guide should be the single source of truth for all testing procedures. All other documents should reference this guide instead of duplicating the information.

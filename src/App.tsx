@@ -64,6 +64,7 @@ import FavoritesPage from './components/FavoritesPage';
 import BusinessDetail from './components/BusinessDetail';
 import OfferDetail from './components/OfferDetail';
 import { FavoritesProvider } from './contexts/FavoritesContext';
+import { DevMockUserSwitcher } from './components/DevMockUserSwitcher';
 
 // Import hooks
 import { useAuth } from './contexts/AuthContext';
@@ -261,6 +262,7 @@ function App() {
               </Routes>
             </main>
             <Footer />
+            <DevMockUserSwitcher />
           </div>
         </Router>
         </MarketplaceProvider>
