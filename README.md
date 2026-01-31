@@ -140,39 +140,53 @@ Building a stronger Black community through the five pillars: **Unity**, **Econo
 - Deployment scripts included
 - Performance monitoring setup
 
-## 📁 **PACKAGE CONTENTS**
+## 📚 **COMPREHENSIVE DOCUMENTATION**
 
-### Core Application:
-- Complete React application with all features
-- Responsive design for all devices
-- Production-ready code and assets
-- Comprehensive component library
+All documentation is organized in the [`docs/`](./docs/) directory. For a complete overview, see [docs/README.md](./docs/README.md).
 
-### Documentation:
-- **README.md**: Complete setup and overview
-- **DEPLOYMENT_GUIDE.md**: Step-by-step deployment
-- **SETUP_CHECKLIST.md**: Launch preparation checklist
-- **TROUBLESHOOTING.md**: Common issues and solutions
-- **FEATURE_ROADMAP.md**: Future development plans
+### Quick Links:
 
-### Content Strategy:
-- **YOUTUBE_CONTENT_STRATEGY.md**: Complete YouTube plan
-- **TIKTOK_CONTENT_STRATEGY.md**: TikTok content framework
-- **SAMPLE_VIDEO_SCRIPTS.md**: 4 professional video scripts
-- **LAUNCH_STRATEGY.md**: Comprehensive launch plan
+**Getting Started:**
+- [Setup Guide](./docs/setup/SETUP.md) - Complete local development setup
+- [Setup Checklist](./docs/setup/SETUP_CHECKLIST.md) - Quick setup verification
+- [Troubleshooting](./docs/setup/TROUBLESHOOTING.md) - Common issues and solutions
 
-### Visual Assets:
-- Unity Collective logo and branding
-- YouTube thumbnail designs
-- Social media templates
-- Website graphics and images
+**Development:**
+- [Developer Guide](./docs/development/DEVELOPER_GUIDE.md) - Code structure and feature development
+- [Contributing Guide](./docs/development/CONTRIBUTING.md) - Guidelines for contributors
+- [Mock Data Guide](./docs/development/MOCK_DATA_GUIDE.md) - Using mock data for development
+- [Data Source Switching](./docs/development/DATA_SOURCE_SWITCHING_GUIDE.md) - Toggle between mock and Firebase
+
+**Testing:**
+- [Testing Guide](./docs/testing/TESTING_GUIDE.md) - Unit testing framework
+- [Automated Testing](./docs/testing/AUTOMATED_TESTING_GUIDE.md) - E2E testing with Playwright
+- [Visual Review Checklist](./docs/testing/VISUAL_REVIEW_CHECKLIST.md) - Manual testing checklist
+
+**Deployment:**
+- [Deployment Guide](./docs/deployment/DEPLOYMENT_GUIDE.md) - Production deployment instructions
+
+**Architecture:**
+- [Architecture Overview](./docs/architecture/ARCHITECTURE.md) - System architecture and design
+- [API Documentation](./docs/architecture/API_DOCUMENTATION.md) - Firebase Cloud Functions API
+
+**Features:**
+- [Features Index](./docs/features/README.md) - Complete list of feature documentation
+- Individual feature docs for Authentication, Marketplace, Business Directory, and more
+
+**Project Management:**
+- [Project Status](./docs/project-management/UNITY_COLLECTIVE_STATUS_REPORT.md) - Current project status
+- [Project Summary](./docs/project-management/UNITY_COLLECTIVE_FINAL_SUMMARY.md) - Major milestones
+
+**Refactoring:**
+- [Refactoring Overview](./docs/refactoring/README.md) - Code refactoring documentation
+- [Implementation Summary](./docs/refactoring/REFACTORING_IMPLEMENTATION_SUMMARY.md) - Recent refactoring results
 
 ## 🚀 **QUICK START GUIDE**
 
 ### 1. **Setup Development Environment**
 ```bash
-# Extract the package
-tar -xzf unity-collective-complete-package.tar.gz
+# Clone the repository
+git clone https://github.com/bharris133/unity-collective.git
 cd unity-collective
 
 # Install dependencies
@@ -188,6 +202,8 @@ pnpm run dev
 - Set up email service for newsletters
 - Configure analytics tracking
 
+See [Setup Guide](./docs/setup/SETUP.md) for detailed instructions.
+
 ### 3. **Customize Content**
 - Update business directory with real businesses
 - Customize homepage content and messaging
@@ -200,7 +216,7 @@ pnpm run dev
 pnpm run build
 
 # Deploy using included scripts
-# See DEPLOYMENT_GUIDE.md for detailed instructions
+# See docs/deployment/DEPLOYMENT_GUIDE.md for detailed instructions
 ```
 
 ## 🎯 **TARGET METRICS (6 months)**
@@ -237,10 +253,10 @@ pnpm run build
 ## 📞 **SUPPORT AND RESOURCES**
 
 ### Getting Help:
-- Review TROUBLESHOOTING.md for common issues
-- Check DEPLOYMENT_GUIDE.md for setup questions
-- Use SETUP_CHECKLIST.md for launch preparation
-- Reference FEATURE_ROADMAP.md for future planning
+- Review [Troubleshooting Guide](./docs/setup/TROUBLESHOOTING.md) for common issues
+- Check [Deployment Guide](./docs/deployment/DEPLOYMENT_GUIDE.md) for setup questions
+- Use [Setup Checklist](./docs/setup/SETUP_CHECKLIST.md) for launch preparation
+- Reference [Roadmap](./docs/ROADMAP.md) for future planning
 
 ### Community Building:
 - Follow content strategies for audience growth
@@ -275,8 +291,8 @@ This complete Unity Collective platform is ready for immediate deployment and la
 
 ### Installation Steps
 ```bash
-# 1. Extract the complete package
-tar -xzf unity-collective-complete-package.tar.gz
+# 1. Clone the repository
+git clone https://github.com/bharris133/unity-collective.git
 cd unity-collective
 
 # 2. Install dependencies
@@ -312,6 +328,8 @@ VITE_EMAIL_SERVICE_ID=your_email_service
 2. **Vercel**: Connect Git repository
 3. **AWS S3**: Upload build files
 4. **Traditional Hosting**: FTP upload
+
+See [Deployment Guide](./docs/deployment/DEPLOYMENT_GUIDE.md) for detailed instructions.
 
 ## 📊 **FEATURE BREAKDOWN**
 
@@ -423,5 +441,8 @@ VITE_EMAIL_SERVICE_ID=your_email_service
 - Sitemap generation
 - Social media previews
 
-This comprehensive platform is ready for immediate launch and will serve as a powerful tool for Black community empowerment and economic unity.
+---
 
+✊🏿 **Unity, Strength, Empowerment.**
+
+This comprehensive platform is ready for immediate launch and will serve as a powerful tool for Black community empowerment and economic unity.

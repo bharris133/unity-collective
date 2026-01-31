@@ -24,6 +24,9 @@ Guides for developing features and understanding the codebase.
 | [CONTRIBUTING.md](development/CONTRIBUTING.md) | Guidelines for contributors |
 | [MOCK_DATA_GUIDE.md](development/MOCK_DATA_GUIDE.md) | How to use and manage mock data |
 | [DATA_SOURCE_SWITCHING_GUIDE.md](development/DATA_SOURCE_SWITCHING_GUIDE.md) | Switch between mock and Firebase data |
+| [MOCK_DATA_PACKAGE_SUMMARY.md](development/MOCK_DATA_PACKAGE_SUMMARY.md) | Centralized mock data system overview |
+| [DATA_SWITCHING_SUMMARY.md](development/DATA_SWITCHING_SUMMARY.md) | Data source switching implementation |
+| [AUTOMATED_TESTING_SUMMARY.md](development/AUTOMATED_TESTING_SUMMARY.md) | Testing infrastructure overview |
 
 ### **Testing**
 
@@ -55,9 +58,63 @@ Technical architecture and API documentation.
 | [architecture.png](architecture/architecture.png) | Architecture diagram (visual) |
 | [architecture.mmd](architecture/architecture.mmd) | Architecture diagram (Mermaid source) |
 
+### **Features**
+
+Individual feature documentation following the agent priming standard.
+
+| Document | Description |
+|----------|-------------|
+| [Features Index](features/README.md) | Complete list of feature documentation |
+| [Authentication](features/authentication.md) | User authentication and authorization |
+| [Business Directory](features/business-directory.md) | Business listing and search |
+| [Marketplace](features/marketplace.md) | Product listing and shopping |
+| [Shopping Cart](features/shopping-cart.md) | Cart management and checkout |
+| [Community Offers](features/community-offers.md) | Offers and barter system |
+| [Private Messaging](features/private-messaging.md) | User-to-user messaging |
+| [Favorites](features/favorites.md) | Favorite businesses and products |
+| [Events](features/events.md) | Community events calendar |
+| [Community Hub](features/community-hub.md) | Community engagement features |
+| [Homepage](features/homepage.md) | Landing page and Five Pillars |
+
+### **Refactoring**
+
+Code refactoring documentation and implementation summaries.
+
+| Document | Description |
+|----------|-------------|
+| [Refactoring Index](refactoring/README.md) | Overview of refactoring efforts |
+| [REFACTORING_RECOMMENDATIONS.md](refactoring/REFACTORING_RECOMMENDATIONS.md) | Original refactoring recommendations |
+| [COMPONENTIZE_APP_JSX_PLAN.md](refactoring/COMPONENTIZE_APP_JSX_PLAN.md) | App.jsx componentization plan |
+| [DATA_SERVICE_LAYER_DRAFT.md](refactoring/DATA_SERVICE_LAYER_DRAFT.md) | Data service abstraction architecture |
+| [REFACTORING_IMPLEMENTATION_SUMMARY.md](refactoring/REFACTORING_IMPLEMENTATION_SUMMARY.md) | Implementation results and metrics |
+
 ### **Project Management**
 
-Project history and future plans.
+Project status, summaries, and review checklists.
+
+| Document | Description |
+|----------|-------------|
+| [Project Management Index](project-management/README.md) | Overview of project management docs |
+| [UNITY_COLLECTIVE_STATUS_REPORT.md](project-management/UNITY_COLLECTIVE_STATUS_REPORT.md) | Current project status |
+| [UNITY_COLLECTIVE_FINAL_SUMMARY.md](project-management/UNITY_COLLECTIVE_FINAL_SUMMARY.md) | Major milestones and achievements |
+| [VISUAL_REVIEW_CHECKLIST_SUMMARY.md](project-management/VISUAL_REVIEW_CHECKLIST_SUMMARY.md) | Visual review checklist |
+
+### **Internal**
+
+Internal documentation for agent handoffs and process documentation.
+
+| Document | Description |
+|----------|-------------|
+| [Internal Docs Index](internal/README.md) | Overview of internal documentation |
+| [AGENT_HANDOFF_BRIEFING.md](internal/AGENT_HANDOFF_BRIEFING.md) | Agent/developer handoff briefing |
+| [DOCUMENTATION_ORGANIZATION_SUMMARY.md](internal/DOCUMENTATION_ORGANIZATION_SUMMARY.md) | Documentation structure overview |
+| [DOCUMENTATION_PACKAGE_SUMMARY.md](internal/DOCUMENTATION_PACKAGE_SUMMARY.md) | Complete documentation package |
+| [FEATURE_DOCUMENTATION_SUMMARY.md](internal/FEATURE_DOCUMENTATION_SUMMARY.md) | Feature documentation system |
+| [DOCS_README_ANALYSIS.md](internal/DOCS_README_ANALYSIS.md) | Documentation analysis and recommendations |
+
+### **Project History**
+
+Version history and future plans.
 
 | Document | Description |
 |----------|-------------|
@@ -73,6 +130,7 @@ Project history and future plans.
 3.  **Want to contribute?** Check [CONTRIBUTING.md](development/CONTRIBUTING.md)
 4.  **Need to test?** See [TESTING_GUIDE.md](testing/TESTING_GUIDE.md) and [AUTOMATED_TESTING_GUIDE.md](testing/AUTOMATED_TESTING_GUIDE.md)
 5.  **Deploying to production?** Follow [DEPLOYMENT_GUIDE.md](deployment/DEPLOYMENT_GUIDE.md)
+6.  **Understanding refactoring?** Check [Refactoring Index](refactoring/README.md)
 
 ---
 
@@ -93,6 +151,9 @@ Project history and future plans.
 -   **See what's changed** → [CHANGELOG.md](CHANGELOG.md)
 -   **See what's coming** → [ROADMAP.md](ROADMAP.md)
 -   **Fix a problem** → [TROUBLESHOOTING.md](setup/TROUBLESHOOTING.md)
+-   **Review refactoring work** → [Refactoring Index](refactoring/README.md)
+-   **Check project status** → [Project Management Index](project-management/README.md)
+-   **Learn about specific features** → [Features Index](features/README.md)
 
 ---
 
