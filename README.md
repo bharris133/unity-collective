@@ -148,7 +148,6 @@ All documentation is organized in the [`docs/`](./docs/) directory. For a comple
 ### Quick Links:
 
 **Getting Started:**
-- [Setup Guide](./docs/setup/SETUP.md) - Complete local development setup
 - [Setup Checklist](./docs/setup/SETUP_CHECKLIST.md) - Quick setup verification
 - [Troubleshooting](./docs/setup/TROUBLESHOOTING.md) - Common issues and solutions
 

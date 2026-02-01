@@ -10,7 +10,6 @@ Getting started with the Unity Collective platform.
 
 | Document | Description |
 |----------|-------------|
-| [SETUP.md](setup/SETUP.md) | Complete local development setup guide |
 | [SETUP_CHECKLIST.md](setup/SETUP_CHECKLIST.md) | Quick setup verification checklist |
 | [TROUBLESHOOTING.md](setup/TROUBLESHOOTING.md) | Common issues and solutions |
 
@@ -22,8 +21,9 @@ Guides for developing features and understanding the codebase.
 |----------|-------------|
 | [DEVELOPER_GUIDE.md](development/DEVELOPER_GUIDE.md) | Code structure and feature development guide |
 | [CONTRIBUTING.md](development/CONTRIBUTING.md) | Guidelines for contributors |
-| [MOCK_DATA_GUIDE.md](development/MOCK_DATA_GUIDE.md) | How to use and manage mock data |
 | [DATA_SOURCE_SWITCHING_GUIDE.md](development/DATA_SOURCE_SWITCHING_GUIDE.md) | Switch between mock and Firebase data |
+| [FIREBASE_SETUP_GUIDE.md](development/FIREBASE_SETUP_GUIDE.md) | Complete Firebase configuration |
+| [ESLINT_GUIDE.md](development/ESLINT_GUIDE.md) | Code quality and linting best practices |
 | [MOCK_DATA_PACKAGE_SUMMARY.md](development/MOCK_DATA_PACKAGE_SUMMARY.md) | Centralized mock data system overview |
 | [DATA_SWITCHING_SUMMARY.md](development/DATA_SWITCHING_SUMMARY.md) | Data source switching implementation |
 | [AUTOMATED_TESTING_SUMMARY.md](development/AUTOMATED_TESTING_SUMMARY.md) | Testing infrastructure overview |
@@ -37,7 +37,8 @@ Testing strategies and automated test suites.
 | [TESTING_GUIDE.md](testing/TESTING_GUIDE.md) | Unit testing framework and best practices |
 | [AUTOMATED_TESTING_GUIDE.md](testing/AUTOMATED_TESTING_GUIDE.md) | End-to-end testing with Playwright |
 | [VISUAL_REVIEW_CHECKLIST.md](testing/VISUAL_REVIEW_CHECKLIST.md) | Manual visual review checklist |
-| [DEMO_WALKTHROUGH.md](testing/DEMO_WALKTHROUGH.md) | Live demo findings and feature verification |
+| [TESTING_PROCEDURES_GUIDE.md](testing/TESTING_PROCEDURES_GUIDE.md) | Comprehensive testing procedures |
+| [MOCK_AUTHENTICATION_GUIDE.md](testing/MOCK_AUTHENTICATION_GUIDE.md) | Test with different user roles |
 
 ### **Deployment**
 
@@ -45,6 +46,7 @@ Production deployment and infrastructure.
 
 | Document | Description |
 |----------|-------------|
+| [DEPLOYMENT_PROCEDURES_GUIDE.md](deployment/DEPLOYMENT_PROCEDURES_GUIDE.md) | Complete deployment procedures |
 | [DEPLOYMENT_GUIDE.md](deployment/DEPLOYMENT_GUIDE.md) | Production deployment instructions |
 
 ### **Architecture**
