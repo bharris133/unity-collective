@@ -123,6 +123,7 @@ Building a stronger Black community through the five pillars: **Unity**, **Econo
 ## 🛠 **TECHNICAL SPECIFICATIONS**
 
 ### Frontend:
+- **TypeScript** with full type safety
 - **React 18** with modern hooks and context
 - **Tailwind CSS** for responsive styling
 - **Vite** for fast development and building
@@ -154,15 +155,19 @@ All documentation is organized in the [`docs/`](./docs/) directory. For a comple
 **Development:**
 - [Developer Guide](./docs/development/DEVELOPER_GUIDE.md) - Code structure and feature development
 - [Contributing Guide](./docs/development/CONTRIBUTING.md) - Guidelines for contributors
-- [Mock Data Guide](./docs/development/MOCK_DATA_GUIDE.md) - Using mock data for development
-- [Data Source Switching](./docs/development/DATA_SOURCE_SWITCHING_GUIDE.md) - Toggle between mock and Firebase
+- [Data Source Switching Guide](./docs/development/DATA_SOURCE_SWITCHING_GUIDE.md) - Toggle between mock and Firebase data
+- [Firebase Setup Guide](./docs/development/FIREBASE_SETUP_GUIDE.md) - Complete Firebase configuration
+- [ESLint Guide](./docs/development/ESLINT_GUIDE.md) - Code quality and linting
 
 **Testing:**
+- [Testing Procedures Guide](./docs/testing/TESTING_PROCEDURES_GUIDE.md) - Comprehensive testing procedures
+- [Mock Authentication Guide](./docs/testing/MOCK_AUTHENTICATION_GUIDE.md) - Test with different user roles
 - [Testing Guide](./docs/testing/TESTING_GUIDE.md) - Unit testing framework
 - [Automated Testing](./docs/testing/AUTOMATED_TESTING_GUIDE.md) - E2E testing with Playwright
 - [Visual Review Checklist](./docs/testing/VISUAL_REVIEW_CHECKLIST.md) - Manual testing checklist
 
 **Deployment:**
+- [Deployment Procedures Guide](./docs/deployment/DEPLOYMENT_PROCEDURES_GUIDE.md) - Complete deployment procedures
 - [Deployment Guide](./docs/deployment/DEPLOYMENT_GUIDE.md) - Production deployment instructions
 
 **Architecture:**
