@@ -16,7 +16,7 @@ export const mockEvents: Event[] = [
   {
     id: 1,
     title: "Economic Empowerment Webinar",
-    date: "2025-02-15",
+    date: "2026-02-15",
     time: "7:00 PM EST",
     type: "Virtual",
     attendees: 234,
@@ -28,7 +28,7 @@ export const mockEvents: Event[] = [
   {
     id: 2,
     title: "Black Business Networking Mixer",
-    date: "2025-02-20",
+    date: "2026-02-20",
     time: "6:00 PM EST",
     type: "In-Person",
     location: "Atlanta, GA",
@@ -41,7 +41,7 @@ export const mockEvents: Event[] = [
   {
     id: 3,
     title: "Financial Literacy Workshop",
-    date: "2025-02-25",
+    date: "2026-02-25",
     time: "2:00 PM EST",
     type: "Virtual",
     attendees: 156,
@@ -53,7 +53,7 @@ export const mockEvents: Event[] = [
   {
     id: 4,
     title: "Youth Entrepreneurship Summit",
-    date: "2025-03-05",
+    date: "2026-03-05",
     time: "10:00 AM EST",
     type: "In-Person",
     location: "Detroit, MI",
@@ -66,7 +66,7 @@ export const mockEvents: Event[] = [
   {
     id: 5,
     title: "Tech Skills Bootcamp",
-    date: "2025-03-10",
+    date: "2026-03-10",
     time: "6:00 PM EST",
     type: "Virtual",
     attendees: 178,
@@ -78,7 +78,7 @@ export const mockEvents: Event[] = [
   {
     id: 6,
     title: "Natural Hair Care Workshop",
-    date: "2025-03-15",
+    date: "2026-03-15",
     time: "3:00 PM EST",
     type: "In-Person",
     location: "Brooklyn, NY",
@@ -91,7 +91,7 @@ export const mockEvents: Event[] = [
   {
     id: 7,
     title: "Community Health Fair",
-    date: "2025-03-22",
+    date: "2026-03-22",
     time: "11:00 AM EST",
     type: "In-Person",
     location: "Houston, TX",
@@ -104,7 +104,7 @@ export const mockEvents: Event[] = [
   {
     id: 8,
     title: "Soul Food Cooking Class",
-    date: "2025-03-28",
+    date: "2026-03-28",
     time: "5:00 PM EST",
     type: "In-Person",
     location: "Memphis, TN",
@@ -117,7 +117,7 @@ export const mockEvents: Event[] = [
   {
     id: 9,
     title: "Black History Book Club",
-    date: "2025-04-02",
+    date: "2026-04-02",
     time: "7:00 PM EST",
     type: "Virtual",
     attendees: 95,
@@ -129,7 +129,7 @@ export const mockEvents: Event[] = [
   {
     id: 10,
     title: "Small Business Legal Clinic",
-    date: "2025-04-08",
+    date: "2026-04-08",
     time: "1:00 PM EST",
     type: "Virtual",
     attendees: 120,
@@ -141,7 +141,7 @@ export const mockEvents: Event[] = [
   {
     id: 11,
     title: "Fashion Show: Black Designers",
-    date: "2025-04-15",
+    date: "2026-04-15",
     time: "7:00 PM EST",
     type: "In-Person",
     location: "Los Angeles, CA",
@@ -154,7 +154,7 @@ export const mockEvents: Event[] = [
   {
     id: 12,
     title: "Home Renovation Workshop",
-    date: "2025-04-20",
+    date: "2026-04-20",
     time: "10:00 AM EST",
     type: "In-Person",
     location: "Charlotte, NC",

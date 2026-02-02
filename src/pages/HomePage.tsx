@@ -35,10 +35,10 @@ const colors = {
 };
 
 const communityStats = {
-  members: "15,247",
-  businesses: "3,892",
-  events: "156",
-  impact: "$2.3M",
+  members: "5,000+",
+  businesses: "1,200+",
+  events: "250+",
+  impact: "$2.5M+",
 };
 
 function HomePage() {
