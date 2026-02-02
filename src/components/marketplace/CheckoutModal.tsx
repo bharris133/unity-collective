@@ -4,6 +4,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useMarketplace } from '../../contexts/MarketplaceContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { formatPrice } from '../../utils/formatPrice';
 
 // Initialize Stripe (replace with your publishable key)
 const stripePromise = loadStripe('pk_test_your_stripe_publishable_key_here');
@@ -250,13 +251,13 @@ function CheckoutForm({ onClose, onSuccess }) {
           {cart.items.map((item) => (
             <div key={item.id} className="flex justify-between">
               <span>{item.name} × {item.quantity}</span>
-              <span>${(item.price * item.quantity).toFixed(2)}</span>
+              <span>{formatPrice(item.price * item.quantity)}</span>
             </div>
           ))}
           <div className="border-t pt-2 mt-2">
             <div className="flex justify-between font-medium text-lg">
               <span>Total:</span>
-              <span>${getCartGrandTotal().toFixed(2)}</span>
+              <span>{formatPrice(getCartGrandTotal())}</span>
             </div>
           </div>
         </div>
@@ -269,7 +270,7 @@ function CheckoutForm({ onClose, onSuccess }) {
         className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
       >
         <Lock className="mr-2" size={16} />
-        {processing ? 'Processing...' : `Pay $${getCartGrandTotal().toFixed(2)}`}
+        {processing ? 'Processing...' : `Pay ${formatPrice(getCartGrandTotal())}`}
       </button>
 
       <p className="text-xs text-gray-500 text-center">
