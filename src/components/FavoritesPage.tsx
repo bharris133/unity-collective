@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Heart, Store, Package, ShoppingCart } from 'lucide-react';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { useAuth } from '../contexts/AuthContext';
+import { formatPrice } from '../utils/formatPrice';
 
 export const FavoritesPage: React.FC = () => {
   const { currentUser } = useAuth();
@@ -207,7 +208,7 @@ export const FavoritesPage: React.FC = () => {
                       <p className="text-sm text-gray-600 mb-3">{product.vendorName}</p>
                       <div className="flex items-center justify-between mb-4">
                         <span className="text-xl font-bold text-gray-900">
-                          ${(product.price / 100).toFixed(2)}
+                          {formatPrice(product.price)}
                         </span>
                         {product.inStock ? (
                           <span className="text-sm text-green-600 font-semibold">In Stock</span>

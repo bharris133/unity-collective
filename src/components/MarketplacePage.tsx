@@ -10,6 +10,7 @@ import {
 import { useMarketplace } from "../contexts/MarketplaceContext";
 import ShoppingCartModal from "./marketplace/ShoppingCart";
 import CheckoutModal from "./marketplace/CheckoutModal";
+import { formatPrice } from "../utils/formatPrice";
 
 export default function MarketplacePage() {
   const { products, addToCart, getCartItemCount } = useMarketplace();
@@ -203,7 +204,7 @@ export default function MarketplacePage() {
 
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold text-red-600">
-                    ${product.price.toFixed(2)}
+                    {formatPrice(product.price)}
                   </span>
 
                   <button
