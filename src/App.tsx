@@ -36,12 +36,12 @@ import {
 } from 'lucide-react';
 
 // Import page components
-import HomePage from './pages/HomePage.jsx';
-import CommunityPage from './pages/CommunityPage.jsx';
-import BusinessDirectoryPage from './pages/BusinessDirectoryPage.jsx';
-import EducationPage from './pages/EducationPage.jsx';
-import MediaCenterPage from './pages/MediaCenterPage.jsx';
-import AboutPage from './pages/AboutPage.jsx';
+import HomePage from './pages/HomePage';
+import CommunityPage from './pages/CommunityPage';
+import BusinessDirectoryPage from './pages/BusinessDirectoryPage';
+import EducationPage from './pages/EducationPage';
+import MediaCenterPage from './pages/MediaCenterPage';
+import AboutPage from './pages/AboutPage';
 
 // Import contexts
 import { AuthProvider } from './contexts/AuthContext';
