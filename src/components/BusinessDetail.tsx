@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, Globe, Mail, MapPin, Phone, Star } from 'lucide-react';
-import { businessService } from '../services';
+import { businessService, productService } from '../services';
+import { formatPrice } from '../utils/formatPrice';
+import { useMarketplace } from '../contexts/MarketplaceContext';
 import { Button } from './ui/button.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card.jsx';
 import { Badge } from './ui/badge.jsx';
@@ -20,7 +22,9 @@ function BusinessDetail() {
   const navigate = useNavigate();
   const [business, setBusiness] = useState(null);
   const [similarBusinesses, setSimilarBusinesses] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useMarketplace();
 
   useEffect(() => {
     const loadBusinessData = async () => {
@@ -40,6 +44,12 @@ function BusinessDetail() {
               .filter(b => b.id !== businessData.id)
               .slice(0, 3)
           );
+          
+          // Load products if business has businessId
+          if (businessData.businessId) {
+            const businessProducts = await productService.getByBusinessId(businessData.businessId);
+            setProducts(businessProducts);
+          }
         }
       } catch (error) {
         console.error('Error loading business details:', error);
@@ -186,6 +196,45 @@ function BusinessDetail() {
                 </p>
               </CardContent>
             </Card>
+
+            {/* Products Section */}
+            {products.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Products</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {products.map((product) => (
+                      <div
+                        key={product.id}
+                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                      >
+                        {product.image && product.image[0] && (
+                          <img
+                            src={product.image[0]}
+                            alt={product.name}
+                            className="w-full h-32 object-cover rounded-md mb-3"
+                          />
+                        )}
+                        <h4 className="font-semibold text-gray-900 mb-1">{product.name}</h4>
+                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">{product.description}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-bold text-red-600">{formatPrice(product.price)}</span>
+                          <Button
+                            size="sm"
+                            onClick={() => addToCart(product)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Add to Cart
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Services Section */}
             {business.services && business.services.length > 0 && (

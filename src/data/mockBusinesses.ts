@@ -1,5 +1,6 @@
 export interface Business {
   id: number;
+  businessId?: string; // String ID for product linking
   name: string;
   category: string;
   location: string;
@@ -19,6 +20,7 @@ export interface Business {
 export const mockBusinesses: Business[] = [
   {
     id: 1,
+    businessId: "sankofa-consulting",
     name: "Sankofa Consulting",
     category: "Business Services",
     location: "Atlanta, GA",
@@ -36,6 +38,7 @@ export const mockBusinesses: Business[] = [
   },
   {
     id: 2,
+    businessId: "heritage-foods",
     name: "Heritage Foods Market",
     category: "Food & Beverage",
     location: "Detroit, MI",
@@ -53,6 +56,7 @@ export const mockBusinesses: Business[] = [
   },
   {
     id: 3,
+    businessId: "unity-tech",
     name: "Unity Tech Solutions",
     category: "Technology",
     location: "Oakland, CA",
