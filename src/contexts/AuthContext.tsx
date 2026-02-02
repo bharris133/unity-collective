@@ -218,12 +218,65 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Mock mode: check localStorage for current user
       const mockUser = getCurrentMockUser();
       setUserProfile(mockUser);
+      
+      // Create a mock Firebase User object for compatibility
+      if (mockUser) {
+        const mockFirebaseUser = {
+          uid: mockUser.uid,
+          email: mockUser.email,
+          displayName: mockUser.displayName,
+          photoURL: mockUser.photoURL || null,
+          emailVerified: true,
+          isAnonymous: false,
+          metadata: {},
+          providerData: [],
+          refreshToken: '',
+          tenantId: null,
+          delete: async () => {},
+          getIdToken: async () => '',
+          getIdTokenResult: async () => ({} as any),
+          reload: async () => {},
+          toJSON: () => ({}),
+          phoneNumber: mockUser.phoneNumber || null,
+          providerId: 'mock',
+        } as FirebaseUser;
+        setCurrentUser(mockFirebaseUser);
+      } else {
+        setCurrentUser(null);
+      }
+      
       setLoading(false);
 
       // Listen for storage changes (when mock user is switched)
       const handleStorageChange = () => {
         const updatedMockUser = getCurrentMockUser();
         setUserProfile(updatedMockUser);
+        
+        // Update currentUser as well
+        if (updatedMockUser) {
+          const mockFirebaseUser = {
+            uid: updatedMockUser.uid,
+            email: updatedMockUser.email,
+            displayName: updatedMockUser.displayName,
+            photoURL: updatedMockUser.photoURL || null,
+            emailVerified: true,
+            isAnonymous: false,
+            metadata: {},
+            providerData: [],
+            refreshToken: '',
+            tenantId: null,
+            delete: async () => {},
+            getIdToken: async () => '',
+            getIdTokenResult: async () => ({} as any),
+            reload: async () => {},
+            toJSON: () => ({}),
+            phoneNumber: updatedMockUser.phoneNumber || null,
+            providerId: 'mock',
+          } as FirebaseUser;
+          setCurrentUser(mockFirebaseUser);
+        } else {
+          setCurrentUser(null);
+        }
       };
 
       window.addEventListener('storage', handleStorageChange);
