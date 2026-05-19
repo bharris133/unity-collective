@@ -112,9 +112,9 @@ function Navigation() {
             {/* Logo */}
             <div className="flex items-center">
               <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
-                <img src={logoMain} alt="Unity Collective" className="h-10 w-10 mr-2" />
+                <img src={logoMain} alt="[Unity Collective]" className="h-10 w-10 mr-2" />
                 <span className="text-xl font-bold" style={{ color: colors.black }}>
-                  Unity Collective
+                  [Unity Collective]
                 </span>
               </Link>
             </div>
