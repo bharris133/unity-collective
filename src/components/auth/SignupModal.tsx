@@ -107,7 +107,7 @@ export default function SignupModal({ isOpen, onClose, onSwitchToLogin }) {
         </button>
 
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Join Unity Collective</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Join [Unity Collective]</h2>
           <p className="text-gray-600">Create your account to connect with the community</p>
         </div>
 

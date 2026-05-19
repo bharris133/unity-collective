@@ -186,8 +186,8 @@ function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center mb-4">
-              <img src={logoMain} alt="Unity Collective" className="h-8 w-8 mr-2" />
-              <span className="text-xl font-bold">Unity Collective</span>
+              <img src={logoMain} alt="[Unity Collective]" className="h-8 w-8 mr-2" />
+              <span className="text-xl font-bold">[Unity Collective]</span>
             </div>
             <p className="text-gray-400 mb-4">
               Empowering the Black community through unity and economic strength.
@@ -222,7 +222,7 @@ function Footer() {
         
         <div className="border-t border-gray-800 mt-8 pt-8 text-center">
           <p className="text-gray-400">
-            © 2025 Unity Collective. All rights reserved. Built with pride for our community.
+            © 2025 [Unity Collective]. All rights reserved. Built with pride for our community.
           </p>
         </div>
       </div>
