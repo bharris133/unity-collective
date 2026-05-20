@@ -1,41 +1,42 @@
-# Unity Collective - Project Roadmap
+# [Unity Collective] Development Roadmap
 
-This document outlines the future development plans for the Unity Collective platform. It is a living document that will evolve as the platform grows and the community provides feedback.
+## Phase 1: Foundation & Visual Identity (Completed)
+- ✅ Core platform architecture (React, TypeScript, Vite)
+- ✅ Mock authentication system
+- ✅ Payment service architecture (Mock + Stripe stub)
+- ✅ Global Pan-African Dark Theme redesign
+- ✅ Feature showcase page
 
-## Version 1.1: Completing Core Features
+## Phase 2: End-to-End Business Onboarding (Next)
+**Goal:** Prove the platform works end-to-end by setting up an actual business from registration to product listing.
 
-### **Objective**: Finalize the core user experience and complete all features from the initial six phases.
+### Key Objectives:
+1. **Vendor Registration Flow:** Create the UI and logic for a new business to join the platform.
+2. **Business Profile Setup:** Allow vendors to input their details (name, description, category, location, images).
+3. **Product Management:** Enable vendors to add, edit, and delete products in their storefront.
+4. **Integration Testing:** Verify that a newly onboarded business appears correctly in the Business Directory and its products appear in the Marketplace.
 
-| Feature | Description | Priority | Status |
-| :--- | :--- | :--- | :--- |
-| **Favorites Page UI** | Build the `FavoritesPage` component to allow users to view and manage their favorited vendors and products. | High | Pending |
-| **Reviews System** | Implement the UI and backend logic for users to submit and view reviews for vendors and products. | High | Pending |
-| **User Profile Page** | Create a dedicated user profile page where users can manage their account information, view their order history, and manage their favorites. | Medium | Pending |
-| **Vendor Dashboard** | Build a dashboard for vendors to manage their products, view their sales, and respond to reviews. | Medium | Pending |
+### Files to Create/Modify:
+- `src/pages/VendorRegistrationPage.tsx`
+- `src/pages/VendorDashboard.tsx`
+- `src/components/vendor/ProductManager.tsx`
+- `src/services/vendorService.ts`
 
-## Version 1.2: Enhancing Community Engagement
+## Phase 3: Production-Ready Functionality
+**Goal:** Transition from mock data to real backend services.
 
-### **Objective**: Introduce new features to foster a more vibrant and interactive community.
+### Key Objectives:
+1. **Firebase Integration:** Replace mock auth and data services with real Firebase Authentication and Firestore.
+2. **Stripe Integration:** Implement the `stripePaymentService.ts` stub to process real transactions.
+3. **Image Hosting:** Set up Firebase Storage or AWS S3 for user-uploaded images (business logos, product photos).
 
-| Feature | Description | Priority | Status |
-| :--- | :--- | :--- | :--- |
-| **Community Forum** | Build a fully-featured forum for community members to discuss topics, ask questions, and share knowledge. | High | Pending |
-| **Events Calendar** | Enhance the events system with a full calendar view, event categories, and the ability for community members to host their own events. | Medium | Pending |
-| **Real-time Notifications** | Implement a real-time notification system to alert users of new messages, offer responses, and order updates. | Medium | Pending |
+## Phase 4: Content Strategy & Copywriting
+**Goal:** Finalize all text copy across the platform once the functionality is locked in.
 
-## Version 2.0: Expanding the Ecosystem
+### Key Objectives:
+1. **Homepage Copy:** Refine the hero messaging, value propositions, and calls to action.
+2. **About Page:** Write the official mission, vision, and history of [Unity Collective].
+3. **Education & Media Centers:** Populate with initial real content or curated links.
+4. **Transactional Emails:** Draft copy for welcome emails, order confirmations, and vendor approvals.
 
-### **Objective**: Grow the platform beyond its initial feature set to provide more value to the community.
-
-| Feature | Description | Priority | Status |
-| :--- | :--- | :--- | :--- |
-| **Mobile Application** | Develop native mobile applications for iOS and Android to provide a seamless mobile experience. | High | Pending |
-| **Subscription Services** | Introduce subscription tiers for vendors with advanced features like premium listings, analytics, and marketing tools. | Medium | Pending |
-| **Educational Platform** | Build out the education section with full courses, workshops, and learning paths on topics like entrepreneurship, financial literacy, and digital skills. | Medium | Pending |
-| **Job Board** | Create a job board for Black-owned businesses to post job openings and for community members to find employment opportunities. | Low | Pending |
-
-## Long-Term Vision
-
--   **Decentralization**: Explore opportunities to decentralize aspects of the platform to give the community more ownership and control.
--   **AI-Powered Recommendations**: Implement machine learning algorithms to provide personalized recommendations for products, businesses, and content.
--   **Global Expansion**: Expand the platform to support Black communities and businesses worldwide.
+*Note: Content strategy is intentionally deferred until Phase 3 is complete to avoid rewriting copy for features that may change during development.*
