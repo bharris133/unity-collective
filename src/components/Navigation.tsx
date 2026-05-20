@@ -221,6 +221,18 @@ function Navigation() {
                     </Link>
                   )}
 
+                  {/* Member Dashboard (for logged-in users) */}
+                  {currentUser && (
+                    <Link
+                      to="/dashboard"
+                      className="flex items-center px-3 py-2 rounded-md text-sm font-medium border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-colors"
+                      title="Member Dashboard"
+                    >
+                      <Package size={16} className="mr-1" />
+                      Dashboard
+                    </Link>
+                  )}
+
                   {/* User Avatar Menu */}
                   <div className="relative">
                     <button
@@ -297,6 +309,14 @@ function Navigation() {
                             >
                               <Heart size={16} className="inline mr-2" />
                               Favorites
+                            </Link>
+                            <Link
+                              to="/onboarding"
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <Store size={16} className="inline mr-2" />
+                              Become a Member
                             </Link>
                           </>
                         )}
