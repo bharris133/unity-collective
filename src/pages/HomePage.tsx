@@ -106,9 +106,7 @@ function HomePage() {
         className="relative flex items-center justify-center text-white"
         style={{
           minHeight: "100vh",
-          backgroundImage: `linear-gradient(135deg, rgba(204,0,0,0.82) 0%, rgba(13,13,13,0.88) 55%, rgba(34,139,34,0.75) 100%), url(${heroBanner})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          background: `linear-gradient(rgba(10,10,10,0.82), rgba(10,10,10,0.92)), url(${heroBanner}) center/cover no-repeat`,
         }}
       >
         {/* Pan-African accent bar */}
@@ -118,7 +116,7 @@ function HomePage() {
           <div className="flex-1" style={{ background: C.green }} />
         </div>
 
-        <div className="text-center max-w-5xl mx-auto px-6 py-24">
+        <div className="text-center max-w-5xl mx-auto px-6 pt-32 pb-24">
           <div
             className="inline-block text-xs font-bold tracking-widest uppercase px-4 py-1 rounded-full mb-6"
             style={{ background: "rgba(255,215,0,0.15)", color: C.gold, border: `1px solid ${C.gold}` }}
