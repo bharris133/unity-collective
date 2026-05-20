@@ -51,13 +51,13 @@ function BusinessDirectoryPage() {
   });
 
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-8 bg-[#111111]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4" style={{ color: colors.black }}>
+          <h1 className="text-4xl font-bold mb-4 text-white">
             Black Business Directory
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-400">
             Discover and support Black-owned businesses in your community
           </p>
         </div>
@@ -77,7 +77,7 @@ function BusinessDirectoryPage() {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            className="px-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
           >
             {categories.map(category => (
               <option key={category} value={category}>{category}</option>
@@ -88,18 +88,18 @@ function BusinessDirectoryPage() {
         {/* Loading State */}
         {loading ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">Loading businesses...</p>
+            <p className="text-gray-400">Loading businesses...</p>
           </div>
         ) : filteredBusinesses.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600">No businesses found matching your criteria.</p>
+            <p className="text-gray-400">No businesses found matching your criteria.</p>
           </div>
         ) : (
           /* Business Listings */
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredBusinesses.map((business) => (
-              <Card key={business.id} className="hover:shadow-lg transition-shadow">
-                <div className="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
+              <Card key={business.id} className="hover:shadow-lg transition-shadow bg-[#1E1E1E] border border-white/10 hover:border-red-600/50">
+                <div className="aspect-video bg-[#2A2A2A] rounded-t-lg overflow-hidden">
                   {business.image && (
                     <img 
                       src={business.image} 
@@ -128,7 +128,7 @@ function BusinessDirectoryPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 mb-3">{business.description}</p>
+                  <p className="text-gray-400 mb-3">{business.description}</p>
                   <div className="flex items-center text-sm text-gray-500 mb-4">
                     <MapPin size={16} className="mr-1" />
                     {business.location}

@@ -54,11 +54,11 @@ export const FavoritesPage: React.FC = () => {
 
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-[#111111] flex items-center justify-center px-4">
         <div className="text-center">
           <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Sign in to view favorites</h2>
-          <p className="text-gray-600 mb-6">Create an account to save your favorite vendors and products</p>
+          <h2 className="text-2xl font-bold text-white mb-2">Sign in to view favorites</h2>
+          <p className="text-gray-400 mb-6">Create an account to save your favorite vendors and products</p>
           <Link
             to="/"
             className="inline-block px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition"
@@ -71,17 +71,17 @@ export const FavoritesPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-[#111111] py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Favorites</h1>
-          <p className="text-gray-600">Vendors and products you've saved for later</p>
+          <h1 className="text-3xl font-bold text-white mb-2">My Favorites</h1>
+          <p className="text-gray-400">Vendors and products you've saved for later</p>
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow-sm mb-6">
-          <div className="flex border-b border-gray-200">
+        <div className="bg-[#1A1A1A] rounded-lg border border-white/10 mb-6">
+          <div className="flex border-b border-white/10">
             <button
               onClick={() => setActiveTab('vendors')}
               className={`flex-1 px-6 py-4 font-semibold transition ${
@@ -131,7 +131,7 @@ export const FavoritesPage: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {favoriteVendorsList.map((vendor) => (
-                  <div key={vendor.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
+                  <div key={vendor.id} className="bg-[#1E1E1E] rounded-lg border border-white/10 overflow-hidden hover:border-red-600/50 hover:shadow-md transition">
                     <div className="relative h-48">
                       <img
                         src={vendor.image}
@@ -146,13 +146,13 @@ export const FavoritesPage: React.FC = () => {
                       </button>
                     </div>
                     <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 mb-1">{vendor.name}</h3>
-                      <p className="text-sm text-gray-600 mb-3">{vendor.category}</p>
+                      <h3 className="font-semibold text-white mb-1">{vendor.name}</h3>
+                      <p className="text-sm text-gray-400 mb-3">{vendor.category}</p>
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-1">
                           <span className="text-yellow-500">★</span>
-                          <span className="font-semibold text-gray-900">{vendor.rating}</span>
-                          <span className="text-sm text-gray-600">({vendor.reviewCount})</span>
+                          <span className="font-semibold text-white">{vendor.rating}</span>
+                          <span className="text-sm text-gray-500">({vendor.reviewCount})</span>
                         </div>
                       </div>
                       <Link
@@ -189,7 +189,7 @@ export const FavoritesPage: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {favoriteProductsList.map((product) => (
-                  <div key={product.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition">
+                  <div key={product.id} className="bg-[#1E1E1E] rounded-lg border border-white/10 overflow-hidden hover:border-red-600/50 hover:shadow-md transition">
                     <div className="relative h-48">
                       <img
                         src={product.image}
@@ -204,10 +204,10 @@ export const FavoritesPage: React.FC = () => {
                       </button>
                     </div>
                     <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 mb-1">{product.name}</h3>
-                      <p className="text-sm text-gray-600 mb-3">{product.vendorName}</p>
+                      <h3 className="font-semibold text-white mb-1">{product.name}</h3>
+                      <p className="text-sm text-gray-400 mb-3">{product.vendorName}</p>
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-xl font-bold text-gray-900">
+                        <span className="text-xl font-bold text-white">
                           {formatPrice(product.price)}
                         </span>
                         {product.inStock ? (
@@ -219,7 +219,7 @@ export const FavoritesPage: React.FC = () => {
                       <div className="flex gap-2">
                         <Link
                           to={`/products/${product.id}`}
-                          className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 text-center rounded-lg font-semibold hover:bg-gray-50 transition"
+                          className="flex-1 px-4 py-2 border border-white/20 text-gray-300 text-center rounded-lg font-semibold hover:bg-white/5 transition"
                         >
                           View
                         </Link>
