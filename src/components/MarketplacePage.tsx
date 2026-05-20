@@ -68,16 +68,16 @@ export default function MarketplacePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#111111]">
       {/* Header */}
-      <div className="bg-white shadow-sm">
+      <div className="bg-[#1A1A1A] shadow-sm border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-white">
                 Unity Marketplace
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-400 mt-1">
                 Support Black-owned businesses and find quality products from
                 our community
               </p>
@@ -108,7 +108,7 @@ export default function MarketplacePage() {
                 placeholder="Search products, businesses, or categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>
 
@@ -116,7 +116,7 @@ export default function MarketplacePage() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="px-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
               >
                 {categories.map((category) => (
                   <option key={category} value={category}>
@@ -128,7 +128,7 @@ export default function MarketplacePage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="px-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
               >
                 <option value="name">Sort by Name</option>
                 <option value="price-low">Price: Low to High</option>
@@ -142,7 +142,7 @@ export default function MarketplacePage() {
       {/* Products Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <p className="text-gray-600">
+          <p className="text-gray-400">
             Showing {filteredProducts.length} products
             {selectedCategory !== "All" && ` in ${selectedCategory}`}
             {searchTerm && ` matching "${searchTerm}"`}
@@ -153,9 +153,9 @@ export default function MarketplacePage() {
           {filteredProducts.map((product) => (
             <div
               key={product.id}
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden"
+              className="bg-[#1E1E1E] rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden border border-white/8"
             >
-              <div className="aspect-square bg-gray-200 relative">
+              <div className="aspect-square bg-[#2A2A2A] relative">
                 <img
                   src={product.image}
                   alt={product.name}
@@ -173,15 +173,15 @@ export default function MarketplacePage() {
 
               <div className="p-4">
                 <div className="mb-2">
-                  <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                  <span className="inline-block bg-[#2A2A2A] text-gray-300 text-xs px-2 py-1 rounded">
                     {product.category}
                   </span>
                 </div>
 
-                <h3 className="font-semibold text-gray-900 mb-1">
+                <h3 className="font-semibold text-white mb-1">
                   {product.name}
                 </h3>
-                <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                <p className="text-sm text-gray-400 mb-2 line-clamp-2">
                   {product.description}
                 </p>
 
@@ -191,7 +191,7 @@ export default function MarketplacePage() {
                       <Star
                         key={i}
                         size={16}
-                        className={`${i < 4 ? "text-yellow-400 fill-current" : "text-gray-300"}`}
+                        className={`${i < 4 ? "text-yellow-400 fill-current" : "text-gray-600"}`}
                       />
                     ))}
                   </div>
@@ -215,7 +215,7 @@ export default function MarketplacePage() {
                         ? "bg-green-600 text-white"
                         : product.inStock
                           ? "bg-red-600 text-white hover:bg-red-700"
-                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : "bg-gray-700 text-gray-500 cursor-not-allowed"
                     }`}
                   >
                     {addedToCart[product.id] ? (

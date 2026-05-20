@@ -30,13 +30,13 @@ export const OffersPage: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'open':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-900/40 text-green-400';
       case 'in-progress':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-900/40 text-yellow-400';
       case 'completed':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-700 text-gray-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-700 text-gray-300';
     }
   };
 
@@ -62,10 +62,10 @@ export const OffersPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-[#111111] py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
-            <p className="text-gray-600">Loading offers...</p>
+            <p className="text-gray-400">Loading offers...</p>
           </div>
         </div>
       </div>
@@ -73,12 +73,12 @@ export const OffersPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-[#111111] py-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">Community Offers</h1>
-          <p className="text-lg text-gray-600 mb-6">
+          <h1 className="text-4xl font-bold text-white mb-3">Community Offers</h1>
+          <p className="text-lg text-gray-400 mb-6">
             Connect with community members to trade services, barter, or collaborate
           </p>
 
@@ -92,7 +92,7 @@ export const OffersPage: React.FC = () => {
                   placeholder="Search offers..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -101,7 +101,7 @@ export const OffersPage: React.FC = () => {
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as any)}
-                className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                className="flex-1 sm:flex-none px-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
                 <option value="open">Open</option>
@@ -122,37 +122,37 @@ export const OffersPage: React.FC = () => {
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-3xl font-bold text-red-600 mb-1">{offers.length}</div>
-            <div className="text-sm text-gray-600">Total Offers</div>
+          <div className="bg-[#1E1E1E] rounded-lg border border-white/10 p-6">
+            <div className="text-3xl font-bold text-red-500 mb-1">{offers.length}</div>
+            <div className="text-sm text-gray-400">Total Offers</div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-3xl font-bold text-green-600 mb-1">
+          <div className="bg-[#1E1E1E] rounded-lg border border-white/10 p-6">
+            <div className="text-3xl font-bold text-green-500 mb-1">
               {offers.filter(o => o.status === 'open').length}
             </div>
-            <div className="text-sm text-gray-600">Open Offers</div>
+            <div className="text-sm text-gray-400">Open Offers</div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-3xl font-bold text-yellow-600 mb-1">
+          <div className="bg-[#1E1E1E] rounded-lg border border-white/10 p-6">
+            <div className="text-3xl font-bold text-yellow-500 mb-1">
               {offers.filter(o => o.status === 'in-progress').length}
             </div>
-            <div className="text-sm text-gray-600">In Progress</div>
+            <div className="text-sm text-gray-400">In Progress</div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-3xl font-bold text-gray-600 mb-1">
+          <div className="bg-[#1E1E1E] rounded-lg border border-white/10 p-6">
+            <div className="text-3xl font-bold text-gray-300 mb-1">
               {offers.reduce((sum, o) => sum + o.responses, 0)}
             </div>
-            <div className="text-sm text-gray-600">Total Responses</div>
+            <div className="text-sm text-gray-400">Total Responses</div>
           </div>
         </div>
 
         {/* Offers List */}
         <div className="space-y-4">
           {filteredOffers.length === 0 ? (
-            <div className="bg-white rounded-lg shadow p-12 text-center">
+            <div className="bg-[#1E1E1E] rounded-lg border border-white/10 p-12 text-center">
               <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No offers found</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-xl font-semibold text-white mb-2">No offers found</h3>
+              <p className="text-gray-400 mb-6">
                 {searchTerm || filterStatus !== 'all'
                   ? 'Try adjusting your search or filters'
                   : 'Be the first to create an offer!'}
@@ -170,12 +170,12 @@ export const OffersPage: React.FC = () => {
               <Link
                 key={offer.id}
                 to={`/offers/${offer.id}`}
-                className="block bg-white rounded-lg shadow hover:shadow-lg transition p-6"
+                className="block bg-[#1E1E1E] rounded-lg border border-white/10 hover:border-red-600/50 hover:shadow-lg transition p-6"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{offer.title}</h3>
-                    <p className="text-gray-600 line-clamp-2">{offer.description}</p>
+                    <h3 className="text-xl font-bold text-white mb-2">{offer.title}</h3>
+                    <p className="text-gray-400 line-clamp-2">{offer.description}</p>
                   </div>
                   <span className={`ml-4 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${getStatusColor(offer.status)}`}>
                     {getStatusIcon(offer.status)}
@@ -184,7 +184,7 @@ export const OffersPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-4 text-gray-600">
+                  <div className="flex items-center gap-4 text-gray-400">
                     <span className="flex items-center gap-1">
                       <MessageCircle className="h-4 w-4" />
                       {offer.responses} responses

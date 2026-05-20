@@ -95,16 +95,15 @@ const communityStats = {
 
 function CommunityPage() {
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-8 bg-[#111111]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1
-            className="text-4xl font-bold mb-4"
-            style={{ color: colors.black }}
+            className="text-4xl font-bold mb-4 text-white"
           >
             Community Hub
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-400">
             Connect, collaborate, and build together as one unified community
           </p>
         </div>
@@ -172,7 +171,7 @@ function CommunityPage() {
               color: colors.green,
             },
           ].map((feature, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
+            <Card key={index} className="hover:shadow-lg transition-shadow bg-[#1E1E1E] border border-white/10">
               <CardHeader>
                 <div className="flex items-center mb-4">
                   <div
@@ -185,7 +184,7 @@ function CommunityPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">{feature.description}</p>
+                <p className="text-gray-400 mb-4">{feature.description}</p>
                 <Button
                   variant="outline"
                   className="w-full"
