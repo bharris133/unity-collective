@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      .top-bar {
+        height: 8px;
+        background: #0A0A0A;
+        width: 100%;
+      }
+      .header-section {
+        padding: 64px 72px 0 72px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .section-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #D22730;
+        margin-bottom: 24px;
+      }
+      .headline {
+        font-size: 44px;
+        font-weight: 800;
+        color: #0A0A0A;
+        line-height: 1.15;
+        letter-spacing: -1px;
+        margin-bottom: 32px;
+        max-width: 900px;
+      }
+      .headline span {
+        color: #007A33;
+      }
+      .mission-statement {
+        font-size: 20px;
+        font-weight: 500;
+        color: #333333;
+        line-height: 1.6;
+        max-width: 880px;
+        border-left: 6px solid #D22730;
+        padding-left: 24px;
+      }
+      
+      /* CTA Grid */
+      .cta-grid {
+        display: flex;
+        height: 320px;
+        width: 100%;
+        margin-top: auto;
+      }
+      .cta-block {
+        flex: 1;
+        padding: 40px 32px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+      .texture-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 12px),
+          repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 12px);
+        pointer-events: none;
+        z-index: 1;
+      }
+      .cta-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .cta-icon {
+        font-size: 32px;
+        margin-bottom: 24px;
+      }
+      .cta-title {
+        font-size: 22px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+        line-height: 1.2;
+      }
+      .cta-desc {
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1.5;
+        margin-top: auto;
+      }
+      
+      /* Specific Block Colors */
+      .block-red {
+        background: #D22730;
+        color: #FFFFFF;
+      }
+      .block-black {
+        background: #0A0A0A;
+        color: #FFFFFF;
+      }
+      .block-green {
+        background: #007A33;
+        color: #FFFFFF;
+      }
+      .block-gold {
+        background: #FFD700;
+        color: #0A0A0A;
+      }
+      .block-gold .texture-overlay {
+        background-image:
+          repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 2px, transparent 2px, transparent 12px),
+          repeating-linear-gradient(-45deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 2px, transparent 2px, transparent 12px);
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="top-bar"></div>
+  
+  <div class="header-section">
+    <div class="section-label">The Movement</div>
+    <h1 class="headline">Join Us in Building the Future of<br><span>Black Economic Empowerment</span></h1>
+    <div class="mission-statement">
+      [Unity Collective] is more than a platform — it is a movement. Every business listed, every product purchased, and every message sent is an act of community investment. We are building the infrastructure for a self-sustaining Black economic ecosystem, and we invite you to be part of it from the very beginning.
+    </div>
+  </div>
+
+  <div class="cta-grid">
+    <!-- Block 1: Businesses -->
+    <div class="cta-block block-red">
+      <div class="texture-overlay"></div>
+      <div class="cta-content">
+        <i class="fas fa-store cta-icon"></i>
+        <div class="cta-title">Businesses</div>
+        <div class="cta-desc">Register your business, set up your storefront, and list your products to the community.</div>
+      </div>
+    </div>
+    
+    <!-- Block 2: Community -->
+    <div class="cta-block block-black">
+      <div class="texture-overlay"></div>
+      <div class="cta-content">
+        <i class="fas fa-users cta-icon"></i>
+        <div class="cta-title">Community</div>
+        <div class="cta-desc">Sign up, discover new services, and start intentionally supporting Black-owned businesses.</div>
+      </div>
+    </div>
+    
+    <!-- Block 3: Partners -->
+    <div class="cta-block block-green">
+      <div class="texture-overlay"></div>
+      <div class="cta-content">
+        <i class="fas fa-handshake cta-icon"></i>
+        <div class="cta-title">Partners</div>
+        <div class="cta-desc">Join us as an investor or strategic partner to scale this platform to every city in America.</div>
+      </div>
+    </div>
+    
+    <!-- Block 4: Developers -->
+    <div class="cta-block block-gold">
+      <div class="texture-overlay"></div>
+      <div class="cta-content">
+        <i class="fas fa-code cta-icon"></i>
+        <div class="cta-title">Developers</div>
+        <div class="cta-desc">Contribute your skills to an open, growing, and community-driven technical codebase.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

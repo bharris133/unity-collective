@@ -42,6 +42,7 @@ import BusinessDirectoryPage from './pages/BusinessDirectoryPage';
 import EducationPage from './pages/EducationPage';
 import MediaCenterPage from './pages/MediaCenterPage';
 import AboutPage from './pages/AboutPage';
+import PlatformShowcase from './pages/PlatformShowcase';
 
 // Import contexts
 import { AuthProvider } from './contexts/AuthContext';
@@ -259,6 +260,7 @@ function App() {
                 <Route path="/media" element={<MediaCenterPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/showcase" element={<PlatformShowcase />} />
               </Routes>
             </main>
             <Footer />

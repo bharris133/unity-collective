@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+        display: flex;
+      }
+      .left-panel {
+        width: 420px;
+        min-width: 420px;
+        background: #007A33;
+        position: relative;
+        padding: 64px 48px;
+        display: flex;
+        flex-direction: column;
+      }
+      .texture-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 12px),
+          repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 12px);
+        pointer-events: none;
+      }
+      .content-wrapper {
+        position: relative;
+        z-index: 2;
+      }
+      .section-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #FFD700;
+        margin-bottom: 24px;
+      }
+      .headline {
+        font-size: 36px;
+        font-weight: 800;
+        color: #FFFFFF;
+        line-height: 1.15;
+        letter-spacing: -1px;
+      }
+      .right-panel {
+        flex: 1;
+        /* reduced vertical padding to bring the lowest element above 720px */
+        padding: 38px 72px;
+        display: flex;
+        flex-direction: column;
+      }
+      .body-text {
+        font-size: 18px;
+        font-weight: 400;
+        color: #333333;
+        line-height: 1.6;
+        margin-bottom: 48px;
+      }
+      .body-text strong {
+        color: #0A0A0A;
+        font-weight: 700;
+      }
+      
+      /* Architecture Diagram */
+      .diagram-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 56px;
+      }
+      .diagram-interface {
+        background: #0A0A0A;
+        color: #FFFFFF;
+        font-size: 18px;
+        font-weight: 700;
+        padding: 16px 32px;
+        letter-spacing: 1px;
+        border-bottom: 4px solid #FFD700;
+        z-index: 2;
+      }
+      .diagram-lines {
+        display: flex;
+        width: 400px;
+        height: 40px;
+      }
+      .line-left, .line-right {
+        flex: 1;
+        border-top: 2px solid #0A0A0A;
+        margin-top: 20px;
+      }
+      .line-left {
+        border-left: 2px solid #0A0A0A;
+      }
+      .line-right {
+        border-right: 2px solid #0A0A0A;
+      }
+      .diagram-implementations {
+        display: flex;
+        width: 500px;
+        justify-content: space-between;
+      }
+      .impl-box {
+        width: 220px;
+        padding: 20px;
+        text-align: center;
+      }
+      .impl-mock {
+        background: #F0F0F0;
+        border: 2px solid #0A0A0A;
+        color: #0A0A0A;
+      }
+      .impl-stripe {
+        background: #D22730;
+        color: #FFFFFF;
+      }
+      .impl-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .impl-env {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: 0.8;
+      }
+      .env-toggle {
+        margin-top: 24px;
+        background: #0A0A0A;
+        color: #00FF41;
+        font-family: monospace;
+        font-size: 14px;
+        padding: 8px 16px;
+        letter-spacing: 1px;
+      }
+
+      /* Highlights Grid */
+      .highlights-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px 48px;
+        margin-top: auto;
+      }
+      .highlight-item {
+        border-left: 4px solid #D22730;
+        padding-left: 16px;
+      }
+      .highlight-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0A0A0A;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .highlight-desc {
+        font-size: 14px;
+        font-weight: 400;
+        color: #555555;
+        line-height: 1.5;
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="left-panel">
+    <div class="texture-overlay"></div>
+    <div class="content-wrapper">
+      <div class="section-label">Infrastructure</div>
+      <div class="headline">A Stripe-Ready Payment Architecture Scales Seamlessly to Production</div>
+    </div>
+  </div>
+  
+  <div class="right-panel">
+    <div class="body-text">
+      The platform's payment infrastructure was designed with production in mind from day one. Using a <strong>Strategy Pattern</strong>, the system automatically switches between a mock payment service for development and a Stripe integration for production. This architecture ensures zero disruption during the transition from testing to live commerce.
+    </div>
+
+    <div class="diagram-container">
+      <div class="diagram-interface">paymentService Interface</div>
+      <div class="diagram-lines">
+        <div class="line-left"></div>
+        <div class="line-right"></div>
+      </div>
+      <div class="diagram-implementations">
+        <div class="impl-box impl-mock">
+          <div class="impl-title">Mock Implementation</div>
+          <div class="impl-env">Development</div>
+        </div>
+        <div class="impl-box impl-stripe">
+          <div class="impl-title">Stripe Implementation</div>
+          <div class="impl-env">Production</div>
+        </div>
+      </div>
+      <div class="env-toggle">&gt; VITE_USE_MOCK_DATA=false</div>
+    </div>
+
+    <div class="highlights-grid">
+      <div class="highlight-item">
+        <div class="highlight-title">Guest Checkout</div>
+        <div class="highlight-desc">Supported natively at the architecture level, allowing flexible purchasing flows.</div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-title">Order Lifecycle</div>
+        <div class="highlight-desc">Complete end-to-end flow: create → process → confirm → fulfill.</div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-title">Webhook Handling</div>
+        <div class="highlight-desc">Stripe webhook processing designed and fully documented for backend integration.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

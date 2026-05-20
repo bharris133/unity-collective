@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+        display: flex;
+      }
+      .left-panel {
+        width: 480px;
+        background: #007A33;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 64px;
+      }
+      .texture-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 12px),
+          repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 12px);
+        z-index: 1;
+      }
+      .bg-icon {
+        position: absolute;
+        bottom: -40px;
+        right: -40px;
+        font-size: 320px;
+        color: rgba(255,255,255,0.05);
+        z-index: 1;
+      }
+      .left-content {
+        position: relative;
+        z-index: 2;
+      }
+      .section-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #FFD700;
+        margin-bottom: 24px;
+      }
+      .headline {
+        font-size: 42px;
+        font-weight: 800;
+        color: #FFFFFF;
+        line-height: 1.15;
+        letter-spacing: -1px;
+      }
+      .right-panel {
+        flex: 1;
+        padding: 48px 60px; /* reduced vertical padding to save height */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .intro-text {
+        font-size: 18px;
+        font-weight: 500;
+        color: #333333;
+        line-height: 1.6;
+        border-left: 6px solid #D22730;
+        padding-left: 24px;
+        margin-bottom: 28px; /* reduced spacing */
+      }
+      .feature-list {
+        display: flex;
+        flex-direction: column;
+      }
+      .feature-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 0; /* reduced inner padding per item */
+        border-top: 2px solid #F0F0F0;
+      }
+      .feature-item:last-child {
+        border-bottom: 2px solid #F0F0F0;
+      }
+      .feature-icon {
+        color: #D22730;
+        font-size: 24px;
+        width: 48px;
+        text-align: center;
+        margin-right: 24px;
+      }
+      .feature-text {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0A0A0A;
+        line-height: 1.4;
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="left-panel">
+    <div class="texture-overlay"></div>
+    <i class="fas fa-shopping-bag bg-icon"></i>
+    <div class="left-content">
+      <div class="section-label">03 / Marketplace</div>
+      <h1 class="headline">The Marketplace Turns Community Support Into Real Commerce</h1>
+    </div>
+  </div>
+  <div class="right-panel">
+    <p class="intro-text">
+      The [Unity Collective] Marketplace is a full-featured e-commerce experience built specifically for the community. Products from Black-owned businesses are displayed with professional imagery, accurate pricing, and detailed descriptions. The shopping cart handles all calculations — subtotal, tax, and shipping — with free shipping on orders over $50 to incentivize larger community purchases.
+    </p>
+    <div class="feature-list">
+      <div class="feature-item">
+        <i class="fas fa-calculator feature-icon"></i>
+        <div class="feature-text">Full shopping cart with real-time calculations (subtotal, 8% tax, shipping)</div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-truck feature-icon"></i>
+        <div class="feature-text">Free shipping threshold at $50 to reward community spending</div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-lock feature-icon"></i>
+        <div class="feature-text">Authentication-required checkout — every purchase builds a community relationship</div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-store-alt feature-icon"></i>
+        <div class="feature-text">Seamless integration with vendor storefronts in the Business Directory</div>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-tag feature-icon"></i>
+        <div class="feature-text">Consistent, professional price formatting throughout</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

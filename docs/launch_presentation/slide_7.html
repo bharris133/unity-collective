@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+        display: flex;
+      }
+      .left-col {
+        width: 720px;
+        min-width: 720px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+      .top-accent {
+        height: 8px;
+        background: #D22730;
+        width: 100%;
+      }
+      .left-content {
+        padding: 72px 64px 64px 72px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+      }
+      .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #D22730;
+        margin-bottom: 24px;
+      }
+      .headline {
+        font-size: 42px;
+        font-weight: 800;
+        color: #0A0A0A;
+        line-height: 1.15;
+        letter-spacing: -1px;
+        margin-bottom: 32px;
+      }
+      .headline span {
+        color: #007A33;
+      }
+      .body-text {
+        font-size: 18px;
+        font-weight: 400;
+        color: #444444;
+        line-height: 1.6;
+        max-width: 540px;
+        margin-bottom: 40px;
+      }
+      .quote-block {
+        border-left: 4px solid #D22730;
+        padding-left: 24px;
+        margin-top: 16px;
+      }
+      .quote-text {
+        font-size: 20px;
+        font-weight: 600;
+        color: #0A0A0A;
+        line-height: 1.4;
+      }
+      .right-col {
+        flex: 1;
+        background: #007A33;
+        padding: 72px 64px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+      }
+      .right-texture {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 12px);
+        pointer-events: none;
+      }
+      .features-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #FFD700;
+        margin-bottom: 40px;
+        letter-spacing: -0.5px;
+        position: relative;
+        z-index: 2;
+      }
+      .feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        position: relative;
+        z-index: 2;
+      }
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+      }
+      .feature-icon {
+        width: 32px;
+        height: 32px;
+        background: #FFD700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0A0A0A;
+        font-size: 14px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .feature-text {
+        font-size: 17px;
+        font-weight: 500;
+        color: #FFFFFF;
+        line-height: 1.5;
+      }
+      .feature-text span {
+        display: block;
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(255,255,255,0.7);
+        margin-top: 4px;
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="left-col">
+    <div class="top-accent"></div>
+    <div class="left-content">
+      <div class="section-label">Community Exchange</div>
+      <div class="headline">Messages and Offers Create a Living, Breathing <span>Barter Economy</span></div>
+      <div class="body-text">
+        Beyond traditional commerce, [Unity Collective] includes a Community Offers and Barter system — a space where members can exchange skills, services, and goods outside the traditional cash economy.
+      </div>
+      <div class="quote-block">
+        <div class="quote-text">
+          The integrated messaging system allows buyers and sellers to communicate directly, negotiate, and build lasting business relationships within the community.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="right-texture"></div>
+    <div class="features-title">Key Features</div>
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-clipboard-list"></i></div>
+        <div class="feature-text">
+          Community Offers Board
+          <span>Track open, in-progress, and completed statuses</span>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-comments"></i></div>
+        <div class="feature-text">
+          Direct Messaging
+          <span>Thread-based conversations between community members</span>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-search"></i></div>
+        <div class="feature-text">
+          Search and Filter
+          <span>Easily find offers by category and current status</span>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-plus-square"></i></div>
+        <div class="feature-text">
+          Create and Manage
+          <span>Streamlined form to post your own skills and services</span>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-bell"></i></div>
+        <div class="feature-text">
+          Real-Time Notifications
+          <span>Unread message count integrated directly into navigation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

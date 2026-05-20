@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+        display: flex;
+        flex-direction: column;
+      }
+      .top-bar { height: 8px; background: #007A33; width: 100%; }
+      .content-area {
+        flex: 1;
+        display: flex;
+        min-height: 712px;
+      }
+      .left-col {
+        width: 700px;
+        padding-left: 72px;
+        padding-right: 64px;
+        padding-top: 80px;
+        display: flex;
+        flex-direction: column;
+      }
+      .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #007A33;
+        margin-bottom: 24px;
+      }
+      .headline {
+        font-size: 44px;
+        font-weight: 800;
+        color: #0A0A0A;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+        margin-bottom: 40px;
+      }
+      .headline span { color: #D22730; }
+      .body-text {
+        font-size: 18px;
+        font-weight: 400;
+        color: #333333;
+        line-height: 1.6;
+        margin-bottom: 24px;
+      }
+      .highlight-box {
+        background: rgba(0, 122, 51, 0.05);
+        border-left: 4px solid #007A33;
+        padding: 24px;
+        margin-top: 24px;
+      }
+      .highlight-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0A0A0A;
+        line-height: 1.5;
+      }
+      .right-col {
+        flex: 1;
+        background: #0A0A0A;
+        padding-left: 64px;
+        padding-right: 64px;
+        padding-top: 80px;
+        position: relative;
+        overflow: hidden;
+      }
+      .texture-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 12px);
+        pointer-events: none;
+      }
+      .icon-header {
+        font-size: 48px;
+        color: #D22730;
+        margin-bottom: 40px;
+        position: relative;
+        z-index: 2;
+      }
+      .feature-list {
+        list-style: none;
+        position: relative;
+        z-index: 2;
+      }
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 32px;
+      }
+      .feature-icon {
+        color: #007A33;
+        font-size: 20px;
+        margin-right: 20px;
+        margin-top: 2px;
+      }
+      .feature-content h4 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+      }
+      .feature-content p {
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(255,255,255,0.7);
+        line-height: 1.5;
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="top-bar"></div>
+  <div class="content-area">
+    <div class="left-col">
+      <div class="section-label">Trust & Identity</div>
+      <div class="headline">Secure, <span>Community-First</span> Authentication</div>
+      <div class="body-text">
+        Every interaction on [Unity Collective] is grounded in identity and accountability. The platform's authentication system ensures that buyers and sellers are real community members, not anonymous actors.
+      </div>
+      <div class="body-text">
+        Requiring login for checkout is a deliberate design choice — it means every transaction creates a connection, enables follow-up communication, and builds the trust that sustains a thriving community economy.
+      </div>
+      <div class="highlight-box">
+        <div class="highlight-text">
+          "When we know who we are doing business with, a simple transaction becomes the foundation for a lasting community relationship."
+        </div>
+      </div>
+    </div>
+    <div class="right-col">
+      <div class="texture-overlay"></div>
+      <div class="icon-header">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <ul class="feature-list">
+        <li class="feature-item">
+          <div class="feature-icon"><i class="fas fa-check-square"></i></div>
+          <div class="feature-content">
+            <h4>Firebase Authentication Ready</h4>
+            <p>Built on robust infrastructure, ready for production deployment with secure credential management.</p>
+          </div>
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon"><i class="fas fa-users-cog"></i></div>
+          <div class="feature-content">
+            <h4>Role-Based Access Control</h4>
+            <p>Distinct experiences and permissions for buyers, vendors, and platform administrators.</p>
+          </div>
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon"><i class="fas fa-compass"></i></div>
+          <div class="feature-content">
+            <h4>Contextual Navigation</h4>
+            <p>Community features like Messages and Offers dynamically reveal themselves only to logged-in members.</p>
+          </div>
+        </li>
+        <li class="feature-item">
+          <div class="feature-icon"><i class="fas fa-shopping-bag"></i></div>
+          <div class="feature-content">
+            <h4>Auth-Required Checkout</h4>
+            <p>Guest browsing is supported for discovery, but completing a purchase requires community membership.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>

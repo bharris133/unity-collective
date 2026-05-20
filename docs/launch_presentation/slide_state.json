@@ -1,0 +1,133 @@
+{
+  "project_info": {
+    "title": "[Unity Collective]",
+    "created": 1779204544.255,
+    "last_updated": 1779204857.017,
+    "total_slides": 12
+  },
+  "slides": [
+    {
+      "id": "slide_1",
+      "state": "edited",
+      "pageNum": 1
+    },
+    {
+      "id": "slide_2",
+      "state": "edited",
+      "pageNum": 2
+    },
+    {
+      "id": "slide_3",
+      "state": "edited",
+      "pageNum": 3
+    },
+    {
+      "id": "slide_4",
+      "state": "edited",
+      "pageNum": 4
+    },
+    {
+      "id": "slide_5",
+      "state": "edited",
+      "pageNum": 5
+    },
+    {
+      "id": "slide_6",
+      "state": "edited",
+      "pageNum": 6
+    },
+    {
+      "id": "slide_7",
+      "state": "edited",
+      "pageNum": 7
+    },
+    {
+      "id": "slide_8",
+      "state": "edited",
+      "pageNum": 8
+    },
+    {
+      "id": "slide_9",
+      "state": "edited",
+      "pageNum": 9
+    },
+    {
+      "id": "slide_10",
+      "state": "edited",
+      "pageNum": 10
+    },
+    {
+      "id": "slide_11",
+      "state": "edited",
+      "pageNum": 11
+    },
+    {
+      "id": "slide_12",
+      "state": "edited",
+      "pageNum": 12
+    }
+  ],
+  "outline": [
+    {
+      "id": "slide_1",
+      "title": "[Unity Collective]",
+      "summary": "Title slide introducing the platform and its mission to empower the Black community through economic strength."
+    },
+    {
+      "id": "slide_2",
+      "title": "The Opportunity is Now",
+      "summary": "Highlights the $1.8 trillion Black consumer market and the need for a unified digital platform to increase economic recirculation."
+    },
+    {
+      "id": "slide_3",
+      "title": "Five Pillars of Empowerment",
+      "summary": "Introduces the five core pillars of the platform: Community Hub, Business Directory, Marketplace, Education, and Media Center."
+    },
+    {
+      "id": "slide_4",
+      "title": "The Business Directory",
+      "summary": "Details the Business Directory feature, showcasing verified profiles, category filtering, and integrated vendor storefronts.",
+      "image_plan": "/home/ubuntu/upload/pasted_file_fEX3Ve_image.png - The image shows a list of features, including 'Business Directory', with a 'PASS' status, which directly relates to the slide's content about the Business Directory."
+    },
+    {
+      "id": "slide_5",
+      "title": "The Marketplace",
+      "summary": "Explains the Marketplace e-commerce experience, including real-time cart calculations, free shipping thresholds, and authentication-required checkout."
+    },
+    {
+      "id": "slide_6",
+      "title": "Secure, Community-First Authentication",
+      "summary": "Discusses the importance of authentication in building trust, detailing the role-based access and contextual navigation features."
+    },
+    {
+      "id": "slide_7",
+      "title": "Messages and Offers",
+      "summary": "Describes the Community Offers and Barter system, highlighting direct messaging and the ability to exchange skills and services."
+    },
+    {
+      "id": "slide_8",
+      "title": "Stripe-Ready Payment Architecture",
+      "summary": "Outlines the scalable payment infrastructure, explaining the Strategy Pattern that allows seamless switching between mock and live Stripe payments."
+    },
+    {
+      "id": "slide_9",
+      "title": "Feature-Complete and Production-Ready",
+      "summary": "Summarizes the current status of the platform, confirming that all core features are complete and tested on a clean TypeScript codebase."
+    },
+    {
+      "id": "slide_10",
+      "title": "Three Clear Steps to Launch",
+      "summary": "Presents the roadmap to launch, focusing on branding, infrastructure activation, and community onboarding."
+    },
+    {
+      "id": "slide_11",
+      "title": "Join Us",
+      "summary": "A call to action for businesses, community members, investors, and developers to join and support the movement."
+    },
+    {
+      "id": "slide_12",
+      "title": "Thank You",
+      "summary": "Closing slide with a final statement on community investment and contact information."
+    }
+  ]
+}

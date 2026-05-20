@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+      .main-content {
+        display: flex;
+        flex: 1;
+        min-height: 660px;
+      }
+      .left-panel {
+        width: 420px;
+        min-width: 420px;
+        background: #D22730;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        overflow: hidden;
+      }
+      .texture-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 12px),
+          repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 12px);
+      }
+      .left-accent {
+        position: relative;
+        z-index: 2;
+        margin-left: 40px;
+        margin-bottom: 48px;
+      }
+      .left-accent .year {
+        font-size: 96px;
+        font-weight: 800;
+        color: rgba(255,255,255,0.15);
+        line-height: 1;
+        letter-spacing: -4px;
+      }
+      .left-accent .launch-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(255,255,255,0.9);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-top: 8px;
+      }
+      .right-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-left: 72px;
+        padding-right: 64px;
+        position: relative;
+      }
+      .placeholder-badge {
+        display: inline-block;
+        background: #007A33;
+        color: #FFFFFF;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        padding: 6px 14px;
+        margin-bottom: 28px;
+        width: fit-content;
+      }
+      .brand-name {
+        font-size: 68px;
+        font-weight: 800;
+        color: #0A0A0A;
+        line-height: 1.0;
+        letter-spacing: -2px;
+        margin-bottom: 24px;
+      }
+      .brand-name span {
+        color: #D22730;
+      }
+      .subtitle {
+        font-size: 22px;
+        font-weight: 500;
+        color: #333333;
+        line-height: 1.4;
+        max-width: 560px;
+        margin-bottom: 40px;
+      }
+      .divider {
+        width: 80px;
+        height: 4px;
+        background: #007A33;
+        margin-bottom: 32px;
+      }
+      .tagline {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0A0A0A;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+      .bottom-bar {
+        height: 60px;
+        background: #0A0A0A;
+        display: flex;
+        align-items: center;
+        padding-left: 72px;
+        gap: 32px;
+      }
+      .bottom-bar .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+      .bottom-bar .dot-red { background: #D22730; }
+      .bottom-bar .dot-green { background: #007A33; }
+      .bottom-bar .dot-gold { background: #FFD700; }
+      .bottom-bar .bottom-text {
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.6);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="main-content">
+    <div class="left-panel">
+      <div class="texture-overlay"></div>
+      <div class="left-accent">
+        <div class="year">2026</div>
+        <div class="launch-label">Platform Launch</div>
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="placeholder-badge">Platform Name Placeholder</div>
+      <div class="brand-name">[Unity<br><span>Collective]</span></div>
+      <div class="subtitle">Empowering the Black Community Through Economic Strength</div>
+      <div class="divider"></div>
+      <div class="tagline">One Platform &nbsp;·&nbsp; Five Pillars &nbsp;·&nbsp; Infinite Possibility</div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <div class="dot dot-red"></div>
+    <div class="dot dot-green"></div>
+    <div class="dot dot-gold"></div>
+    <div class="bottom-text">Community &nbsp;·&nbsp; Commerce &nbsp;·&nbsp; Culture</div>
+  </div>
+</div>
+</body>
+</html>
