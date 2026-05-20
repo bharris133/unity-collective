@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+        display: flex;
+        flex-direction: column;
+      }
+      .top-bar { height: 8px; background: #0A0A0A; width: 100%; }
+      .header-area {
+        display: flex;
+        align-items: flex-start;
+        padding-left: 72px;
+        padding-right: 72px;
+        padding-top: 44px;
+        padding-bottom: 0;
+        gap: 48px;
+      }
+      .header-left { flex: 1; }
+      .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #007A33;
+        margin-bottom: 16px;
+      }
+      .headline {
+        font-size: 40px;
+        font-weight: 800;
+        color: #0A0A0A;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+      }
+      .headline span { color: #D22730; }
+      .header-right {
+        max-width: 420px;
+        padding-top: 40px;
+      }
+      .header-right p {
+        font-size: 15px;
+        font-weight: 400;
+        color: #555555;
+        line-height: 1.7;
+      }
+      .pillars-area {
+        display: flex;
+        flex: 1;
+        margin-top: 40px;
+        min-height: 380px;
+      }
+      .pillar {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding-left: 28px;
+        padding-right: 20px;
+        padding-top: 36px;
+        position: relative;
+      }
+      .pillar-1 { background: #D22730; }
+      .pillar-2 { background: #0A0A0A; }
+      .pillar-3 { background: #007A33; }
+      .pillar-4 { background: #D22730; }
+      .pillar-5 { background: #0A0A0A; }
+      .pillar-texture {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 10px);
+      }
+      .pillar-content { position: relative; z-index: 2; }
+      .pillar-number {
+        font-size: 64px;
+        font-weight: 800;
+        color: rgba(255,255,255,0.15);
+        line-height: 1;
+        letter-spacing: -3px;
+        margin-bottom: 12px;
+      }
+      .pillar-icon {
+        font-size: 28px;
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 16px;
+      }
+      .pillar-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #FFFFFF;
+        line-height: 1.3;
+        margin-bottom: 8px;
+      }
+      .pillar-desc {
+        font-size: 12px;
+        font-weight: 400;
+        color: rgba(255,255,255,0.7);
+        line-height: 1.5;
+        margin-bottom: 28px;
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="top-bar"></div>
+  <div class="header-area">
+    <div class="header-left">
+      <div class="section-label">Platform Architecture</div>
+      <div class="headline">Built on <span>Five Pillars</span><br>of Empowerment</div>
+    </div>
+    <div class="header-right">
+      <p>[Unity Collective] is not a single-purpose app — it is a comprehensive community ecosystem designed around five interconnected pillars that address the full spectrum of community needs, from commerce to culture.</p>
+    </div>
+  </div>
+  <div class="pillars-area">
+    <div class="pillar pillar-1">
+      <div class="pillar-texture"></div>
+      <div class="pillar-content">
+        <div class="pillar-number">01</div>
+        <div class="pillar-icon"><i class="fas fa-users"></i></div>
+        <div class="pillar-name">Community Hub</div>
+        <div class="pillar-desc">Events, discussions, and authentic connection</div>
+      </div>
+    </div>
+    <div class="pillar pillar-2">
+      <div class="pillar-texture"></div>
+      <div class="pillar-content">
+        <div class="pillar-number">02</div>
+        <div class="pillar-icon"><i class="fas fa-store"></i></div>
+        <div class="pillar-name">Business Directory</div>
+        <div class="pillar-desc">Discover and support Black-owned businesses</div>
+      </div>
+    </div>
+    <div class="pillar pillar-3">
+      <div class="pillar-texture"></div>
+      <div class="pillar-content">
+        <div class="pillar-number">03</div>
+        <div class="pillar-icon"><i class="fas fa-shopping-cart"></i></div>
+        <div class="pillar-name">Marketplace</div>
+        <div class="pillar-desc">Buy and sell products within the community</div>
+      </div>
+    </div>
+    <div class="pillar pillar-4">
+      <div class="pillar-texture"></div>
+      <div class="pillar-content">
+        <div class="pillar-number">04</div>
+        <div class="pillar-icon"><i class="fas fa-graduation-cap"></i></div>
+        <div class="pillar-name">Education</div>
+        <div class="pillar-desc">Resources, courses, and knowledge sharing</div>
+      </div>
+    </div>
+    <div class="pillar pillar-5">
+      <div class="pillar-texture"></div>
+      <div class="pillar-content">
+        <div class="pillar-number">05</div>
+        <div class="pillar-icon"><i class="fas fa-play-circle"></i></div>
+        <div class="pillar-name">Media Center</div>
+        <div class="pillar-desc">Stories, voices, and cultural content</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

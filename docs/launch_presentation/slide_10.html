@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+        display: flex;
+        flex-direction: column;
+      }
+      .top-bar { height: 8px; background: #D22730; width: 100%; }
+      .header-section {
+        padding: 56px 72px 40px 72px;
+      }
+      .section-label {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #007A33;
+        margin-bottom: 16px;
+      }
+      .headline {
+        font-size: 40px;
+        font-weight: 800;
+        color: #0A0A0A;
+        line-height: 1.1;
+        letter-spacing: -1px;
+        margin-bottom: 24px;
+      }
+      .intro-text {
+        font-size: 18px;
+        font-weight: 500;
+        color: #444444;
+        max-width: 800px;
+        line-height: 1.5;
+      }
+      .steps-container {
+        display: flex;
+        flex: 1;
+      }
+      .step-col {
+        flex: 1;
+        padding: 48px 40px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+      .step-1 { background: #0A0A0A; }
+      .step-2 { background: #D22730; }
+      .step-3 { background: #007A33; }
+      
+      .texture-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 2px, transparent 2px, transparent 12px);
+        pointer-events: none;
+      }
+      
+      .step-content {
+        position: relative;
+        z-index: 2;
+      }
+      .step-number {
+        font-size: 72px;
+        font-weight: 800;
+        color: rgba(255,255,255,0.15);
+        line-height: 1;
+        margin-bottom: 24px;
+        letter-spacing: -2px;
+      }
+      .step-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #FFFFFF;
+        margin-bottom: 16px;
+        letter-spacing: -0.5px;
+      }
+      .step-desc {
+        font-size: 16px;
+        font-weight: 400;
+        color: rgba(255,255,255,0.85);
+        line-height: 1.6;
+      }
+      .step-divider {
+        width: 40px;
+        height: 4px;
+        background: #FFD700;
+        margin-bottom: 24px;
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="top-bar"></div>
+  <div class="header-section">
+    <div class="section-label">Roadmap</div>
+    <h1 class="headline">Three Clear Steps to Launch</h1>
+    <p class="intro-text">
+      The path from today's feature-complete platform to a live community product is clear and achievable. With the technical foundation in place, the remaining work focuses on branding, infrastructure, and community onboarding.
+    </p>
+  </div>
+  <div class="steps-container">
+    <div class="step-col step-1">
+      <div class="texture-overlay"></div>
+      <div class="step-content">
+        <div class="step-number">01</div>
+        <div class="step-divider"></div>
+        <div class="step-title">Branding</div>
+        <div class="step-desc">
+          Finalize the platform name and domain, update all placeholder references across the UI, and complete brand identity assets to ensure a cohesive visual presence.
+        </div>
+      </div>
+    </div>
+    <div class="step-col step-2">
+      <div class="texture-overlay"></div>
+      <div class="step-content">
+        <div class="step-number">02</div>
+        <div class="step-divider"></div>
+        <div class="step-title">Infrastructure</div>
+        <div class="step-desc">
+          Activate Stripe payments for live transactions, configure Firebase Authentication for real users, and migrate to a Firestore database for live data management.
+        </div>
+      </div>
+    </div>
+    <div class="step-col step-3">
+      <div class="texture-overlay"></div>
+      <div class="step-content">
+        <div class="step-number">03</div>
+        <div class="step-divider"></div>
+        <div class="step-title">Community</div>
+        <div class="step-desc">
+          Onboard the first cohort of vendors to populate the directory, launch a closed beta program for initial feedback, and begin targeted community outreach.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

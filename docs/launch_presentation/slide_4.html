@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+        position: relative;
+      }
+      .top-bar {
+        height: 8px;
+        background: #D22730;
+        width: 100%;
+      }
+      .left-geometric-block {
+        position: absolute;
+        left: 64px;
+        top: 80px;
+        width: 420px;
+        height: 560px;
+        background: #007A33;
+      }
+      .texture-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 12px),
+          repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 12px);
+      }
+      .image-wrapper {
+        position: absolute;
+        left: 48px;
+        top: 48px;
+        width: 420px;
+        height: 464px;
+        background: #FFFFFF;
+        border: 4px solid #0A0A0A;
+        z-index: 2;
+        padding: 16px;
+      }
+      .image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .right-content {
+        margin-left: 580px;
+        padding-top: 80px;
+        padding-right: 80px;
+      }
+      .section-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #D22730;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .section-label::before {
+        content: '';
+        display: block;
+        width: 24px;
+        height: 4px;
+        background: #D22730;
+      }
+      .headline {
+        font-size: 36px;
+        font-weight: 800;
+        color: #0A0A0A;
+        line-height: 1.15;
+        letter-spacing: -1px;
+        margin-bottom: 24px;
+      }
+      .headline span {
+        color: #007A33;
+      }
+      .body-text {
+        font-size: 16px;
+        font-weight: 500;
+        color: #333333;
+        line-height: 1.6;
+        margin-bottom: 32px;
+        max-width: 580px;
+      }
+      .features-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .feature-icon {
+        width: 24px;
+        height: 24px;
+        background: #0A0A0A;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .feature-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0A0A0A;
+        line-height: 1.4;
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="top-bar"></div>
+  
+  <div class="left-geometric-block">
+    <div class="texture-overlay"></div>
+    <div class="image-wrapper">
+      <img src="/home/ubuntu/upload/pasted_file_fEX3Ve_image.png" alt="Business Directory Status">
+    </div>
+  </div>
+
+  <div class="right-content">
+    <div class="section-label">Pillar 02 &nbsp;·&nbsp; Business Directory</div>
+    <h1 class="headline">The Business Directory Puts<br><span>1,200+ Businesses</span> at Your Fingertips</h1>
+    
+    <p class="body-text">
+      The Business Directory is the heart of the platform's economic engine. Every business listing is a verified, searchable profile complete with contact information, services offered, customer ratings, and — critically — a live product storefront. Community members can discover a business, read its story, and make a purchase without ever leaving the platform.
+    </p>
+
+    <div class="features-list">
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-check"></i></div>
+        <div class="feature-text">Verified business profiles with owner information and history</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-check"></i></div>
+        <div class="feature-text">Category-based filtering across 12+ industry sectors</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-check"></i></div>
+        <div class="feature-text">Integrated vendor storefronts with live product listings</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-check"></i></div>
+        <div class="feature-text">Direct contact via phone, email, and website links</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon"><i class="fas fa-check"></i></div>
+        <div class="feature-text">Similar business recommendations to encourage exploration</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #FFFFFF;
+        font-family: 'Space Grotesk', sans-serif;
+        display: flex;
+        flex-direction: column;
+      }
+      .top-bar { height: 8px; background: #D22730; width: 100%; }
+      .content-area {
+        flex: 1;
+        display: flex;
+        gap: 0;
+        min-height: 652px;
+      }
+      .left-col {
+        width: 560px;
+        min-width: 560px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-left: 72px;
+        padding-right: 48px;
+        padding-top: 48px;
+      }
+      .section-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #D22730;
+        margin-bottom: 20px;
+      }
+      .headline {
+        font-size: 36px;
+        font-weight: 800;
+        color: #0A0A0A;
+        line-height: 1.15;
+        letter-spacing: -1px;
+        margin-bottom: 28px;
+      }
+      .headline span { color: #D22730; }
+      .body-text {
+        font-size: 16px;
+        font-weight: 400;
+        color: #444444;
+        line-height: 1.7;
+        max-width: 440px;
+      }
+      .green-rule {
+        width: 60px;
+        height: 4px;
+        background: #007A33;
+        margin-top: 32px;
+        margin-bottom: 32px;
+      }
+      .insight-text {
+        font-size: 15px;
+        font-weight: 600;
+        color: #0A0A0A;
+        line-height: 1.5;
+        max-width: 420px;
+        border-left: 4px solid #007A33;
+        padding-left: 16px;
+      }
+      .right-col {
+        flex: 1;
+        background: #0A0A0A;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-left: 56px;
+        padding-right: 56px;
+        padding-top: 48px;
+        gap: 0;
+      }
+      .stat-block {
+        margin-bottom: 40px;
+      }
+      .stat-block:last-child { margin-bottom: 0; }
+      .stat-number {
+        font-size: 56px;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -2px;
+      }
+      .stat-number.red { color: #D22730; }
+      .stat-number.green { color: #007A33; }
+      .stat-number.gold { color: #FFD700; }
+      .stat-label {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.7);
+        margin-top: 6px;
+        line-height: 1.4;
+        max-width: 320px;
+      }
+      .stat-divider {
+        width: 100%;
+        height: 1px;
+        background: rgba(255,255,255,0.1);
+        margin-bottom: 40px;
+      }
+      .bottom-strip {
+        height: 60px;
+        background: #007A33;
+        display: flex;
+        align-items: center;
+        padding-left: 72px;
+      }
+      .bottom-strip .strip-text {
+        font-size: 13px;
+        font-weight: 600;
+        color: #FFFFFF;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="top-bar"></div>
+  <div class="content-area">
+    <div class="left-col">
+      <div class="section-label">The Opportunity</div>
+      <div class="headline">Black Economic Power<br>is <span>$1.8 Trillion</span> Strong</div>
+      <div class="body-text">
+        The Black community in America represents one of the largest consumer markets on the planet. Yet only a fraction of those dollars circulate within Black-owned businesses — a structural gap that [Unity Collective] is built to close.
+      </div>
+      <div class="green-rule"></div>
+      <div class="insight-text">
+        A dollar spent in the Black community leaves within 6 hours. In other communities, it circulates for up to 28 days. A unified platform can change that equation permanently.
+      </div>
+    </div>
+    <div class="right-col">
+      <div class="stat-block">
+        <div class="stat-number red">$1.8T</div>
+        <div class="stat-label">Black consumer buying power in the United States — one of the world's largest untapped economic ecosystems</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <div class="stat-number green">2.3%</div>
+        <div class="stat-label">Share of all U.S. employer businesses that are Black-owned — a gap that represents enormous opportunity</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <div class="stat-number gold">6 hrs</div>
+        <div class="stat-label">Average time before a dollar leaves the Black community — vs. 28 days in other communities</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-strip">
+    <div class="strip-text">The infrastructure for change already exists — we are building the platform</div>
+  </div>
+</div>
+</body>
+</html>

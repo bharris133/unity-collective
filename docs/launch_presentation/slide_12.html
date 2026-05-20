@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0A0A0A;
+        font-family: 'Space Grotesk', sans-serif;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+      .texture-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image:
+          repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 12px),
+          repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 12px);
+        pointer-events: none;
+        z-index: 1;
+      }
+      .top-accent {
+        height: 12px;
+        width: 100%;
+        display: flex;
+        position: relative;
+        z-index: 2;
+      }
+      .accent-red { flex: 1; background: #D22730; }
+      .accent-gold { flex: 1; background: #FFD700; }
+      .accent-green { flex: 1; background: #007A33; }
+      
+      .content-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        padding-top: 40px;
+      }
+      .thank-you {
+        font-size: 120px;
+        font-weight: 800;
+        color: #FFFFFF;
+        letter-spacing: -4px;
+        line-height: 1;
+        margin-bottom: 24px;
+      }
+      .thank-you span {
+        color: #D22730;
+      }
+      .statement {
+        font-size: 28px;
+        font-weight: 500;
+        color: #FFD700;
+        max-width: 800px;
+        line-height: 1.4;
+        margin-bottom: 80px;
+      }
+      .contact-info {
+        display: flex;
+        gap: 80px;
+        margin-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.15);
+        padding-top: 64px;
+      }
+      .contact-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .contact-icon {
+        font-size: 32px;
+        color: #007A33;
+        margin-bottom: 20px;
+      }
+      .contact-text {
+        font-size: 22px;
+        font-weight: 600;
+        color: #FFFFFF;
+        letter-spacing: 1px;
+      }
+      .contact-label {
+        font-size: 14px;
+        font-weight: 400;
+        color: rgba(255,255,255,0.5);
+        margin-top: 8px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+    </style>
+</head>
+<body>
+<div class="slide-container">
+  <div class="top-accent">
+    <div class="accent-red"></div>
+    <div class="accent-gold"></div>
+    <div class="accent-green"></div>
+  </div>
+  <div class="texture-overlay"></div>
+  
+  <div class="content-wrapper">
+    <h1 class="thank-you">Thank <span>You.</span></h1>
+    <p class="statement">Every dollar spent is an investment in our shared future.</p>
+    
+    <div class="contact-info">
+      <div class="contact-item">
+        <i class="fas fa-globe contact-icon"></i>
+        <div class="contact-text">[unity-collective.com]</div>
+        <div class="contact-label">Website</div>
+      </div>
+      <div class="contact-item">
+        <i class="fas fa-envelope contact-icon"></i>
+        <div class="contact-text">hello@[unity-collective.com]</div>
+        <div class="contact-label">Email</div>
+      </div>
+      <div class="contact-item">
+        <i class="fab fa-instagram contact-icon"></i>
+        <div class="contact-text">@[unity_collective]</div>
+        <div class="contact-label">Social</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
