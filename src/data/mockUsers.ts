@@ -59,6 +59,7 @@ export const mockUsers: Record<string, User & { password: string; role: 'user' |
     phoneNumber: '(555) 999-0000',
     address: '789 Admin Blvd, Unity City, UC 12345',
     role: 'admin',
+    isAdmin: true,
     isVendor: false,
     createdAt: new Date('2023-01-01').toISOString(),
     lastLoginAt: new Date().toISOString(),
