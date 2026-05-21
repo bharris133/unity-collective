@@ -9,6 +9,7 @@ export interface Business {
   longDescription?: string;
   image: string;
   verified: boolean;
+  isBlackOwned?: boolean;
   owner?: string;
   since?: number;
   website?: string;
@@ -29,6 +30,7 @@ export const mockBusinesses: Business[] = [
     longDescription: "Sankofa Consulting provides comprehensive business strategy and consulting services specifically tailored for Black entrepreneurs and business owners. Our team of experienced consultants helps businesses develop growth strategies, improve operations, and achieve sustainable success.",
     image: "https://placehold.co/800x400/e5e5e5/666666?text=Business+Image",
     verified: true,
+    isBlackOwned: true,
     owner: "Dr. Kwame Johnson",
     since: 2015,
     website: "https://sankofaconsulting.com",
@@ -47,6 +49,7 @@ export const mockBusinesses: Business[] = [
     longDescription: "Heritage Foods Market is your destination for authentic African and Caribbean ingredients, spices, and prepared foods. We source directly from local farmers and international suppliers to bring you the freshest and most authentic products.",
     image: "https://placehold.co/800x400/e5e5e5/666666?text=Business+Image",
     verified: true,
+    isBlackOwned: true,
     owner: "Amara Williams",
     since: 2018,
     website: "https://heritagefoodsmarket.com",
@@ -65,6 +68,7 @@ export const mockBusinesses: Business[] = [
     longDescription: "Unity Tech Solutions specializes in custom software development, web applications, mobile apps, and IT consulting services. We help businesses leverage technology to solve problems and achieve their goals.",
     image: "https://placehold.co/800x400/e5e5e5/666666?text=Business+Image",
     verified: true,
+    isBlackOwned: true,
     owner: "Marcus Thompson",
     since: 2017,
     website: "https://unitytechsolutions.com",
@@ -82,6 +86,7 @@ export const mockBusinesses: Business[] = [
     longDescription: "Afrocentric Books & Art is an independent bookstore and art gallery celebrating Black culture, history, and creativity. We carry a curated selection of books by Black authors, original artwork, and cultural items.",
     image: "https://placehold.co/800x400/e5e5e5/666666?text=Business+Image",
     verified: true,
+    isBlackOwned: true,
     owner: "Zainab Hassan",
     since: 2012,
     website: "https://afrocentricbooksandart.com",
@@ -99,6 +104,7 @@ export const mockBusinesses: Business[] = [
     longDescription: "Wellness by Imani offers holistic health and wellness services including massage therapy, acupuncture, nutrition counseling, and yoga classes. We focus on treating the whole person - mind, body, and spirit.",
     image: "https://placehold.co/800x400/e5e5e5/666666?text=Business+Image",
     verified: true,
+    isBlackOwned: true,
     owner: "Imani Carter",
     since: 2019,
     website: "https://wellnessbyimani.com",
@@ -116,6 +122,7 @@ export const mockBusinesses: Business[] = [
     longDescription: "Black Excellence Academy provides high-quality after-school programs, tutoring, and enrichment activities for students K-12. Our experienced educators focus on academic excellence, cultural awareness, and character development.",
     image: "https://placehold.co/800x400/e5e5e5/666666?text=Business+Image",
     verified: true,
+    isBlackOwned: true,
     owner: "Dr. Jamal Washington",
     since: 2014,
     website: "https://blackexcellenceacademy.org",

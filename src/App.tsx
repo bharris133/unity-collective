@@ -43,6 +43,8 @@ import EducationPage from './pages/EducationPage';
 import MediaCenterPage from './pages/MediaCenterPage';
 import AboutPage from './pages/AboutPage';
 import PlatformShowcase from './pages/PlatformShowcase';
+import OnboardingWizard from './pages/OnboardingWizard';
+import MemberDashboard from './pages/MemberDashboard';
 
 // Import contexts
 import { AuthProvider } from './contexts/AuthContext';
@@ -261,6 +263,8 @@ function App() {
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/admin" element={<AdminPanel />} />
                 <Route path="/showcase" element={<PlatformShowcase />} />
+                <Route path="/onboarding" element={<OnboardingWizard />} />
+                <Route path="/dashboard" element={<MemberDashboard />} />
               </Routes>
             </main>
             <Footer />
