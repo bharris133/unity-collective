@@ -45,6 +45,8 @@ export interface OnboardingState {
   verificationDocs: OnboardingVerificationDoc[];
   // Products: added during onboarding or skipped
   skippedProducts: boolean;
+  // Rejection
+  rejectionReason?: string;
   // Timestamps
   startedAt: string;
   completedAt: string | null;
