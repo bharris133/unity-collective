@@ -21,14 +21,14 @@ yarn.lock
 # ===================================
 # ENVIRONMENT VARIABLES & CONFIG
 # ===================================
-# Environment files containing sensitive information
+# Local secrets — never commit these
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.env.development
-.env.production
+# .env.development and .env.production are committed as templates (placeholder values only)
+# Real secrets are injected via CI/CD environment variables at build time
 
 # Firebase configuration (contains API keys)
 # Uncomment the line below if you want to keep Firebase config private
@@ -292,3 +292,4 @@ YOUTUBE_CONTENT_STRATEGY.md
 # - Review files before committing to ensure no secrets are included
 #
 
+.firebase-service-account.json

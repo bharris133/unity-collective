@@ -1,0 +1,89 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ────────────────────────────────────────────────────
+
+    // Is the request from a signed-in user?
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Is the request from the owner of this document?
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // Is the request from an admin user?
+    // Admins have isAdmin: true in their Firestore user document.
+    function isAdmin() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // ─── Users ───────────────────────────────────────────────────────────────
+    // Users can read and write their own profile. Admins can read all profiles.
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ─── Onboarding ──────────────────────────────────────────────────────────
+    // Members can read and write their own onboarding state.
+    // Admins can read and update all onboarding states (for verification).
+    match /onboarding/{memberId} {
+      allow read: if isOwner(memberId) || isAdmin();
+      allow create: if isOwner(memberId);
+      allow update: if isOwner(memberId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ─── Businesses ──────────────────────────────────────────────────────────
+    // Anyone can read verified businesses (public directory).
+    // Only the owning vendor or an admin can write.
+    match /businesses/{businessId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ─── Products ────────────────────────────────────────────────────────────
+    // Anyone can read products (public marketplace).
+    // Only the owning vendor or an admin can write.
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        (resource.data.vendorId == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() &&
+        (resource.data.vendorId == request.auth.uid || isAdmin());
+    }
+
+    // ─── Orders ──────────────────────────────────────────────────────────────
+    // Users can read their own orders. Admins can read all orders.
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() &&
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+      allow delete: if false; // Orders are never deleted
+    }
+
+    // ─── Messages ────────────────────────────────────────────────────────────
+    // Only the sender or recipient can read a message thread.
+    match /messages/{messageId} {
+      allow read: if isAuthenticated() &&
+        (resource.data.senderId == request.auth.uid ||
+         resource.data.recipientId == request.auth.uid);
+      allow create: if isAuthenticated();
+      allow update: if false;
+      allow delete: if false;
+    }
+
+  }
+}

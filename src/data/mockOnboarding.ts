@@ -21,8 +21,12 @@ export interface OnboardingVerificationDoc {
   docType: 'business-license' | 'ein' | 'affidavit' | 'other';
   fileName: string;
   uploadedAt: string;
-  // In mock mode this is a placeholder path; in production it would be a Storage URL
-  mockFilePath: string;
+  /** Placeholder path used in mock/dev mode */
+  mockFilePath?: string;
+  /** Firebase Storage download URL (populated in production mode after upload) */
+  storageUrl?: string;
+  /** Firebase Storage path (used for deletion) */
+  storagePath?: string;
 }
 
 export interface OnboardingState {

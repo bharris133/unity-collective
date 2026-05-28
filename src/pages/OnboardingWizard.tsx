@@ -1,15 +1,16 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   ONBOARDING_STEPS,
   BUSINESS_CATEGORIES,
   ACCEPTED_DOC_TYPES,
-  saveOnboardingState,
   type OnboardingState,
   type OnboardingStep,
   type OnboardingVerificationDoc,
 } from '../data/mockOnboarding';
+import { saveOnboardingState } from '../services/onboardingService';
+import { uploadVerificationDoc } from '../services/storageService';
 
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
@@ -82,7 +83,8 @@ export default function OnboardingWizard() {
   const [isBlackOwned, setIsBlackOwned] = useState(false);
   const [verificationDocs, setVerificationDocs] = useState<OnboardingVerificationDoc[]>([]);
   const [docType, setDocType] = useState<OnboardingVerificationDoc['docType']>('business-license');
-  const [docFileName, setDocFileName] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Step 4: products
   const [skippedProducts, setSkippedProducts] = useState(false);
@@ -125,7 +127,7 @@ export default function OnboardingWizard() {
     setErrors({});
   }
 
-  function handleComplete() {
+  async function handleComplete() {
     if (!currentUser) return;
     const state: OnboardingState = {
       memberId: currentUser.uid,
@@ -147,26 +149,36 @@ export default function OnboardingWizard() {
       startedAt: new Date().toISOString(),
       completedAt: new Date().toISOString(),
     };
-    saveOnboardingState(state);
+    await saveOnboardingState(state);
     setStep('complete');
   }
 
-  // ─── Mock document upload ────────────────────────────────────────────────────
+  // ─── Document upload (Firebase Storage or mock) ──────────────────────────────
 
-  function handleAddDoc() {
-    if (!docFileName.trim()) {
-      setErrors({ docFileName: 'Please enter a file name.' });
-      return;
-    }
-    const doc: OnboardingVerificationDoc = {
-      docType,
-      fileName: docFileName.trim(),
-      uploadedAt: new Date().toISOString(),
-      mockFilePath: `/mock-docs/${docFileName.trim()}`,
-    };
-    setVerificationDocs(prev => [...prev, doc]);
-    setDocFileName('');
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser) return;
+
+    setUploading(true);
     setErrors({});
+    try {
+      const result = await uploadVerificationDoc(currentUser.uid, file);
+      const doc: OnboardingVerificationDoc = {
+        docType,
+        fileName: file.name,
+        uploadedAt: new Date().toISOString(),
+        storageUrl: result.url,
+        storagePath: result.path,
+      };
+      setVerificationDocs(prev => [...prev, doc]);
+    } catch (err) {
+      console.error('Upload failed:', err);
+      setErrors({ upload: 'Upload failed. Please try again.' });
+    } finally {
+      setUploading(false);
+      // Reset the file input so the same file can be re-selected
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   }
 
   function handleRemoveDoc(index: number) {
@@ -312,33 +324,69 @@ export default function OnboardingWizard() {
 
               {/* Document upload */}
               <div className="border border-white/10 rounded-xl p-5 bg-[#2A2A2A]">
-                <p className="text-white font-medium mb-1">Supporting Document <span className="text-gray-500 font-normal">(optional but recommended)</span></p>
-                <p className="text-gray-400 text-sm mb-4">Upload a business license, EIN document, or signed affidavit to expedite verification.</p>
+                <p className="text-white font-medium mb-1">
+                  Supporting Document <span className="text-gray-500 font-normal">(optional but recommended)</span>
+                </p>
+                <p className="text-gray-400 text-sm mb-4">
+                  Upload a business license, EIN document, or signed affidavit to expedite verification.
+                </p>
 
                 <div className="flex gap-3 mb-3">
-                  <select className={`${inputCls} flex-1`} value={docType}
-                    onChange={e => setDocType(e.target.value as OnboardingVerificationDoc['docType'])}>
+                  <select
+                    className={`${inputCls} flex-1`}
+                    value={docType}
+                    onChange={e => setDocType(e.target.value as OnboardingVerificationDoc['docType'])}
+                  >
                     {ACCEPTED_DOC_TYPES.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
                   </select>
-                  <input className={`${inputCls} flex-1`} value={docFileName}
-                    onChange={e => setDocFileName(e.target.value)}
-                    placeholder="filename.pdf (mock upload)" />
-                  <button onClick={handleAddDoc}
-                    className="px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors whitespace-nowrap">
-                    Add
+
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+
+                  <button
+                    type="button"
+                    disabled={uploading}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="px-4 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-900 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors whitespace-nowrap flex items-center gap-2"
+                  >
+                    {uploading ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                        </svg>
+                        Uploading…
+                      </>
+                    ) : (
+                      'Upload'
+                    )}
                   </button>
                 </div>
-                {errors.docFileName && <p className={errorCls}>{errors.docFileName}</p>}
+                {errors.upload && <p className={errorCls}>{errors.upload}</p>}
 
                 {verificationDocs.length > 0 && (
                   <ul className="space-y-2 mt-3">
                     {verificationDocs.map((doc, i) => (
                       <li key={i} className="flex items-center justify-between bg-[#1E1E1E] rounded-lg px-4 py-2">
-                        <div>
-                          <span className="text-white text-sm">{doc.fileName}</span>
-                          <span className="text-gray-500 text-xs ml-2">({ACCEPTED_DOC_TYPES.find(d => d.value === doc.docType)?.label})</span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-green-400 text-xs flex-shrink-0">✓</span>
+                          <span className="text-white text-sm truncate">{doc.fileName}</span>
+                          <span className="text-gray-500 text-xs flex-shrink-0">
+                            ({ACCEPTED_DOC_TYPES.find(d => d.value === doc.docType)?.label})
+                          </span>
                         </div>
-                        <button onClick={() => handleRemoveDoc(i)} className="text-gray-500 hover:text-red-400 text-sm transition-colors">Remove</button>
+                        <button
+                          onClick={() => handleRemoveDoc(i)}
+                          className="text-gray-500 hover:text-red-400 text-sm transition-colors flex-shrink-0 ml-2"
+                        >
+                          Remove
+                        </button>
                       </li>
                     ))}
                   </ul>

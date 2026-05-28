@@ -21,13 +21,15 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  getOnboardingState,
-  saveOnboardingState,
   mockOnboardingInProgress,
   mockOnboardingComplete,
   type OnboardingState,
   type VerificationStatus,
 } from '../../data/mockOnboarding';
+import {
+  getOnboardingState,
+  saveOnboardingState,
+} from '../../services/onboardingService';
 import { mockUsers } from '../../data/mockUsers';
 
 // ─── Shared style tokens ──────────────────────────────────────────────────────
@@ -143,15 +145,14 @@ function PendingBadge() {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Pull all known onboarding states from the in-memory store */
-function getAllOnboardingStates(): OnboardingState[] {
+/** Pull all known onboarding states (async – falls back to mock IDs in mock mode) */
+async function getAllOnboardingStates(): Promise<OnboardingState[]> {
   const knownIds = [
     mockOnboardingInProgress.memberId,
     mockOnboardingComplete.memberId,
   ];
-  return knownIds
-    .map(id => getOnboardingState(id))
-    .filter((s): s is OnboardingState => s !== null);
+  const results = await Promise.all(knownIds.map(id => getOnboardingState(id)));
+  return results.filter((s): s is OnboardingState => s !== null);
 }
 
 function getDisplayName(memberId: string): string {
@@ -168,7 +169,7 @@ function VerificationsTab() {
   const [filter, setFilter] = useState<'all' | VerificationStatus>('all');
 
   // Reload from store on mount and after actions
-  const reload = () => setStates(getAllOnboardingStates());
+  const reload = () => { getAllOnboardingStates().then(setStates); };
   useEffect(() => { reload(); }, []);
 
   const filtered = filter === 'all'
@@ -179,15 +180,15 @@ function VerificationsTab() {
   const verifiedCount = states.filter(s => s.verificationStatus === 'verified').length;
   const rejectedCount = states.filter(s => s.verificationStatus === 'rejected').length;
 
-  function handleApprove(state: OnboardingState) {
+  async function handleApprove(state: OnboardingState) {
     const updated = { ...state, verificationStatus: 'verified' as VerificationStatus };
-    saveOnboardingState(updated);
+    await saveOnboardingState(updated);
     reload();
     setSelected(updated);
     setShowRejectInput(false);
   }
 
-  function handleReject(state: OnboardingState) {
+  async function handleReject(state: OnboardingState) {
     if (!showRejectInput) {
       setShowRejectInput(true);
       return;
@@ -197,7 +198,7 @@ function VerificationsTab() {
       verificationStatus: 'rejected' as VerificationStatus,
       rejectionReason: rejectReason || 'No reason provided.',
     };
-    saveOnboardingState(updated);
+    await saveOnboardingState(updated);
     reload();
     setSelected(updated);
     setShowRejectInput(false);

@@ -14,8 +14,10 @@ import {
   Save,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { getOnboardingState, type OnboardingState, type VerificationStatus } from '../data/mockOnboarding';
-import { mockProducts, type Product } from '../data/mockProducts';
+import { type OnboardingState, type VerificationStatus } from '../data/mockOnboarding';
+import { type Product } from '../data/mockProducts';
+import { getOnboardingState } from '../services/onboardingService';
+import { productService } from '../services/productService';
 import { formatPrice } from '../utils/formatPrice';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -270,37 +272,60 @@ export default function MemberDashboard() {
     }
 
     const uid = userProfile.uid ?? (userProfile as any).uid;
-    const state = getOnboardingState(uid);
 
-    // Redirect to onboarding if not started or not completed
-    if (!state || state.currentStep !== 'complete') {
-      navigate('/onboarding');
-      return;
-    }
+    (async () => {
+      const state = await getOnboardingState(uid);
 
-    setOnboarding(state);
+      // Redirect to onboarding if not started or not completed
+      if (!state || state.currentStep !== 'complete') {
+        navigate('/onboarding');
+        return;
+      }
 
-    // Load products for this business from mock data
-    const bid = state.businessProfile.businessName.toLowerCase().replace(/\s+/g, '-');
-    const existing = mockProducts.filter(p => p.businessId === bid);
-    setProducts(existing);
+      setOnboarding(state);
+
+      // Load products for this business from Firestore (or mock)
+      const bid = state.businessProfile.businessName.toLowerCase().replace(/\s+/g, '-');
+      const existing = await productService.getByBusinessId(bid);
+      setProducts(existing);
+    })();
   }, [authLoading, userProfile, navigate]);
 
-  const handleSaveProduct = (product: Product) => {
-    setProducts(prev => {
-      const idx = prev.findIndex(p => p.id === product.id);
-      if (idx >= 0) {
-        const updated = [...prev];
-        updated[idx] = product;
-        return updated;
-      }
-      return [...prev, product];
-    });
+  const handleSaveProduct = async (product: Product) => {
+    try {
+      const saved = await productService.create(product);
+      setProducts(prev => {
+        const idx = prev.findIndex(p => p.id === saved.id);
+        if (idx >= 0) {
+          const updated = [...prev];
+          updated[idx] = saved;
+          return updated;
+        }
+        return [...prev, saved];
+      });
+    } catch (error) {
+      console.error('Error saving product:', error);
+      // Optimistic update on failure
+      setProducts(prev => {
+        const idx = prev.findIndex(p => p.id === product.id);
+        if (idx >= 0) {
+          const updated = [...prev];
+          updated[idx] = product;
+          return updated;
+        }
+        return [...prev, product];
+      });
+    }
     setShowModal(false);
     setEditingProduct(null);
   };
 
-  const handleDeleteProduct = (id: string) => {
+  const handleDeleteProduct = async (id: string) => {
+    try {
+      await productService.delete(id);
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
     setProducts(prev => prev.filter(p => p.id !== id));
     setDeleteConfirm(null);
   };
