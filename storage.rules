@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ─── Helper functions ────────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // ─── Onboarding verification documents ───────────────────────────────────
+    // Only the member themselves can upload/read their own verification docs.
+    // Admins are handled via Firestore (they read the URL stored in Firestore,
+    // not the file directly from Storage).
+    match /onboarding/{memberId}/docs/{fileName} {
+      allow read, write: if isOwner(memberId);
+    }
+
+    // ─── Product images ───────────────────────────────────────────────────────
+    // Anyone can read product images (public marketplace).
+    // Only authenticated users can upload (vendor ownership enforced at app level).
+    match /products/{businessId}/{productId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // ─── Business logos ───────────────────────────────────────────────────────
+    // Anyone can read business logos (public directory).
+    // Only authenticated users can upload.
+    match /businesses/{businessId}/logo/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated();
+    }
+
+    // ─── Default: deny everything else ───────────────────────────────────────
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+  }
+}

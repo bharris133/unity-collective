@@ -36,6 +36,8 @@ export * from './productService';
 export * from './offerService';
 export * from './eventService';
 export * from './messageService';
+export * from './onboardingService';
+export * from './storageService';
 
 // Export payment service types
 export type { IPaymentService, PaymentIntent, PaymentResult, CheckoutSession, OrderData } from './paymentService';

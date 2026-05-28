@@ -3,26 +3,28 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-// Firebase configuration - Replace with your actual config
+// Firebase configuration — values are injected from .env files at build time.
+// Development: .env.development (VITE_USE_MOCK_DATA=true)
+// Production:  .env.production  (VITE_USE_MOCK_DATA=false, keys set via CI/CD secrets)
 const firebaseConfig = {
-  apiKey: "your-api-key-here",
-  authDomain: "unity-collective-demo.firebaseapp.com",
-  projectId: "unity-collective-demo",
-  storageBucket: "unity-collective-demo.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef123456"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication and get a reference to the service
+// Initialize Firebase Authentication
 export const auth = getAuth(app);
 
-// Initialize Cloud Firestore and get a reference to the service
+// Initialize Cloud Firestore
 export const db = getFirestore(app);
 
-// Initialize Cloud Storage and get a reference to the service
+// Initialize Cloud Storage
 export const storage = getStorage(app);
 
 export default app;
