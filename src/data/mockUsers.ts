@@ -2,16 +2,21 @@ import type { User } from '../types/User';
 
 /**
  * Mock users for testing different user types and authentication scenarios
- * 
+ *
+ * All users conform exactly to the User interface so that downstream
+ * components (AdminPanel, MemberDashboard, etc.) never receive undefined
+ * for required fields when reading from localStorage in mock mode.
+ *
  * User Types:
- * - Regular User: Standard community member
- * - Vendor: Business owner with marketplace presence
- * - Admin: Platform administrator
- * - Guest: Unauthenticated user
+ * - regularUser  : Standard community member (buyer)
+ * - vendorUser   : Business owner with marketplace presence
+ * - adminUser    : Platform administrator (isAdmin: true)
+ * - regularUser2 : Second regular member for multi-user testing
+ * - vendorUser2  : Second vendor for multi-vendor testing
  */
 
-export const mockUsers: Record<string, User & { password: string; role: 'user' | 'vendor' | 'admin' }> = {
-  // Regular User - Standard community member
+export const mockUsers: Record<string, User & { password: string }> = {
+  // ── Regular User ────────────────────────────────────────────────────────────
   regularUser: {
     uid: 'mock-user-001',
     email: 'john.doe@example.com',
@@ -19,16 +24,22 @@ export const mockUsers: Record<string, User & { password: string; role: 'user' |
     displayName: 'John Doe',
     firstName: 'John',
     lastName: 'Doe',
-    photoURL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-    phoneNumber: '(555) 123-4567',
-    address: '123 Main St, Unity City, UC 12345',
-    role: 'user',
-    isVendor: false,
-    createdAt: new Date('2024-01-15').toISOString(),
-    lastLoginAt: new Date().toISOString(),
+    role: 'buyer',
+    businessOwner: false,
+    businessName: '',
+    location: '123 Main St, Unity City, UC 12345',
+    interests: ['community', 'education'],
+    favorites: [],
+    orderHistory: [],
+    joinedAt: new Date('2024-01-15').toISOString(),
+    isAdmin: false,
+    profilePicture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
+    bio: 'Community member passionate about supporting Black-owned businesses.',
+    phone: '(555) 123-4567',
+    website: '',
   },
 
-  // Vendor User - Business owner
+  // ── Vendor User ─────────────────────────────────────────────────────────────
   vendorUser: {
     uid: 'mock-vendor-001',
     email: 'sarah.johnson@greengarden.com',
@@ -36,18 +47,23 @@ export const mockUsers: Record<string, User & { password: string; role: 'user' |
     displayName: 'Sarah Johnson',
     firstName: 'Sarah',
     lastName: 'Johnson',
-    photoURL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-    phoneNumber: '(555) 234-5678',
-    address: '456 Market St, Unity City, UC 12345',
     role: 'vendor',
-    isVendor: true,
-    vendorId: 'vendor-001',
+    businessOwner: true,
     businessName: 'Green Garden Organic Farm',
-    createdAt: new Date('2023-06-10').toISOString(),
-    lastLoginAt: new Date().toISOString(),
+    vendorId: 'vendor-001',
+    location: '456 Market St, Unity City, UC 12345',
+    interests: ['organic farming', 'sustainability', 'community'],
+    favorites: [],
+    orderHistory: [],
+    joinedAt: new Date('2023-06-10').toISOString(),
+    isAdmin: false,
+    profilePicture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
+    bio: 'Organic farmer bringing fresh produce to the community.',
+    phone: '(555) 234-5678',
+    website: 'https://greengarden.example.com',
   },
 
-  // Admin User - Platform administrator
+  // ── Admin User ──────────────────────────────────────────────────────────────
   adminUser: {
     uid: 'mock-admin-001',
     email: 'admin@unitycollective.com',
@@ -55,17 +71,22 @@ export const mockUsers: Record<string, User & { password: string; role: 'user' |
     displayName: 'Admin User',
     firstName: 'Admin',
     lastName: 'User',
-    photoURL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
-    phoneNumber: '(555) 999-0000',
-    address: '789 Admin Blvd, Unity City, UC 12345',
     role: 'admin',
+    businessOwner: false,
+    businessName: '',
+    location: '789 Admin Blvd, Unity City, UC 12345',
+    interests: ['platform management', 'community growth'],
+    favorites: [],
+    orderHistory: [],
+    joinedAt: new Date('2023-01-01').toISOString(),
     isAdmin: true,
-    isVendor: false,
-    createdAt: new Date('2023-01-01').toISOString(),
-    lastLoginAt: new Date().toISOString(),
+    profilePicture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin',
+    bio: 'Platform administrator for Unity Collective.',
+    phone: '(555) 999-0000',
+    website: '',
   },
 
-  // Another Regular User
+  // ── Regular User 2 ──────────────────────────────────────────────────────────
   regularUser2: {
     uid: 'mock-user-002',
     email: 'emily.chen@example.com',
@@ -73,16 +94,22 @@ export const mockUsers: Record<string, User & { password: string; role: 'user' |
     displayName: 'Emily Chen',
     firstName: 'Emily',
     lastName: 'Chen',
-    photoURL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emily',
-    phoneNumber: '(555) 345-6789',
-    address: '321 Oak Ave, Unity City, UC 12345',
-    role: 'user',
-    isVendor: false,
-    createdAt: new Date('2024-03-20').toISOString(),
-    lastLoginAt: new Date().toISOString(),
+    role: 'buyer',
+    businessOwner: false,
+    businessName: '',
+    location: '321 Oak Ave, Unity City, UC 12345',
+    interests: ['education', 'wellness'],
+    favorites: [],
+    orderHistory: [],
+    joinedAt: new Date('2024-03-20').toISOString(),
+    isAdmin: false,
+    profilePicture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emily',
+    bio: 'Educator and community advocate.',
+    phone: '(555) 345-6789',
+    website: '',
   },
 
-  // Another Vendor User
+  // ── Vendor User 2 ───────────────────────────────────────────────────────────
   vendorUser2: {
     uid: 'mock-vendor-002',
     email: 'mike.rodriguez@techrepair.com',
@@ -90,15 +117,20 @@ export const mockUsers: Record<string, User & { password: string; role: 'user' |
     displayName: 'Mike Rodriguez',
     firstName: 'Mike',
     lastName: 'Rodriguez',
-    photoURL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
-    phoneNumber: '(555) 456-7890',
-    address: '654 Tech Lane, Unity City, UC 12345',
     role: 'vendor',
-    isVendor: true,
-    vendorId: 'vendor-002',
+    businessOwner: true,
     businessName: 'Tech Repair Hub',
-    createdAt: new Date('2023-09-15').toISOString(),
-    lastLoginAt: new Date().toISOString(),
+    vendorId: 'vendor-002',
+    location: '654 Tech Lane, Unity City, UC 12345',
+    interests: ['technology', 'entrepreneurship'],
+    favorites: [],
+    orderHistory: [],
+    joinedAt: new Date('2023-09-15').toISOString(),
+    isAdmin: false,
+    profilePicture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mike',
+    bio: 'Tech repair specialist serving the community.',
+    phone: '(555) 456-7890',
+    website: 'https://techrepairhub.example.com',
   },
 };
 
