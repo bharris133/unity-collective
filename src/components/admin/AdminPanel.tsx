@@ -134,11 +134,16 @@ export default function AdminPanel() {
 
 // Small red dot badge showing pending count
 function PendingBadge() {
-  const pending = getAllOnboardingStates().filter(s => s.verificationStatus === 'pending');
-  if (pending.length === 0) return null;
+  const [pendingCount, setPendingCount] = useState(0);
+  useEffect(() => {
+    getAllOnboardingStates()
+      .then(states => setPendingCount(states.filter(s => s.verificationStatus === 'pending').length))
+      .catch(() => setPendingCount(0));
+  }, []);
+  if (pendingCount === 0) return null;
   return (
     <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-      {pending.length}
+      {pendingCount}
     </span>
   );
 }
