@@ -60,20 +60,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const displayName = `${userData.firstName} ${userData.lastName}`;
       const mockUser = await mockSignUp(email, password, displayName);
       
-      // Update user profile with additional data
+      // Merge additional signup data into the mock user
       const enhancedProfile: User = {
-        ...mockUser,
+        ...mockUser as User,
         firstName: userData.firstName || '',
         lastName: userData.lastName || '',
-        phoneNumber: userData.phone || '',
-        address: userData.location || '',
-        isVendor: userData.businessOwner || false,
-        businessName: userData.businessName,
+        phone: userData.phone || '',
+        location: userData.location || '',
+        businessOwner: userData.businessOwner || false,
+        businessName: userData.businessName || '',
       };
-      
       setCurrentMockUser(enhancedProfile);
       setUserProfile(enhancedProfile);
-      
       return enhancedProfile;
     }
 
@@ -117,7 +115,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   async function login(email: string, password: string): Promise<UserCredential | User> {
     if (isMockAuthEnabled()) {
       const mockUser = await mockSignIn(email, password);
-      setUserProfile(mockUser);
+      setUserProfile(mockUser as User);
       return mockUser as User;
     }
     
@@ -223,7 +221,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           uid: mockUser.uid,
           email: mockUser.email,
           displayName: mockUser.displayName,
-          photoURL: mockUser.photoURL || null,
+          photoURL: mockUser.profilePicture || null,
           emailVerified: true,
           isAnonymous: false,
           metadata: {},
@@ -235,7 +233,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           getIdTokenResult: async () => ({} as any),
           reload: async () => {},
           toJSON: () => ({}),
-          phoneNumber: mockUser.phoneNumber || null,
+          phoneNumber: mockUser.phone || null,
           providerId: 'mock',
         } as FirebaseUser;
         setCurrentUser(mockFirebaseUser);
@@ -256,7 +254,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             uid: updatedMockUser.uid,
             email: updatedMockUser.email,
             displayName: updatedMockUser.displayName,
-            photoURL: updatedMockUser.photoURL || null,
+            photoURL: updatedMockUser.profilePicture || null,
             emailVerified: true,
             isAnonymous: false,
             metadata: {},
@@ -268,7 +266,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             getIdTokenResult: async () => ({} as any),
             reload: async () => {},
             toJSON: () => ({}),
-            phoneNumber: updatedMockUser.phoneNumber || null,
+            phoneNumber: updatedMockUser.phone || null,
             providerId: 'mock',
           } as FirebaseUser;
           setCurrentUser(mockFirebaseUser);

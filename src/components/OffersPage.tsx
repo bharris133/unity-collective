@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Filter, MessageCircle, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Search, MessageCircle, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { offerService } from '../services';
-import type { Offer } from '../types';
+import type { CommunityPost } from '../data/mockOffers';
 
 export const OffersPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'open' | 'in-progress' | 'completed'>('all');
-  const [offers, setOffers] = useState<Offer[]>([]);
+  const [offers, setOffers] = useState<CommunityPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Load offers from service

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ReviewForm from '../../components/ReviewForm';
-import React from 'react';
 
 // Mock AuthContext
 vi.mock('../../contexts/AuthContext', () => ({

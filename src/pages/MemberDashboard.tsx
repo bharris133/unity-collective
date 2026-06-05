@@ -85,7 +85,7 @@ interface ProductModalProps {
   onClose: () => void;
 }
 
-function ProductModal({ initial, businessId, businessName, onSave, onClose }: ProductModalProps) {
+function ProductModal({ initial, businessId, businessName: _businessName, onSave, onClose }: ProductModalProps) {
   const [form, setForm] = useState<ProductFormData>(
     initial
       ? {
@@ -93,7 +93,7 @@ function ProductModal({ initial, businessId, businessName, onSave, onClose }: Pr
           description: initial.description,
           price: (initial.price / 100).toFixed(2),
           category: initial.category,
-          imageUrl: initial.image[0] || '',
+          imageUrl: initial.images[0] || '',
           inStock: initial.inStock,
         }
       : EMPTY_FORM
@@ -114,14 +114,13 @@ function ProductModal({ initial, businessId, businessName, onSave, onClose }: Pr
   const handleSubmit = () => {
     if (!validate()) return;
     const product: Product = {
-      id: initial?.id || `product-${Date.now()}`,
+      productId: initial?.productId || `product-${Date.now()}`,
       name: form.name.trim(),
       description: form.description.trim(),
       price: Math.round(parseFloat(form.price) * 100),
       category: form.category.trim(),
-      businessId,
-      businessName,
-      image: form.imageUrl.trim() ? [form.imageUrl.trim()] : ['https://placehold.co/300x300/1E1E1E/D4AF37?text=Product'],
+      vendorId: businessId,
+      images: form.imageUrl.trim() ? [form.imageUrl.trim()] : ['https://placehold.co/300x300/1E1E1E/D4AF37?text=Product'],
       inStock: form.inStock,
       stockQuantity: initial?.stockQuantity ?? 10,
       tags: [],
@@ -295,7 +294,7 @@ export default function MemberDashboard() {
     try {
       const saved = await productService.create(product);
       setProducts(prev => {
-        const idx = prev.findIndex(p => p.id === saved.id);
+        const idx = prev.findIndex(p => p.productId === saved.productId);
         if (idx >= 0) {
           const updated = [...prev];
           updated[idx] = saved;
@@ -307,7 +306,7 @@ export default function MemberDashboard() {
       console.error('Error saving product:', error);
       // Optimistic update on failure
       setProducts(prev => {
-        const idx = prev.findIndex(p => p.id === product.id);
+        const idx = prev.findIndex(p => p.productId === product.productId);
         if (idx >= 0) {
           const updated = [...prev];
           updated[idx] = product;
@@ -326,7 +325,7 @@ export default function MemberDashboard() {
     } catch (error) {
       console.error('Error deleting product:', error);
     }
-    setProducts(prev => prev.filter(p => p.id !== id));
+    setProducts(prev => prev.filter(p => p.productId !== id));
     setDeleteConfirm(null);
   };
 
@@ -488,13 +487,13 @@ export default function MemberDashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {products.map(product => (
                 <div
-                  key={product.id}
+                  key={product.productId}
                   className="bg-[#2A2A2A] border border-[#3A3A3A] rounded-xl overflow-hidden"
                 >
                   {/* Product Image */}
                   <div className="aspect-video bg-[#1A1A1A] overflow-hidden">
                     <img
-                      src={product.image[0] || 'https://placehold.co/300x200/1E1E1E/D4AF37?text=Product'}
+                      src={product.images[0] || 'https://placehold.co/300x200/1E1E1E/D4AF37?text=Product'}
                       alt={product.name}
                       className="w-full h-full object-cover"
                     />
@@ -526,7 +525,7 @@ export default function MemberDashboard() {
                           <Pencil size={14} />
                         </button>
                         <button
-                          onClick={() => setDeleteConfirm(product.id)}
+                          onClick={() => setDeleteConfirm(product.productId)}
                           className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-600/10 rounded-lg transition-colors"
                           title="Delete product"
                         >

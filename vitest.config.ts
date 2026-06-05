@@ -9,6 +9,12 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     css: true,
+    // Exclude Playwright e2e tests — they require a running browser/server
+    exclude: ['node_modules/**', 'dist/**', 'tests/e2e/**'],
+    // Always use mock data in unit tests
+    env: {
+      VITE_USE_MOCK_DATA: 'true',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import logoMain from '../assets/logo_main.png';
 import heroBanner from '../assets/hero_banner.png';
-import businessDirectoryIcon from '../assets/business_directory_icon.png';
 import communityHubBanner from '../assets/community_hub_banner.png';
 
 // ─── Feature data ────────────────────────────────────────────────────────────
@@ -164,8 +163,6 @@ const stats = [
 // ─── Component ───────────────────────────────────────────────────────────────
 
 const PlatformShowcase: React.FC = () => {
-  const [activeFeature, setActiveFeature] = useState<string | null>(null);
-
   return (
     <div className="min-h-screen bg-gray-950 text-white font-sans">
 
@@ -258,8 +255,6 @@ const PlatformShowcase: React.FC = () => {
                 borderLeftWidth: '4px',
                 borderLeftColor: feature.color,
               }}
-              onMouseEnter={() => setActiveFeature(feature.id)}
-              onMouseLeave={() => setActiveFeature(null)}
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">

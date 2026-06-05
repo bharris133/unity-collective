@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #0A0A0A; color: #FFFFFF; }
+        .slide-container { 
+            width: 1280px; 
+            min-height: 720px; 
+            background-color: #0A0A0A;
+            display: flex;
+            flex-direction: column;
+            padding: 60px 80px;
+            position: relative;
+        }
+        .header {
+            margin-bottom: 60px;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 20px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 40px;
+            flex-grow: 1;
+        }
+        .grid-item {
+            border: 1px solid #333;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .grid-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 4px;
+            background-color: #CC0000;
+        }
+        .grid-item:nth-child(even)::before {
+            background-color: #006400;
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #D4AF37;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #CCCCCC;
+        }
+        .step-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 48px;
+            font-weight: 700;
+            color: #1A1A1A;
+            z-index: 0;
+        }
+        .content {
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="header">
+            <h1>PHASE 2 DELIVERED FOUR INTERCONNECTED FEATURES</h1>
+        </div>
+        <div class="grid-container">
+            <div class="grid-item">
+                <div class="step-number">01</div>
+                <div class="content">
+                    <h2>ONBOARDING WIZARD</h2>
+                    <p>A 5-step guided flow for new businesses to register, build their profile, and list initial products. Features inline validation and mock persistence.</p>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="step-number">02</div>
+                <div class="content">
+                    <h2>BLACK-OWNED BADGE</h2>
+                    <p>A visible, verifiable marker of identity. The Pan-African gradient badge appears across the directory and dashboard for verified businesses.</p>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="step-number">03</div>
+                <div class="content">
+                    <h2>MEMBER DASHBOARD</h2>
+                    <p>The vendor control center. Includes business status banners and a full product management grid (Add/Edit/Delete) protected by auth guards.</p>
+                </div>
+            </div>
+            <div class="grid-item">
+                <div class="step-number">04</div>
+                <div class="content">
+                    <h2>ADMIN VERIFICATION FLOW</h2>
+                    <p>The admin review pipeline. Features a pending queue, two-pane review UI, and Approve/Reject actions that update status platform-wide.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

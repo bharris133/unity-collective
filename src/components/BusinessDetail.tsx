@@ -215,12 +215,12 @@ function BusinessDetail() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {products.map((product) => (
                     <div
-                      key={product.id}
+                      key={product.productId}
                       className="bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg p-4 hover:border-red-600 transition-colors"
                     >
-                      {product.image && product.image[0] && (
+                      {product.images?.[0] && (
                         <img
-                          src={product.image[0]}
+                          src={product.images[0]}
                           alt={product.name}
                           className="w-full h-32 object-cover rounded-md mb-3"
                         />

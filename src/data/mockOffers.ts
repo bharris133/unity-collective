@@ -1,4 +1,5 @@
-export interface Offer {
+// CommunityPost: bulletin-board style "offer/request" posts (distinct from the barter Offer type in Community.ts)
+export interface CommunityPost {
   id: string;
   userId: string;
   userName: string;
@@ -11,7 +12,7 @@ export interface Offer {
   updatedAt: Date;
 }
 
-export const mockOffers: Offer[] = [
+export const mockOffers: CommunityPost[] = [
   {
     id: '1',
     userId: 'user1',

@@ -150,7 +150,7 @@ function Navigation() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   {resourcesItems.map((item) => (
-                    <DropdownMenuItem key={item.name} asChild>
+                    <DropdownMenuItem key={item.name} className="cursor-pointer" inset={false} asChild>
                       <Link
                         to={item.path}
                         className="w-full cursor-pointer"

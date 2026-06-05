@@ -2,24 +2,16 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle, Globe, MapPin, Phone, Search, Star } from 'lucide-react';
 import { businessService } from '../services';
+import type { Business } from '../data';
 import { Button } from '../components/ui/button.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card.jsx';
 import { Badge } from '../components/ui/badge.jsx';
 import { Input } from '../components/ui/input.jsx';
 
-const colors = {
-  red: '#CC0000',
-  black: '#1A1A1A',
-  green: '#228B22',
-  gold: '#FFD700',
-  white: '#FAFAFA',
-  gray: '#333333'
-};
-
-function BusinessDirectoryPage() {
+export default function BusinessDirectoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [businesses, setBusinesses] = useState([]);
+  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Load businesses from service
@@ -70,7 +62,7 @@ function BusinessDirectoryPage() {
               type="text"
               placeholder="Search businesses..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
@@ -108,7 +100,7 @@ function BusinessDirectoryPage() {
                     />
                   )}
                 </div>
-                <CardHeader>
+                <CardHeader className="">
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="flex items-center">
@@ -127,7 +119,7 @@ function BusinessDirectoryPage() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="">
                   <p className="text-gray-400 mb-3">{business.description}</p>
                   <div className="flex items-center text-sm text-gray-500 mb-4">
                     <MapPin size={16} className="mr-1" />
@@ -135,19 +127,19 @@ function BusinessDirectoryPage() {
                   </div>
                   <div className="flex gap-2">
                     <Link to={`/directory/${business.id}`} className="flex-1">
-                      <Button className="w-full bg-red-600 hover:bg-red-700">
+                      <Button variant="default" size="default" className="w-full bg-red-600 hover:bg-red-700">
                         View Details
                       </Button>
                     </Link>
                     {business.phone && (
-                      <Button variant="outline" size="sm" asChild>
+                      <Button variant="outline" size="sm" asChild className="">
                         <a href={`tel:${business.phone}`}>
                           <Phone size={16} />
                         </a>
                       </Button>
                     )}
                     {business.website && (
-                      <Button variant="outline" size="sm" asChild>
+                      <Button variant="outline" size="sm" asChild className="">
                         <a href={business.website} target="_blank" rel="noopener noreferrer">
                           <Globe size={16} />
                         </a>
@@ -164,4 +156,4 @@ function BusinessDirectoryPage() {
   );
 }
 
-export default BusinessDirectoryPage;
+

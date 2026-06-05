@@ -88,7 +88,7 @@ const mockSignIn = async (email: string, password: string): Promise<User> => {
 };
 
 // Mock sign up
-const mockSignUp = async (email: string, password: string, displayName: string): Promise<User> => {
+const mockSignUp = async (email: string, _password: string, displayName: string): Promise<User> => {
   console.log('🔐 Using mock authentication for sign up');
   
   // Simulate network delay
@@ -107,12 +107,19 @@ const mockSignUp = async (email: string, password: string, displayName: string):
     displayName,
     firstName: displayName.split(' ')[0] || '',
     lastName: displayName.split(' ').slice(1).join(' ') || '',
-    photoURL: `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayName}`,
-    phoneNumber: '',
-    address: '',
-    isVendor: false,
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
+    profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${displayName}`,
+    phone: '',
+    website: '',
+    bio: '',
+    role: 'buyer' as const,
+    businessOwner: false,
+    businessName: '',
+    location: '',
+    interests: [],
+    favorites: [],
+    orderHistory: [],
+    isAdmin: false,
+    joinedAt: new Date().toISOString(),
   };
   
   setCurrentMockUser(newUser);

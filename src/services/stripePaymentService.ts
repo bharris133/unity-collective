@@ -15,12 +15,10 @@ import type {
 
 class StripePaymentService implements IPaymentService {
   private stripePublishableKey: string;
-  private stripeSecretKey: string;
 
   constructor() {
     // Load Stripe keys from environment variables
     this.stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
-    this.stripeSecretKey = import.meta.env.VITE_STRIPE_SECRET_KEY || '';
 
     if (!this.stripePublishableKey) {
       console.warn('⚠️ Stripe publishable key not configured');
@@ -35,7 +33,7 @@ class StripePaymentService implements IPaymentService {
    * - Create backend API endpoint for payment intent creation
    * - Call backend API from here (never expose secret key in frontend)
    */
-  async createPaymentIntent(orderData: OrderData): Promise<PaymentIntent> {
+  async createPaymentIntent(_orderData: OrderData): Promise<PaymentIntent> {
     console.log('💳 [Stripe] Creating payment intent...');
 
     // TODO: Call your backend API endpoint
@@ -58,8 +56,8 @@ class StripePaymentService implements IPaymentService {
    * - Handle 3D Secure authentication if needed
    */
   async confirmPayment(
-    paymentIntentId: string,
-    paymentMethodId?: string
+    _paymentIntentId: string,
+    _paymentMethodId?: string
   ): Promise<PaymentResult> {
     console.log('💳 [Stripe] Confirming payment...');
 
@@ -77,7 +75,7 @@ class StripePaymentService implements IPaymentService {
    * 
    * TODO: Implement payment cancellation via backend API
    */
-  async cancelPayment(paymentIntentId: string): Promise<boolean> {
+  async cancelPayment(_paymentIntentId: string): Promise<boolean> {
     console.log('💳 [Stripe] Canceling payment...');
 
     // TODO: Call backend API to cancel payment intent
@@ -93,7 +91,7 @@ class StripePaymentService implements IPaymentService {
    * 
    * TODO: Implement status retrieval via backend API
    */
-  async getPaymentStatus(paymentIntentId: string): Promise<PaymentIntent> {
+  async getPaymentStatus(_paymentIntentId: string): Promise<PaymentIntent> {
     console.log('💳 [Stripe] Getting payment status...');
 
     // TODO: Call backend API to get payment intent status
@@ -111,7 +109,7 @@ class StripePaymentService implements IPaymentService {
    * - Create backend API endpoint for session creation
    * - Redirect user to Stripe Checkout page
    */
-  async createCheckoutSession(orderData: OrderData): Promise<CheckoutSession> {
+  async createCheckoutSession(_orderData: OrderData): Promise<CheckoutSession> {
     console.log('💳 [Stripe] Creating checkout session...');
 
     // TODO: Call backend API to create Stripe Checkout session
@@ -131,7 +129,7 @@ class StripePaymentService implements IPaymentService {
    * 
    * TODO: Implement session retrieval via backend API
    */
-  async getCheckoutSession(sessionId: string): Promise<CheckoutSession> {
+  async getCheckoutSession(_sessionId: string): Promise<CheckoutSession> {
     console.log('💳 [Stripe] Getting checkout session...');
 
     // TODO: Call backend API to retrieve session

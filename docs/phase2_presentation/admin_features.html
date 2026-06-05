@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #0A0A0A; color: #FFFFFF; }
+        .slide-container { 
+            width: 1280px; 
+            min-height: 720px; 
+            background-color: #0A0A0A;
+            display: flex;
+            flex-direction: column;
+            padding: 60px 80px 54px; /* reduced bottom padding from 60 -> 54 */
+            position: relative;
+        }
+        .header {
+            margin-bottom: 50px;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 20px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 24px; /* slightly reduced gap to tighten layout */
+            flex-grow: 1;
+        }
+        .feature-box {
+            border: 1px solid #333;
+            padding: 24px; /* reduced inner padding */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .feature-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #D4AF37;
+        }
+        .feature-box:nth-child(3n+1)::before { background-color: #CC0000; }
+        .feature-box:nth-child(3n+2)::before { background-color: #D4AF37; }
+        .feature-box:nth-child(3n+3)::before { background-color: #006400; }
+        
+        .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px; /* tightened spacing */
+        }
+        h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 12px; /* tightened spacing */
+            text-transform: uppercase;
+        }
+        p {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #CCCCCC;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="header">
+            <h1>SIX KEY FEATURES POWER THE ADMIN REVIEW EXPERIENCE</h1>
+        </div>
+        
+        <div class="grid-container">
+            <div class="feature-box">
+                <div class="number">01</div>
+                <h2>PENDING QUEUE</h2>
+                <p>A dedicated tab surfaces all submissions with a 'pending' status, complete with a live badge count in the sidebar to alert admins of new applications.</p>
+            </div>
+            
+            <div class="feature-box">
+                <div class="number">02</div>
+                <h2>REVIEW DETAIL PANE</h2>
+                <p>A two-pane UI allows admins to select a submission and view the full business profile, self-declared Black-Owned status, and uploaded verification documents.</p>
+            </div>
+            
+            <div class="feature-box">
+                <div class="number">03</div>
+                <h2>APPROVE ACTION</h2>
+                <p>A single click sets the verification status to 'verified', instantly propagating the green Verified badge to the Business Directory and Member Dashboard.</p>
+            </div>
+            
+            <div class="feature-box">
+                <div class="number">04</div>
+                <h2>REJECT WITH REASON</h2>
+                <p>A two-step rejection flow prevents accidental clicks and provides an optional textarea to log the specific reason for rejecting an application.</p>
+            </div>
+            
+            <div class="feature-box">
+                <div class="number">05</div>
+                <h2>OVERRIDE CAPABILITY</h2>
+                <p>Admins retain full control with an "Override — Approve Anyway" function, allowing previously rejected applications to be verified if issues are resolved.</p>
+            </div>
+            
+            <div class="feature-box">
+                <div class="number">06</div>
+                <h2>REAL-TIME COUNTERS</h2>
+                <p>Summary cards for Pending, Verified, and Rejected counts update instantly as actions are taken, providing a live snapshot of the platform's verification state.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

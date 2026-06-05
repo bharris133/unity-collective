@@ -1,16 +1,10 @@
-import React, { useState } from "react";
-import {
-  Search,
-  Filter,
-  ShoppingCart as ShoppingCartIcon,
-  Star,
-  Plus,
-  Check,
-} from "lucide-react";
+import { useState } from "react";
+import { Search, ShoppingCart as ShoppingCartIcon, Star, Plus, Check } from "lucide-react";
 import { useMarketplace } from "../contexts/MarketplaceContext";
 import ShoppingCartModal from "./marketplace/ShoppingCart";
 import CheckoutModal from "./marketplace/CheckoutModal";
 import { formatPrice } from "../utils/formatPrice";
+import type { Product } from "../types";
 
 export default function MarketplacePage() {
   const { products, addToCart, getCartItemCount } = useMarketplace();
@@ -19,52 +13,32 @@ export default function MarketplacePage() {
   const [sortBy, setSortBy] = useState("name");
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
-  const [addedToCart, setAddedToCart] = useState({});
+  const [addedToCart, setAddedToCart] = useState<Record<string, boolean>>({});
 
-  // Get unique categories
-  const categories = [
-    "All",
-    ...new Set(products.map((product) => product.category)),
-  ];
+  const categories = ["All", ...new Set(products.map(p => p.category))];
 
-  // Filter and sort products
   const filteredProducts = products
-    .filter((product) => {
-      const matchesSearch =
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.businessName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "All" || product.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+    .filter(p => {
+      const q = searchTerm.toLowerCase();
+      const matchesSearch = p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q);
+      return matchesSearch && (selectedCategory === "All" || p.category === selectedCategory);
     })
     .sort((a, b) => {
-      switch (sortBy) {
-        case "price-low":
-          return a.price - b.price;
-        case "price-high":
-          return b.price - a.price;
-        case "name":
-          return a.name.localeCompare(b.name);
-        default:
-          return 0;
-      }
+      if (sortBy === "price-low") return a.price - b.price;
+      if (sortBy === "price-high") return b.price - a.price;
+      return a.name.localeCompare(b.name);
     });
 
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (product: Product) => {
     addToCart(product);
-    setAddedToCart({ ...addedToCart, [product.id]: true });
-    setTimeout(() => {
-      setAddedToCart({ ...addedToCart, [product.id]: false });
-    }, 2000);
+    setAddedToCart(prev => ({ ...prev, [product.productId]: true }));
+    setTimeout(() => setAddedToCart(prev => ({ ...prev, [product.productId]: false })), 2000);
   };
 
-  const handleCheckoutSuccess = (orderDetails) => {
+  const handleCheckoutSuccess = () => {
     setShowCheckout(false);
     setShowCart(false);
-    alert(
-      "Order placed successfully! Thank you for supporting Black-owned businesses.",
-    );
+    alert("Order placed successfully! Thank you for supporting Black-owned businesses.");
   };
 
   return (
@@ -74,13 +48,8 @@ export default function MarketplacePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-white">
-                Unity Marketplace
-              </h1>
-              <p className="text-gray-400 mt-1">
-                Support Black-owned businesses and find quality products from
-                our community
-              </p>
+              <h1 className="text-3xl font-bold text-white">Unity Marketplace</h1>
+              <p className="text-gray-400 mt-1">Support Black-owned businesses and find quality products from our community</p>
             </div>
             <button
               onClick={() => setShowCart(true)}
@@ -96,40 +65,22 @@ export default function MarketplacePage() {
             </button>
           </div>
 
-          {/* Search and Filters */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                size={20}
-              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
-                placeholder="Search products, businesses, or categories..."
+                placeholder="Search products or categories..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:border-transparent"
               />
             </div>
-
             <div className="flex gap-4">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              >
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
+              <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)} className="px-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                {categories.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              >
+              <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="px-4 py-2 border border-white/20 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
                 <option value="name">Sort by Name</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
@@ -141,93 +92,56 @@ export default function MarketplacePage() {
 
       {/* Products Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <p className="text-gray-400">
-            Showing {filteredProducts.length} products
-            {selectedCategory !== "All" && ` in ${selectedCategory}`}
-            {searchTerm && ` matching "${searchTerm}"`}
-          </p>
-        </div>
+        <p className="text-gray-400 mb-6">
+          Showing {filteredProducts.length} products
+          {selectedCategory !== "All" && ` in ${selectedCategory}`}
+          {searchTerm && ` matching "${searchTerm}"`}
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className="bg-[#1E1E1E] rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden border border-white/8"
-            >
+          {filteredProducts.map(product => (
+            <div key={product.productId} className="bg-[#1E1E1E] rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden border border-white/8">
               <div className="aspect-square bg-[#2A2A2A] relative">
                 <img
-                  src={product.image}
+                  src={product.images?.[0] ?? "/api/placeholder/300/300"}
                   alt={product.name}
                   className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = "/api/placeholder/300/300";
-                  }}
+                  onError={e => { (e.currentTarget as HTMLImageElement).src = "/api/placeholder/300/300"; }}
                 />
                 {!product.inStock && (
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                     <span className="text-white font-medium">Out of Stock</span>
                   </div>
                 )}
               </div>
 
               <div className="p-4">
-                <div className="mb-2">
-                  <span className="inline-block bg-[#2A2A2A] text-gray-300 text-xs px-2 py-1 rounded">
-                    {product.category}
-                  </span>
-                </div>
-
-                <h3 className="font-semibold text-white mb-1">
-                  {product.name}
-                </h3>
-                <p className="text-sm text-gray-400 mb-2 line-clamp-2">
-                  {product.description}
-                </p>
-
-                <div className="flex items-center mb-2">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={16}
-                        className={`${i < 4 ? "text-yellow-400 fill-current" : "text-gray-600"}`}
-                      />
-                    ))}
-                  </div>
+                <span className="inline-block bg-[#2A2A2A] text-gray-300 text-xs px-2 py-1 rounded mb-2">{product.category}</span>
+                <h3 className="font-semibold text-white mb-1">{product.name}</h3>
+                <p className="text-sm text-gray-400 mb-2 line-clamp-2">{product.description}</p>
+                <div className="flex items-center mb-3">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={16} className={i < 4 ? "text-yellow-400 fill-current" : "text-gray-600"} />
+                  ))}
                   <span className="text-sm text-gray-500 ml-1">(4.0)</span>
                 </div>
-
-                <p className="text-sm text-gray-500 mb-3">
-                  by {product.businessName}
-                </p>
-
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-red-600">
-                    {formatPrice(product.price)}
-                  </span>
-
+                  <span className="text-2xl font-bold text-red-600">{formatPrice(product.price)}</span>
                   <button
                     onClick={() => handleAddToCart(product)}
                     disabled={!product.inStock}
                     className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center ${
-                      addedToCart[product.id]
+                      addedToCart[product.productId]
                         ? "bg-green-600 text-white"
                         : product.inStock
                           ? "bg-red-600 text-white hover:bg-red-700"
                           : "bg-gray-700 text-gray-500 cursor-not-allowed"
                     }`}
                   >
-                    {addedToCart[product.id] ? (
-                      <>
-                        <Check size={16} className="mr-1" />
-                        Added!
-                      </>
+                    {addedToCart[product.productId] ? (
+                      <><Check size={16} className="mr-1" />Added!</>
                     ) : (
-                      <>
-                        <Plus size={16} className="mr-1" />
-                        Add to Cart
-                      </>
+                      <><Plus size={16} className="mr-1" />Add to Cart</>
                     )}
                   </button>
                 </div>
@@ -237,36 +151,16 @@ export default function MarketplacePage() {
         </div>
 
         {filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-4">
-              <Search size={64} className="mx-auto" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No products found
-            </h3>
-            <p className="text-gray-500">
-              Try adjusting your search or filter criteria
-            </p>
+          <div className="text-center py-12 text-gray-400">
+            <Search size={64} className="mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No products found</h3>
+            <p className="text-sm">Try adjusting your search or filter criteria</p>
           </div>
         )}
       </div>
 
-      {/* Shopping Cart Modal */}
-      <ShoppingCartModal
-        isOpen={showCart}
-        onClose={() => setShowCart(false)}
-        onCheckout={() => {
-          setShowCart(false);
-          setShowCheckout(true);
-        }}
-      />
-
-      {/* Checkout Modal */}
-      <CheckoutModal
-        isOpen={showCheckout}
-        onClose={() => setShowCheckout(false)}
-        onSuccess={handleCheckoutSuccess}
-      />
+      <ShoppingCartModal isOpen={showCart} onClose={() => setShowCart(false)} onCheckout={() => { setShowCart(false); setShowCheckout(true); }} />
+      <CheckoutModal isOpen={showCheckout} onClose={() => setShowCheckout(false)} onSuccess={handleCheckoutSuccess} />
     </div>
   );
 }

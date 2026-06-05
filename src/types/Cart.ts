@@ -23,7 +23,7 @@ export interface CartState {
 export type CartAction =
   | { type: 'ADD_TO_CART'; payload: CartItem }
   | { type: 'REMOVE_FROM_CART'; payload: string } // productId
-  | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
+  | { type: 'UPDATE_QUANTITY'; payload: { productId: string; quantity: number } }
   | { type: 'CLEAR_CART' }
   | { type: 'LOAD_CART'; payload: CartItem[] };
 
