@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import ReviewsList from '../../components/ReviewsList';
-import React from 'react';
 
 describe('ReviewsList', () => {
   const mockReviews = [

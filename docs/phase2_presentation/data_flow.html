@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #0A0A0A; color: #FFFFFF; }
+        .slide-container { 
+            width: 1280px; 
+            min-height: 720px; 
+            background-color: #0A0A0A;
+            display: flex;
+            flex-direction: column;
+            padding: 60px 80px 0 80px;
+            position: relative;
+        }
+        .header {
+            margin-bottom: 60px;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 20px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .diagram-area {
+            position: relative;
+            width: 1120px;
+            height: 400px;
+            margin-top: 20px;
+        }
+        .node {
+            position: absolute;
+            width: 300px;
+            background-color: #0A0A0A;
+            border: 4px solid;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+        }
+        .node-header {
+            padding: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .node-body {
+            padding: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #CCCCCC;
+            text-align: center;
+        }
+        
+        /* Specific Nodes */
+        .node-vendor {
+            top: 0;
+            left: 0;
+            border-color: #006400;
+        }
+        .node-vendor .node-header {
+            background-color: #006400;
+            color: #FFFFFF;
+        }
+        
+        .node-store {
+            top: 0;
+            left: 560px;
+            transform: translateX(-50%);
+            border-color: #D4AF37;
+        }
+        .node-store .node-header {
+            background-color: #D4AF37;
+            color: #0A0A0A;
+        }
+        
+        .node-admin {
+            top: 0;
+            right: 0;
+            border-color: #CC0000;
+        }
+        .node-admin .node-header {
+            background-color: #CC0000;
+            color: #FFFFFF;
+        }
+        
+        .node-output-1 {
+            top: 240px;
+            left: 224px;
+            transform: translateX(-50%);
+            border-color: #555555;
+        }
+        .node-output-1 .node-header {
+            background-color: #555555;
+            color: #FFFFFF;
+        }
+        
+        .node-output-2 {
+            top: 240px;
+            left: 896px;
+            transform: translateX(-50%);
+            border-color: #555555;
+        }
+        .node-output-2 .node-header {
+            background-color: #555555;
+            color: #FFFFFF;
+        }
+
+        /* Connecting Lines */
+        .line {
+            position: absolute;
+            background-color: #D4AF37;
+            z-index: 1;
+        }
+        .line-h-1 { top: 60px; left: 300px; width: 110px; height: 4px; }
+        .line-h-2 { top: 60px; right: 300px; width: 110px; height: 4px; }
+        .line-v-1 { top: 120px; left: 558px; width: 4px; height: 80px; }
+        .line-h-3 { top: 200px; left: 224px; width: 676px; height: 4px; }
+        .line-v-2 { top: 200px; left: 224px; width: 4px; height: 40px; }
+        .line-v-3 { top: 200px; left: 896px; width: 4px; height: 40px; }
+        
+        /* Arrows */
+        .arrow-right {
+            position: absolute;
+            top: 54px;
+            left: 394px;
+            width: 0; 
+            height: 0; 
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 16px solid #D4AF37;
+            z-index: 2;
+        }
+        .arrow-left {
+            position: absolute;
+            top: 54px;
+            right: 394px;
+            width: 0; 
+            height: 0; 
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 16px solid #D4AF37;
+            z-index: 2;
+        }
+        .arrow-down-1 {
+            position: absolute;
+            top: 224px;
+            left: 218px;
+            width: 0; 
+            height: 0; 
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 16px solid #D4AF37;
+            z-index: 2;
+        }
+        .arrow-down-2 {
+            position: absolute;
+            top: 224px;
+            left: 890px;
+            width: 0; 
+            height: 0; 
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 16px solid #D4AF37;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="header">
+            <h1>ONE SHARED STORE CONNECTS BOTH LANES END-TO-END</h1>
+        </div>
+        
+        <div class="diagram-area">
+            <!-- Nodes -->
+            <div class="node node-vendor">
+                <div class="node-header">LANE B: VENDOR</div>
+                <div class="node-body">Submits application and documents via the 5-step <strong>/onboarding</strong> wizard.</div>
+            </div>
+            
+            <div class="node node-store">
+                <div class="node-header">MOCK ONBOARDING STORE</div>
+                <div class="node-body">Central state management.<br>Holds <strong>verificationStatus</strong> and business profile data.</div>
+            </div>
+            
+            <div class="node node-admin">
+                <div class="node-header">LANE A: ADMIN</div>
+                <div class="node-body">Reviews submissions and triggers Approve/Reject actions via <strong>/admin</strong>.</div>
+            </div>
+            
+            <div class="node node-output-1">
+                <div class="node-header">BUSINESS DIRECTORY</div>
+                <div class="node-body">Dynamically displays the "Verified" and "Black-Owned" badges based on store state.</div>
+            </div>
+            
+            <div class="node node-output-2">
+                <div class="node-header">MEMBER DASHBOARD</div>
+                <div class="node-body">Unlocks the product management grid once verificationStatus is 'verified'.</div>
+            </div>
+            
+            <!-- Lines -->
+            <div class="line line-h-1"></div>
+            <div class="line line-h-2"></div>
+            <div class="line line-v-1"></div>
+            <div class="line line-h-3"></div>
+            <div class="line line-v-2"></div>
+            <div class="line line-v-3"></div>
+            
+            <!-- Arrows -->
+            <div class="arrow-right"></div>
+            <div class="arrow-left"></div>
+            <div class="arrow-down-1"></div>
+            <div class="arrow-down-2"></div>
+        </div>
+    </div>
+</body>
+</html>

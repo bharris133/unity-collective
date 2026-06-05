@@ -1,0 +1,133 @@
+{
+  "project_info": {
+    "title": "Unity Collective — Phase 2 Complete",
+    "created": 1779400709.543,
+    "last_updated": 1779400891.904,
+    "total_slides": 11
+  },
+  "slides": [
+    {
+      "id": "title",
+      "state": "edited",
+      "pageNum": 1
+    },
+    {
+      "id": "phase2_overview",
+      "state": "edited",
+      "pageNum": 2
+    },
+    {
+      "id": "onboarding_wizard",
+      "state": "edited",
+      "pageNum": 3
+    },
+    {
+      "id": "black_owned_badge",
+      "state": "edited",
+      "pageNum": 4
+    },
+    {
+      "id": "member_dashboard",
+      "state": "edited",
+      "pageNum": 5
+    },
+    {
+      "id": "admin_flow",
+      "state": "edited",
+      "pageNum": 6
+    },
+    {
+      "id": "admin_features",
+      "state": "edited",
+      "pageNum": 7
+    },
+    {
+      "id": "data_flow",
+      "state": "edited",
+      "pageNum": 8
+    },
+    {
+      "id": "phase2_status",
+      "state": "edited",
+      "pageNum": 9
+    },
+    {
+      "id": "phase3_preview",
+      "state": "edited",
+      "pageNum": 10
+    },
+    {
+      "id": "closing",
+      "state": "edited",
+      "pageNum": 11
+    }
+  ],
+  "outline": [
+    {
+      "id": "title",
+      "title": "Unity Collective — Phase 2 Complete",
+      "summary": "Title slide: Phase 2 End-to-End Business Onboarding is complete. Pan-African theme, bold mission statement.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "phase2_overview",
+      "title": "Phase 2 Delivered Four Interconnected Features",
+      "summary": "Overview of the four Phase 2 deliverables: Onboarding Wizard, Black-Owned Badge, Member Dashboard, and Admin Verification Flow — showing how they form a complete end-to-end pipeline.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "onboarding_wizard",
+      "title": "The 5-Step Onboarding Wizard Guides Every New Business",
+      "summary": "Business Onboarding Wizard (Lane B): 5-step guided flow at /onboarding — Account, Business Profile, Verify, Products, Review. Step indicator, inline validation, mock persistence.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "black_owned_badge",
+      "title": "The Black-Owned Badge Makes Identity Visible and Verifiable",
+      "summary": "Pan-African gradient verification badge (red→black→green, gold border) displayed on BusinessDetail and MemberDashboard. All 6 mock businesses carry the isBlackOwned flag.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "member_dashboard",
+      "title": "The Member Dashboard Puts Vendors in Control of Their Business",
+      "summary": "Member Dashboard at /dashboard: business info card with both badges, Business Verified banner, full product management grid (Add/Edit/Delete). Redirect guards protect the route.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "admin_flow",
+      "title": "The Admin Verification Flow Closes the Loop on Lane A",
+      "summary": "Admin Verification Flow: pending queue with live badge count, two-pane review UI, Approve/Reject/Override actions wired to mockOnboarding store. Real-time status updates across the platform.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "admin_features",
+      "title": "Six Key Features Power the Admin Review Experience",
+      "summary": "Deep-dive on the 6 admin flow capabilities: Pending queue, Review detail pane, Approve action, Reject with reason, Override, and real-time counter updates.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "data_flow",
+      "title": "One Shared Store Connects Both Lanes End-to-End",
+      "summary": "Architecture diagram showing how mockOnboarding store connects Lane B (vendor submits) to Lane A (admin reviews) and propagates verificationStatus to BusinessDetail and MemberDashboard.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "phase2_status",
+      "title": "Phase 2 Is 100% Complete — 7 PRs Merged, Zero Open Issues",
+      "summary": "Status table of all Phase 2 deliverables with PR numbers, file counts, and test results. Build passes cleanly.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "phase3_preview",
+      "title": "Phase 3 Replaces Every Mock with a Live Production Service",
+      "summary": "Phase 3 roadmap: Firebase Auth (replace mock auth), Firestore (replace mock data), Stripe (activate payment stub), Firebase Storage (real image uploads). The mock architecture was designed to make this swap surgical.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "closing",
+      "title": "The Infrastructure for Black Economic Empowerment Is Ready",
+      "summary": "Closing slide: the platform is technically complete, end-to-end tested, and ready for Phase 3 production wiring. Call to action for Phase 3.",
+      "image_plan": "Use a suitable image if needed"
+    }
+  ]
+}

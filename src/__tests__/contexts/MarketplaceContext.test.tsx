@@ -1,19 +1,21 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { MarketplaceProvider, useMarketplace } from '../../contexts/MarketplaceContext';
-import { Product } from '../../types';
 
+// Mock product shaped to match the Product type (uses productId, not id)
 const mockProduct: any = {
-  id: 'test-product-1',
+  productId: 'test-product-1',
   name: 'Test Product',
   description: 'Test description',
   price: 2999,
   category: 'Apparel',
-  businessId: 'test-vendor',
-  image: '/test-image.jpg',
+  vendorId: 'test-vendor',
+  images: ['/test-image.jpg'],
   inStock: true,
   stockQuantity: 10,
-  tags: ['test']
+  tags: ['test'],
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
 };
 
 describe('MarketplaceContext', () => {
@@ -52,7 +54,7 @@ describe('MarketplaceContext', () => {
     });
 
     expect(result.current.cart.items).toHaveLength(1);
-    expect(result.current.cart.items[0].id).toBe('test-product-1');
+    expect(result.current.cart.items[0].productId).toBe('test-product-1');
     expect(result.current.cart.items[0].quantity).toBe(1);
     expect(result.current.getCartItemCount()).toBe(1);
   });
@@ -131,7 +133,7 @@ describe('MarketplaceContext', () => {
 
     act(() => {
       result.current.addToCart(mockProduct);
-      result.current.addToCart({ ...mockProduct, id: 'test-product-2' });
+      result.current.addToCart({ ...mockProduct, productId: 'test-product-2' });
     });
 
     expect(result.current.cart.items).toHaveLength(2);
@@ -219,21 +221,24 @@ describe('MarketplaceContext', () => {
 
     const savedCart = localStorage.getItem('unity-collective-cart');
     expect(savedCart).toBeTruthy();
-    
+
     const parsedCart = JSON.parse(savedCart!);
     expect(parsedCart).toHaveLength(1);
-    expect(parsedCart[0].id).toBe('test-product-1');
+    expect(parsedCart[0].productId).toBe('test-product-1');
   });
 
-  it('should provide sample products', () => {
+  it('should provide products from mock data', async () => {
     const { result } = renderHook(() => useMarketplace(), {
       wrapper: MarketplaceProvider
     });
 
-    expect(result.current.sampleProducts).toBeDefined();
-    expect(result.current.sampleProducts.length).toBeGreaterThan(0);
-    expect(result.current.sampleProducts[0]).toHaveProperty('id');
-    expect(result.current.sampleProducts[0]).toHaveProperty('name');
-    expect(result.current.sampleProducts[0]).toHaveProperty('price');
+    // Wait for the async product load to complete
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.products).toBeDefined();
+    expect(result.current.products.length).toBeGreaterThan(0);
+    expect(result.current.products[0]).toHaveProperty('productId');
+    expect(result.current.products[0]).toHaveProperty('name');
+    expect(result.current.products[0]).toHaveProperty('price');
   });
 });

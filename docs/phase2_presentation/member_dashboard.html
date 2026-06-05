@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #0A0A0A; color: #FFFFFF; }
+        .slide-container { 
+            width: 1280px; 
+            min-height: 720px; 
+            background-color: #0A0A0A;
+            display: flex;
+            flex-direction: column;
+            padding: 60px 80px;
+            position: relative;
+        }
+        .header {
+            margin-bottom: 30px; /* reduced from 50 */
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 20px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-top: 0px; /* keep title top padding consistent */
+        }
+        .content-area {
+            display: flex;
+            gap: 24px; /* reduced gap to save height by allowing denser columns */
+            flex-grow: 1;
+        }
+        .column {
+            flex: 1;
+            border: 1px solid #333;
+            padding: 28px; /* reduced from 40 */
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .column::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+        .col-left::before { background-color: #006400; }
+        .col-right::before { background-color: #CC0000; }
+        
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #D4AF37;
+            margin-bottom: 12px; /* reduced */
+            text-transform: uppercase;
+        }
+        ul {
+            list-style-type: none;
+        }
+        li {
+            font-size: 18px;
+            line-height: 1.45; /* slightly tighter */
+            color: #CCCCCC;
+            margin-bottom: 10px; /* reduced */
+            padding-left: 20px;
+            position: relative;
+        }
+        li::before {
+            content: '■';
+            position: absolute;
+            left: 0;
+            color: #D4AF37;
+            font-size: 12px;
+            top: 6px;
+        }
+        .security-bar {
+            margin-top: 20px; /* reduced from 40 */
+            background-color: #1A1A1A;
+            border-left: 8px solid #D4AF37;
+            padding: 16px 22px; /* reduced padding */
+        }
+        .security-bar h3 {
+            font-size: 18px;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .security-bar p {
+            font-size: 16px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="header">
+            <h1>THE MEMBER DASHBOARD PUTS VENDORS IN CONTROL OF THEIR BUSINESS</h1>
+        </div>
+        
+        <div class="content-area">
+            <div class="column col-left">
+                <h2>PROFILE &amp; STATUS</h2>
+                <ul>
+                    <li><strong>Business Info Card:</strong> Displays core details, contact information, and location.</li>
+                    <li><strong>Verification Banners:</strong> Prominent "Business Verified" confirmation banner for approved vendors.</li>
+                    <li><strong>Identity Badges:</strong> Showcases the Pan-African Black-Owned badge and Verified status directly on the dashboard.</li>
+                </ul>
+            </div>
+            
+            <div class="column col-right">
+                <h2>PRODUCT MANAGEMENT</h2>
+                <ul>
+                    <li><strong>Full Inventory Grid:</strong> Visual layout of all active products listed in the marketplace.</li>
+                    <li><strong>CRUD Capabilities:</strong> Seamless Add, Edit, and Delete functionality for product listings.</li>
+                    <li><strong>In-Memory State:</strong> Instant UI updates backed by the mock data store, ready for Firestore integration.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="security-bar">
+            <h3>ROUTE PROTECTION &amp; REDIRECT GUARDS</h3>
+            <p>The /dashboard route is strictly protected. Unauthenticated users are redirected to /login, and users without a completed onboarding state are routed to /onboarding.</p>
+        </div>
+    </div>
+</body>
+</html>

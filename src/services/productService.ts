@@ -11,7 +11,8 @@ import {
   where,
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import { mockProducts, type Product } from '../data';
+import { mockProducts } from '../data';
+import type { Product } from '../types/Product';
 
 const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
@@ -36,7 +37,7 @@ export const productService = {
     console.log('🔥 Fetching products from Firestore');
     try {
       const querySnapshot = await getDocs(collection(db, 'products'));
-      return querySnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Product));
+      return querySnapshot.docs.map(d => ({ productId: d.id, ...d.data() } as Product));
     } catch (error) {
       console.error('Error fetching products from Firestore:', error);
       console.warn('⚠️ Falling back to mock data');
@@ -47,35 +48,35 @@ export const productService = {
   /** Get a single product by ID */
   async getById(id: string): Promise<Product | null> {
     if (USE_MOCK_DATA) {
-      return Promise.resolve(mockProducts.find(p => p.id === id) || null);
+      return Promise.resolve(mockProducts.find(p => p.productId === id) || null);
     }
 
     try {
       const docRef = doc(db, 'products', id);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        return { id: docSnap.id, ...docSnap.data() } as Product;
+        return { productId: docSnap.id, ...docSnap.data() } as Product;
       }
       return null;
     } catch (error) {
       console.error(`Error fetching product ${id}:`, error);
-      return mockProducts.find(p => p.id === id) || null;
+      return mockProducts.find(p => p.productId === id) || null;
     }
   },
 
   /** Get products by business ID */
   async getByBusinessId(businessId: string): Promise<Product[]> {
     if (USE_MOCK_DATA) {
-      return Promise.resolve(mockProducts.filter(p => p.businessId === businessId));
+      return Promise.resolve(mockProducts.filter(p => p.vendorId === businessId));
     }
 
     try {
       const q = query(collection(db, 'products'), where('businessId', '==', businessId));
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Product));
+      return querySnapshot.docs.map(d => ({ productId: d.id, ...d.data() } as Product));
     } catch (error) {
       console.error(`Error fetching products for business ${businessId}:`, error);
-      return mockProducts.filter(p => p.businessId === businessId);
+      return mockProducts.filter(p => p.vendorId === businessId);
     }
   },
 
@@ -100,13 +101,13 @@ export const productService = {
     }
 
     try {
-      const { id, ...data } = product;
-      if (id) {
-        await setDoc(doc(db, 'products', id), data);
+      const { productId, ...data } = product;
+      if (productId) {
+        await setDoc(doc(db, 'products', productId), data);
         return product;
       } else {
         const docRef = await addDoc(collection(db, 'products'), data);
-        return { ...product, id: docRef.id };
+        return { ...product, productId: docRef.id };
       }
     } catch (error) {
       console.error('Error creating product in Firestore:', error);

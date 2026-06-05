@@ -53,9 +53,8 @@ class MockPaymentService implements IPaymentService {
   /**
    * Confirm a mock payment (always succeeds in mock mode)
    */
-  async confirmPayment(
-    paymentIntentId: string,
-    paymentMethodId?: string
+  async confirmPayment(paymentIntentId: string,
+    _paymentMethodId?: string
   ): Promise<PaymentResult> {
     console.log('💳 [Mock Payment] Confirming payment:', paymentIntentId);
 

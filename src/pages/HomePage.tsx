@@ -18,7 +18,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import { businessService, eventService, productService } from "../services";
+import { businessService, eventService } from "../services";
 import { Input } from "../components/ui/input.jsx";
 import heroBanner from "../assets/hero_banner.png";
 import communityHubBanner from "../assets/community_hub_banner.png";
@@ -478,7 +478,7 @@ function HomePage() {
               type="email"
               placeholder="Enter your email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               required
               className="flex-1 max-w-md"
               style={{ background: C.cardBg, border: `1px solid ${C.cardBorder}`, color: C.white }}

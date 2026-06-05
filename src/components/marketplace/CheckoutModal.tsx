@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, CreditCard, Lock } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -9,7 +9,9 @@ import { formatPrice } from '../../utils/formatPrice';
 // Initialize Stripe (replace with your publishable key)
 const stripePromise = loadStripe('pk_test_your_stripe_publishable_key_here');
 
-function CheckoutForm({ onClose, onSuccess }) {
+interface CheckoutResult { paymentMethodId: string; amount: number; items: unknown[]; shippingInfo: unknown; }
+interface FormProps { onClose: () => void; onSuccess: (result: CheckoutResult) => void; }
+function CheckoutForm({ onClose: _onClose, onSuccess }: FormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const { cart, getCartGrandTotal, clearCart } = useMarketplace();
@@ -28,14 +30,14 @@ function CheckoutForm({ onClose, onSuccess }) {
     country: 'US'
   });
 
-  const handleShippingChange = (e) => {
+  const handleShippingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShippingInfo({
       ...shippingInfo,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!stripe || !elements) {
@@ -46,6 +48,11 @@ function CheckoutForm({ onClose, onSuccess }) {
     setError('');
 
     const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      setError('Card element not found. Please refresh and try again.');
+      setProcessing(false);
+      return;
+    }
 
     try {
       // Create payment method
@@ -67,7 +74,7 @@ function CheckoutForm({ onClose, onSuccess }) {
       });
 
       if (paymentError) {
-        setError(paymentError.message);
+        setError(paymentError.message ?? 'Payment error');
         setProcessing(false);
         return;
       }
@@ -249,7 +256,7 @@ function CheckoutForm({ onClose, onSuccess }) {
         <h3 className="text-lg font-medium text-gray-900 mb-3">Order Summary</h3>
         <div className="space-y-2 text-sm">
           {cart.items.map((item) => (
-            <div key={item.id} className="flex justify-between">
+            <div key={item.productId} className="flex justify-between">
               <span>{item.name} × {item.quantity}</span>
               <span>{formatPrice(item.price * item.quantity)}</span>
             </div>
@@ -280,7 +287,8 @@ function CheckoutForm({ onClose, onSuccess }) {
   );
 }
 
-export default function CheckoutModal({ isOpen, onClose, onSuccess }) {
+interface ModalProps { isOpen: boolean; onClose: () => void; onSuccess: (result: CheckoutResult) => void; }
+export default function CheckoutModal({ isOpen, onClose, onSuccess }: ModalProps) {
   if (!isOpen) {return null;}
 
   return (

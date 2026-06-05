@@ -570,7 +570,7 @@ function UsersTab() {
 // ─── Businesses Tab ───────────────────────────────────────────────────────────
 function BusinessesTab() {
   const [states, setStates] = useState<OnboardingState[]>([]);
-  useEffect(() => { setStates(getAllOnboardingStates()); }, []);
+  useEffect(() => { getAllOnboardingStates().then(setStates); }, []);
 
   return (
     <div>

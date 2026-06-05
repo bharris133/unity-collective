@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #0A0A0A; color: #FFFFFF; }
+        .slide-container { 
+            width: 1280px; 
+            min-height: 720px; 
+            background-color: #0A0A0A;
+            display: flex;
+            flex-direction: column;
+            padding: 60px 80px;
+            position: relative;
+        }
+        .header {
+            margin-bottom: 60px;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 20px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .columns {
+            display: flex;
+            gap: 60px;
+            flex-grow: 1;
+        }
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+        .feature-block {
+            border-left: 4px solid #D4AF37;
+            padding-left: 30px;
+        }
+        .feature-block.red { border-color: #CC0000; }
+        .feature-block.green { border-color: #006400; }
+        
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #CCCCCC;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .btn-mock {
+            padding: 10px 20px;
+            border: 2px solid;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+        .btn-approve { border-color: #006400; color: #006400; }
+        .btn-reject { border-color: #CC0000; color: #CC0000; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="header">
+            <h1>THE ADMIN VERIFICATION FLOW CLOSES THE LOOP ON LANE A</h1>
+        </div>
+        
+        <div class="columns">
+            <div class="column">
+                <div class="feature-block">
+                    <h2>PENDING QUEUE</h2>
+                    <p>All submissions with a 'pending' verification status are automatically surfaced in a dedicated Verifications tab.</p>
+                </div>
+                <div class="feature-block red">
+                    <h2>LIVE BADGE COUNT</h2>
+                    <p>The admin sidebar features a real-time badge indicating the exact number of applications awaiting review.</p>
+                </div>
+                <div class="feature-block">
+                    <h2>TWO-PANE REVIEW UI</h2>
+                    <p>Selecting a submission opens a detailed pane showing the business profile, self-declared Black-Owned status, and uploaded documents.</p>
+                </div>
+            </div>
+            
+            <div class="column">
+                <div class="feature-block green">
+                    <h2>APPROVE / REJECT / OVERRIDE</h2>
+                    <p>Admins can approve applications, reject them with an optional reason, or override previous rejections.</p>
+                    <div class="action-buttons">
+                        <div class="btn-mock btn-approve">APPROVE & VERIFY</div>
+                        <div class="btn-mock btn-reject">REJECT APPLICATION</div>
+                    </div>
+                </div>
+                <div class="feature-block">
+                    <h2>REAL-TIME STATUS UPDATES</h2>
+                    <p>Actions are wired directly to the mockOnboarding store. Status changes propagate instantly across the platform.</p>
+                </div>
+                <div class="feature-block">
+                    <h2>PLATFORM-WIDE IMPACT</h2>
+                    <p>Approval immediately triggers the green Verified badge on the BusinessDetail page and the MemberDashboard.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
