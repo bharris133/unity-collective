@@ -2,6 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getFunctions } from 'firebase/functions';
 
 // Firebase configuration — values are injected from .env files at build time.
 // Development: .env.development (VITE_USE_MOCK_DATA=true)
@@ -15,17 +16,11 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication
 export const auth = getAuth(app);
-
-// Initialize Cloud Firestore
 export const db = getFirestore(app);
-
-// Initialize Cloud Storage
 export const storage = getStorage(app);
+export const functions = getFunctions(app);
 
 export default app;
-

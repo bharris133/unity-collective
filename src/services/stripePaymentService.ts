@@ -1,10 +1,17 @@
 /**
  * Stripe Payment Service
- * 
- * Real payment processing using Stripe API.
- * This is a stub implementation - to be completed when Stripe integration is needed.
+ *
+ * Calls Firebase Cloud Functions for all server-side Stripe operations.
+ * The secret key never touches the frontend — all price calculations and
+ * payment intent creation happen in functions/src/index.ts.
+ *
+ * Mock mode: delegates to mockPaymentService (VITE_USE_MOCK_DATA=true)
+ * Live mode:  calls Cloud Functions + Stripe.js (VITE_USE_MOCK_DATA=false)
  */
 
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebase';
+import { mockPaymentService } from './mockPaymentService';
 import type {
   IPaymentService,
   PaymentIntent,
@@ -13,133 +20,79 @@ import type {
   OrderData,
 } from './paymentService';
 
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_DATA === 'true';
+
 class StripePaymentService implements IPaymentService {
-  private stripePublishableKey: string;
+  // ─── Checkout Session (primary flow) ────────────────────────────────────────
 
-  constructor() {
-    // Load Stripe keys from environment variables
-    this.stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
+  async createCheckoutSession(orderData: OrderData): Promise<CheckoutSession> {
+    if (USE_MOCK) return mockPaymentService.createCheckoutSession(orderData);
 
-    if (!this.stripePublishableKey) {
-      console.warn('⚠️ Stripe publishable key not configured');
-    }
+    console.log('💳 [Stripe] Creating checkout session via Cloud Function…');
+    const fn = httpsCallable<{ cartItems: OrderData['items']; successUrl?: string; cancelUrl?: string }, { sessionId: string; url: string }>(
+      functions,
+      'createCheckoutSession'
+    );
+    const { data } = await fn({ cartItems: orderData.items });
+    return {
+      id: data.sessionId,
+      paymentIntentId: '',
+      amount: orderData.total,
+      currency: 'usd',
+      status: 'open',
+      url: data.url,
+    };
   }
 
-  /**
-   * Create a real Stripe payment intent
-   * 
-   * TODO: Implement Stripe API integration
-   * - Install @stripe/stripe-js package
-   * - Create backend API endpoint for payment intent creation
-   * - Call backend API from here (never expose secret key in frontend)
-   */
-  async createPaymentIntent(_orderData: OrderData): Promise<PaymentIntent> {
-    console.log('💳 [Stripe] Creating payment intent...');
+  async getCheckoutSession(sessionId: string): Promise<CheckoutSession> {
+    if (USE_MOCK) return mockPaymentService.getCheckoutSession(sessionId);
 
-    // TODO: Call your backend API endpoint
-    // const response = await fetch('/api/payments/create-intent', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(orderData),
-    // });
-    // const data = await response.json();
-    // return data.paymentIntent;
-
-    throw new Error('Stripe payment service not yet implemented. Set VITE_USE_MOCK_DATA=true to use mock payments.');
+    console.log(`💳 [Stripe] Fetching checkout session ${sessionId}…`);
+    const fn = httpsCallable<{ sessionId: string }, CheckoutSession>(functions, 'getCheckoutSession');
+    const { data } = await fn({ sessionId });
+    return data;
   }
 
-  /**
-   * Confirm a Stripe payment
-   * 
-   * TODO: Implement Stripe payment confirmation
-   * - Use Stripe.js to confirm payment on frontend
-   * - Handle 3D Secure authentication if needed
-   */
-  async confirmPayment(
-    _paymentIntentId: string,
-    _paymentMethodId?: string
-  ): Promise<PaymentResult> {
-    console.log('💳 [Stripe] Confirming payment...');
+  // ─── Payment Intent (card-element flow) ─────────────────────────────────────
 
-    // TODO: Use Stripe.js to confirm payment
-    // const stripe = await loadStripe(this.stripePublishableKey);
-    // const result = await stripe.confirmCardPayment(clientSecret, {
-    //   payment_method: paymentMethodId,
-    // });
+  async createPaymentIntent(orderData: OrderData): Promise<PaymentIntent> {
+    if (USE_MOCK) return mockPaymentService.createPaymentIntent(orderData);
 
-    throw new Error('Stripe payment service not yet implemented. Set VITE_USE_MOCK_DATA=true to use mock payments.');
+    console.log('💳 [Stripe] Creating payment intent via Cloud Function…');
+    const fn = httpsCallable<OrderData, PaymentIntent>(functions, 'createPaymentIntent');
+    const { data } = await fn(orderData);
+    return data;
   }
 
-  /**
-   * Cancel a Stripe payment intent
-   * 
-   * TODO: Implement payment cancellation via backend API
-   */
-  async cancelPayment(_paymentIntentId: string): Promise<boolean> {
-    console.log('💳 [Stripe] Canceling payment...');
+  async confirmPayment(paymentIntentId: string, paymentMethodId?: string): Promise<PaymentResult> {
+    if (USE_MOCK) return mockPaymentService.confirmPayment(paymentIntentId, paymentMethodId);
 
-    // TODO: Call backend API to cancel payment intent
-    // const response = await fetch(`/api/payments/cancel/${paymentIntentId}`, {
-    //   method: 'POST',
-    // });
-
-    throw new Error('Stripe payment service not yet implemented. Set VITE_USE_MOCK_DATA=true to use mock payments.');
+    console.log(`💳 [Stripe] Confirming payment ${paymentIntentId}…`);
+    const fn = httpsCallable<{ paymentIntentId: string; paymentMethodId?: string }, PaymentResult>(
+      functions,
+      'confirmPayment'
+    );
+    const { data } = await fn({ paymentIntentId, paymentMethodId });
+    return data;
   }
 
-  /**
-   * Get Stripe payment intent status
-   * 
-   * TODO: Implement status retrieval via backend API
-   */
-  async getPaymentStatus(_paymentIntentId: string): Promise<PaymentIntent> {
-    console.log('💳 [Stripe] Getting payment status...');
+  async cancelPayment(paymentIntentId: string): Promise<boolean> {
+    if (USE_MOCK) return mockPaymentService.cancelPayment(paymentIntentId);
 
-    // TODO: Call backend API to get payment intent status
-    // const response = await fetch(`/api/payments/status/${paymentIntentId}`);
-    // const data = await response.json();
-    // return data.paymentIntent;
-
-    throw new Error('Stripe payment service not yet implemented. Set VITE_USE_MOCK_DATA=true to use mock payments.');
+    console.log(`💳 [Stripe] Canceling payment ${paymentIntentId}…`);
+    const fn = httpsCallable<{ paymentIntentId: string }, { success: boolean }>(functions, 'cancelPayment');
+    const { data } = await fn({ paymentIntentId });
+    return data.success;
   }
 
-  /**
-   * Create a Stripe Checkout session
-   * 
-   * TODO: Implement Stripe Checkout session creation
-   * - Create backend API endpoint for session creation
-   * - Redirect user to Stripe Checkout page
-   */
-  async createCheckoutSession(_orderData: OrderData): Promise<CheckoutSession> {
-    console.log('💳 [Stripe] Creating checkout session...');
+  async getPaymentStatus(paymentIntentId: string): Promise<PaymentIntent> {
+    if (USE_MOCK) return mockPaymentService.getPaymentStatus(paymentIntentId);
 
-    // TODO: Call backend API to create Stripe Checkout session
-    // const response = await fetch('/api/payments/create-checkout-session', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(orderData),
-    // });
-    // const data = await response.json();
-    // return data.session;
-
-    throw new Error('Stripe payment service not yet implemented. Set VITE_USE_MOCK_DATA=true to use mock payments.');
-  }
-
-  /**
-   * Retrieve a Stripe Checkout session
-   * 
-   * TODO: Implement session retrieval via backend API
-   */
-  async getCheckoutSession(_sessionId: string): Promise<CheckoutSession> {
-    console.log('💳 [Stripe] Getting checkout session...');
-
-    // TODO: Call backend API to retrieve session
-    // const response = await fetch(`/api/payments/checkout-session/${sessionId}`);
-    // const data = await response.json();
-    // return data.session;
-
-    throw new Error('Stripe payment service not yet implemented. Set VITE_USE_MOCK_DATA=true to use mock payments.');
+    console.log(`💳 [Stripe] Getting status for ${paymentIntentId}…`);
+    const fn = httpsCallable<{ paymentIntentId: string }, PaymentIntent>(functions, 'getPaymentStatus');
+    const { data } = await fn({ paymentIntentId });
+    return data;
   }
 }
 
-// Export singleton instance
 export const stripePaymentService = new StripePaymentService();

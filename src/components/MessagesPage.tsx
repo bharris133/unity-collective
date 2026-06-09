@@ -1,84 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Send, MoreVertical, ArrowLeft } from 'lucide-react';
-
-// Local mock interfaces — will be replaced when Firestore messaging is wired
-interface MockThread {
-  id: string;
-  participants: string[];
-  participantNames: string[];
-  lastMessage: string;
-  lastMessageTime: Date;
-  unreadCount: number;
-  relatedOfferTitle?: string;
-}
-
-interface MockMessage {
-  id: string;
-  threadId: string;
-  senderId: string;
-  content: string;
-  timestamp: Date;
-  read: boolean;
-}
-
-const mockThreads: MockThread[] = [
-  {
-    id: '1',
-    participants: ['user1', 'user2'],
-    participantNames: ['John Smith', 'Sarah Johnson'],
-    lastMessage: 'That sounds great! When can we start?',
-    lastMessageTime: new Date('2025-01-25T14:30:00'),
-    unreadCount: 2,
-    relatedOfferTitle: 'Looking for Web Development Services',
-  },
-  {
-    id: '2',
-    participants: ['user1', 'user3'],
-    participantNames: ['John Smith', 'Marcus Williams'],
-    lastMessage: 'I can help with that. Let me send you my portfolio.',
-    lastMessageTime: new Date('2025-01-24T10:15:00'),
-    unreadCount: 0,
-    relatedOfferTitle: 'Need Logo Design',
-  },
-  {
-    id: '3',
-    participants: ['user1', 'user4'],
-    participantNames: ['John Smith', 'Lisa Brown'],
-    lastMessage: 'Thanks for your interest! Here are the details...',
-    lastMessageTime: new Date('2025-01-23T16:45:00'),
-    unreadCount: 1,
-    relatedOfferTitle: 'Offering Catering Services',
-  },
-];
-
-const mockMessages: Record<string, MockMessage[]> = {
-  '1': [
-    { id: 'm1', threadId: '1', senderId: 'user2', content: 'Hi! I saw your offer for web development. I can help with that.', timestamp: new Date('2025-01-25T14:00:00'), read: true },
-    { id: 'm2', threadId: '1', senderId: 'user1', content: 'Great! What kind of projects have you worked on?', timestamp: new Date('2025-01-25T14:15:00'), read: true },
-    { id: 'm3', threadId: '1', senderId: 'user2', content: 'I specialize in React and Node.js. I can show you my portfolio.', timestamp: new Date('2025-01-25T14:20:00'), read: true },
-    { id: 'm4', threadId: '1', senderId: 'user1', content: 'That sounds great! When can we start?', timestamp: new Date('2025-01-25T14:30:00'), read: false },
-  ],
-};
+import { messageService } from '../services/messageService';
+import { useAuth } from '../contexts/AuthContext';
+import type { MessageThread, Message } from '../data/mockMessages';
 
 export const MessagesPage: React.FC = () => {
+  const { currentUser } = useAuth();
+  const [threads, setThreads] = useState<MessageThread[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [selectedThread, setSelectedThread] = useState<string | null>(null);
   const [messageText, setMessageText] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const filteredThreads = mockThreads.filter(t =>
+  // Load threads on mount
+  useEffect(() => {
+    messageService.getAllThreads().then(data => {
+      setThreads(data);
+      setLoading(false);
+    });
+  }, []);
+
+  // Load messages when thread changes
+  useEffect(() => {
+    if (!selectedThread) { setMessages([]); return; }
+    messageService.getMessagesByThreadId(selectedThread).then(setMessages);
+    messageService.markThreadAsRead(selectedThread);
+  }, [selectedThread]);
+
+  const filteredThreads = threads.filter(t =>
     t.participantNames.some(n => n.toLowerCase().includes(searchTerm.toLowerCase())) ||
     t.relatedOfferTitle?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSendMessage = () => {
-    if (!messageText.trim() || !selectedThread) return;
-    // TODO: Send message to Firestore
-    console.log('Sending message:', messageText);
+  const handleSendMessage = async () => {
+    if (!messageText.trim() || !selectedThread || !currentUser) return;
+    const sent = await messageService.sendMessage(
+      selectedThread,
+      currentUser.uid,
+      currentUser.displayName ?? 'You',
+      messageText.trim()
+    );
+    if (sent) setMessages(prev => [...prev, sent]);
     setMessageText('');
   };
 
-  const currentThread = mockThreads.find(t => t.id === selectedThread);
-  const currentMessages = selectedThread ? mockMessages[selectedThread] ?? [] : [];
+  const currentThread = threads.find(t => t.id === selectedThread);
 
   return (
     <div className="min-h-screen bg-[#111111]">
@@ -88,7 +55,7 @@ export const MessagesPage: React.FC = () => {
         </div>
 
         <div className="flex-1 flex overflow-hidden">
-          {/* Threads List */}
+          {/* Thread list */}
           <div className={`w-full md:w-96 bg-[#1A1A1A] border-r border-white/10 flex flex-col ${selectedThread ? 'hidden md:flex' : 'flex'}`}>
             <div className="p-4 border-b border-white/10">
               <div className="relative">
@@ -104,7 +71,9 @@ export const MessagesPage: React.FC = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              {filteredThreads.length === 0 ? (
+              {loading ? (
+                <div className="p-8 text-center text-gray-400">Loading...</div>
+              ) : filteredThreads.length === 0 ? (
                 <div className="p-8 text-center text-gray-400"><p>No conversations yet</p></div>
               ) : (
                 filteredThreads.map(thread => (
@@ -132,7 +101,7 @@ export const MessagesPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Message View */}
+          {/* Message view */}
           <div className={`flex-1 flex flex-col ${selectedThread ? 'flex' : 'hidden md:flex'}`}>
             {selectedThread && currentThread ? (
               <>
@@ -152,8 +121,8 @@ export const MessagesPage: React.FC = () => {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#111111]">
-                  {currentMessages.map(message => {
-                    const isOwn = message.senderId === 'user1';
+                  {messages.map(message => {
+                    const isOwn = message.senderId === currentUser?.uid;
                     return (
                       <div key={message.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                         <div className={`max-w-md ${isOwn ? 'order-2' : 'order-1'}`}>
