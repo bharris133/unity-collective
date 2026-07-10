@@ -247,7 +247,7 @@ function ProductModal({ initial, businessId, businessName: _businessName, onSave
 
 export default function MemberDashboard() {
   const navigate = useNavigate();
-  const { userProfile, loading: authLoading } = useAuth();
+  const { userProfile, currentUser, loading: authLoading } = useAuth();
 
   const [onboarding, setOnboarding] = useState<OnboardingState | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -255,10 +255,8 @@ export default function MemberDashboard() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  // Derive businessId from onboarding data (slug from business name)
-  const businessId = onboarding
-    ? onboarding.businessProfile.businessName.toLowerCase().replace(/\s+/g, '-')
-    : '';
+  // Use the vendor's Firebase UID as vendorId for reliable ownership queries
+  const businessId = currentUser?.uid ?? '';
   const businessName = onboarding?.businessProfile.businessName ?? '';
 
   useEffect(() => {
@@ -283,8 +281,8 @@ export default function MemberDashboard() {
 
       setOnboarding(state);
 
-      // Load products for this business from Firestore (or mock)
-      const bid = state.businessProfile.businessName.toLowerCase().replace(/\s+/g, '-');
+      // Load products for this vendor using their Firebase UID
+      const bid = uid;
       const existing = await productService.getByBusinessId(bid);
       setProducts(existing);
     })();
