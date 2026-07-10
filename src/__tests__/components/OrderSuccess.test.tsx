@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import OrderSuccess from '../../components/OrderSuccess';
+
+// Mock orderService
+vi.mock('../../services/orderService', () => ({
+  orderService: {
+    getOrderById: vi.fn().mockResolvedValue(null),
+  },
+}));
 
 // Mock useSearchParams
 const mockUseSearchParams = vi.fn();
@@ -19,110 +26,109 @@ describe('OrderSuccess Component', () => {
     vi.clearAllMocks();
   });
 
-  it('should render success message with valid session ID', () => {
+    it('should render success message with valid order ID', async () => {
     mockUseSearchParams.mockReturnValue([
-      new URLSearchParams('session_id=cs_test_1234567890abcdef'),
+      new URLSearchParams('orderId=abc123def456789'),
     ]);
-
     render(
       <BrowserRouter>
         <OrderSuccess />
       </BrowserRouter>
     );
-
-    expect(screen.getByText('Order Confirmed!')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Order Confirmed!')).toBeInTheDocument();
+    });
     expect(screen.getByText(/Thank you for supporting Black-owned businesses/)).toBeInTheDocument();
   });
 
-  it('should display order number based on session ID', () => {
+    it('should display order reference based on order ID', async () => {
     mockUseSearchParams.mockReturnValue([
-      new URLSearchParams('session_id=cs_test_abcd1234'),
+      new URLSearchParams('orderId=abc123def456789'),
     ]);
-
     render(
       <BrowserRouter>
         <OrderSuccess />
       </BrowserRouter>
     );
-
-    expect(screen.getByText('Order Number')).toBeInTheDocument();
-    // Should show last 8 characters of session ID in uppercase
+    await waitFor(() => {
+      expect(screen.getByText('Order Reference')).toBeInTheDocument();
+    });
     expect(screen.getByText(/UC-/)).toBeInTheDocument();
   });
 
-  it('should show what happens next steps', () => {
+    it('should show what happens next steps', async () => {
     mockUseSearchParams.mockReturnValue([
-      new URLSearchParams('session_id=cs_test_1234567890'),
+      new URLSearchParams('orderId=abc123def456789'),
     ]);
-
     render(
       <BrowserRouter>
         <OrderSuccess />
       </BrowserRouter>
     );
-
-    expect(screen.getByText("What's Next?")).toBeInTheDocument();
-    expect(screen.getByText('Order Confirmation Email')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("What's Next?")).toBeInTheDocument();
+    });
     expect(screen.getByText('Vendor Notification')).toBeInTheDocument();
+    expect(screen.getByText('Order Processing')).toBeInTheDocument();
     expect(screen.getByText('Shipping Updates')).toBeInTheDocument();
   });
 
-  it('should display community impact message', () => {
+    it('should display community impact message', async () => {
     mockUseSearchParams.mockReturnValue([
-      new URLSearchParams('session_id=cs_test_1234567890'),
+      new URLSearchParams('orderId=abc123def456789'),
     ]);
-
     render(
       <BrowserRouter>
         <OrderSuccess />
       </BrowserRouter>
     );
-
-    expect(screen.getByText('Your Impact')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Your Impact')).toBeInTheDocument();
+    });
     expect(screen.getByText(/By shopping with Unity Collective/)).toBeInTheDocument();
     expect(screen.getByText('Supporting Black-Owned Businesses')).toBeInTheDocument();
   });
 
-  it('should have continue shopping and return home buttons', () => {
+    it('should have view orders and continue shopping buttons', async () => {
     mockUseSearchParams.mockReturnValue([
-      new URLSearchParams('session_id=cs_test_1234567890'),
+      new URLSearchParams('orderId=abc123def456789'),
     ]);
-
     render(
       <BrowserRouter>
         <OrderSuccess />
       </BrowserRouter>
     );
-
+    await waitFor(() => {
+      expect(screen.getByText('View My Orders')).toBeInTheDocument();
+    });
     expect(screen.getByText('Continue Shopping')).toBeInTheDocument();
-    expect(screen.getByText('Return Home')).toBeInTheDocument();
   });
 
-  it('should show error message when no session ID is provided', () => {
+    it('should show error message when no order ID is provided', async () => {
     mockUseSearchParams.mockReturnValue([new URLSearchParams('')]);
-
     render(
       <BrowserRouter>
         <OrderSuccess />
       </BrowserRouter>
     );
-
-    expect(screen.getByText('Invalid Order')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Invalid Order')).toBeInTheDocument();
+    });
     expect(screen.getByText(/No order information found/)).toBeInTheDocument();
   });
 
-  it('should have contact support link', () => {
+    it('should have contact support link', async () => {
     mockUseSearchParams.mockReturnValue([
-      new URLSearchParams('session_id=cs_test_1234567890'),
+      new URLSearchParams('orderId=abc123def456789'),
     ]);
-
     render(
       <BrowserRouter>
         <OrderSuccess />
       </BrowserRouter>
     );
-
-    expect(screen.getByText('Questions about your order?')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Questions about your order?')).toBeInTheDocument();
+    });
     expect(screen.getByText('Contact Support')).toBeInTheDocument();
   });
 });

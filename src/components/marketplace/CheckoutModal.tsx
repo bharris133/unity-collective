@@ -5,11 +5,31 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 import { useMarketplace } from '../../contexts/MarketplaceContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatPrice } from '../../utils/formatPrice';
+import type { CartItem } from '../../types/Cart';
 
 // Initialize Stripe from environment variable
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '');
 
-interface CheckoutResult { paymentMethodId: string; amount: number; items: unknown[]; shippingInfo: unknown; }
+export interface CheckoutShippingInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+export interface CheckoutResult {
+  paymentMethodId: string;
+  amount: number;
+  items: CartItem[];
+  shippingInfo: CheckoutShippingInfo;
+  vendorId: string;
+}
+
 interface FormProps { onClose: () => void; onSuccess: (result: CheckoutResult) => void; }
 function CheckoutForm({ onClose: _onClose, onSuccess }: FormProps) {
   const stripe = useStripe();
@@ -18,7 +38,7 @@ function CheckoutForm({ onClose: _onClose, onSuccess }: FormProps) {
   const { currentUser, userProfile } = useAuth();
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
-  const [shippingInfo, setShippingInfo] = useState({
+  const [shippingInfo, setShippingInfo] = useState<CheckoutShippingInfo>({
     firstName: userProfile?.firstName || '',
     lastName: userProfile?.lastName || '',
     email: currentUser?.email || '',
@@ -55,7 +75,6 @@ function CheckoutForm({ onClose: _onClose, onSuccess }: FormProps) {
     }
 
     try {
-      // Create payment method
       const { error: paymentError, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
         card: cardElement,
@@ -79,17 +98,19 @@ function CheckoutForm({ onClose: _onClose, onSuccess }: FormProps) {
         return;
       }
 
-      // In a real application, you would send the payment method to your backend
-      // to create a payment intent and process the payment
-      
-      // For demo purposes, we'll simulate a successful payment
+      // Determine vendorId from first cart item
+      const vendorId = cart.items[0]?.vendorId ?? '';
+
+      // Simulate payment processing (real Stripe payment intent would go here)
       setTimeout(() => {
+        const itemsSnapshot = [...cart.items];
         clearCart();
         onSuccess({
           paymentMethodId: paymentMethod.id,
           amount: getCartGrandTotal(),
-          items: cart.items,
-          shippingInfo
+          items: itemsSnapshot,
+          shippingInfo,
+          vendorId,
         });
         setProcessing(false);
       }, 2000);
@@ -313,4 +334,3 @@ export default function CheckoutModal({ isOpen, onClose, onSuccess }: ModalProps
     </div>
   );
 }
-
