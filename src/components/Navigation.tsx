@@ -182,33 +182,29 @@ function Navigation() {
                     )}
                   </Link>
 
-                  {/* Messages Icon (if buyer) */}
-                  {!isVendor && (
-                    <Link
-                      to="/messages"
-                      className="relative p-2 text-gray-700 hover:text-red-600 transition-colors rounded-full hover:bg-gray-100"
-                      title="Messages"
-                    >
-                      <MessageCircle size={20} />
-                      {/* Badge for unread messages */}
-                      {unreadMessageCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
-                          {unreadMessageCount}
-                        </span>
-                      )}
-                    </Link>
-                  )}
+                  {/* Messages Icon (all logged-in users) */}
+                  <Link
+                    to="/messages"
+                    className="relative p-2 text-gray-700 hover:text-red-600 transition-colors rounded-full hover:bg-gray-100"
+                    title="Messages"
+                  >
+                    <MessageCircle size={20} />
+                    {/* Badge for unread messages */}
+                    {unreadMessageCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                        {unreadMessageCount}
+                      </span>
+                    )}
+                  </Link>
 
-                  {/* Offers Icon (if buyer) */}
-                  {!isVendor && (
-                    <Link
-                      to="/offers"
-                      className="relative p-2 text-gray-700 hover:text-red-600 transition-colors rounded-full hover:bg-gray-100"
-                      title="Offers & Barter"
-                    >
-                      <Gift size={20} />
-                    </Link>
-                  )}
+                  {/* Offers Icon (all logged-in users) */}
+                  <Link
+                    to="/offers"
+                    className="relative p-2 text-gray-700 hover:text-red-600 transition-colors rounded-full hover:bg-gray-100"
+                    title="Offers & Barter"
+                  >
+                    <Gift size={20} />
+                  </Link>
 
                   {/* My Store Button (if vendor) */}
                   {isVendor && (
