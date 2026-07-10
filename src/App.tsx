@@ -12,6 +12,8 @@ import AboutPage from './pages/AboutPage';
 import PlatformShowcase from './pages/PlatformShowcase';
 import OnboardingWizard from './pages/OnboardingWizard';
 import MemberDashboard from './pages/MemberDashboard';
+import VendorOrdersPage from './pages/VendorOrdersPage';
+import BuyerOrdersPage from './pages/BuyerOrdersPage';
 
 // Contexts
 import { AuthProvider } from './contexts/AuthContext';
@@ -111,6 +113,8 @@ export default function App() {
                   <Route path="/onboarding" element={<OnboardingWizard />} />
                   <Route path="/dashboard" element={<MemberDashboard />} />
                   <Route path="/profile" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/vendor/orders" element={<VendorOrdersPage />} />
+                  <Route path="/orders" element={<BuyerOrdersPage />} />
                 </Routes>
               </main>
               <Footer />

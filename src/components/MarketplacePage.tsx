@@ -1,13 +1,18 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, ShoppingCart as ShoppingCartIcon, Star, Plus, Check } from "lucide-react";
 import { useMarketplace } from "../contexts/MarketplaceContext";
+import { useAuth } from "../contexts/AuthContext";
 import ShoppingCartModal from "./marketplace/ShoppingCart";
-import CheckoutModal from "./marketplace/CheckoutModal";
+import CheckoutModal, { type CheckoutResult } from "./marketplace/CheckoutModal";
 import { formatPrice } from "../utils/formatPrice";
+import { orderService } from "../services/orderService";
 import type { Product } from "../types";
 
 export default function MarketplacePage() {
-  const { products, addToCart, getCartItemCount } = useMarketplace();
+  const { products, addToCart, getCartItemCount, getCartSubtotal, getCartTax, getCartShipping } = useMarketplace();
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("name");
@@ -35,10 +40,41 @@ export default function MarketplacePage() {
     setTimeout(() => setAddedToCart(prev => ({ ...prev, [product.productId]: false })), 2000);
   };
 
-  const handleCheckoutSuccess = () => {
+  const handleCheckoutSuccess = async (result: CheckoutResult) => {
     setShowCheckout(false);
     setShowCart(false);
-    alert("Order placed successfully! Thank you for supporting Black-owned businesses.");
+    try {
+      const orderId = await orderService.createOrder({
+        userId: currentUser?.uid ?? 'guest',
+        vendorId: result.vendorId,
+        items: result.items.map(i => ({
+          productId: i.productId,
+          name: i.name ?? '',
+          quantity: i.quantity,
+          price: i.price,
+          image: i.image,
+        })),
+        subtotal: getCartSubtotal(),
+        tax: getCartTax(),
+        shipping: getCartShipping(),
+        platformFee: 0,
+        total: result.amount,
+        stripeSessionId: '',
+        stripePaymentIntentId: result.paymentMethodId,
+        shippingAddress: {
+          fullName: `${result.shippingInfo.firstName} ${result.shippingInfo.lastName}`,
+          addressLine1: result.shippingInfo.address,
+          city: result.shippingInfo.city,
+          state: result.shippingInfo.state,
+          zipCode: result.shippingInfo.zipCode,
+          country: result.shippingInfo.country,
+          phone: result.shippingInfo.phone,
+        },
+      });
+      navigate(`/order-success?orderId=${orderId}`);
+    } catch {
+      navigate('/order-success');
+    }
   };
 
   return (
