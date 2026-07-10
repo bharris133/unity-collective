@@ -6,8 +6,8 @@ import { useMarketplace } from '../../contexts/MarketplaceContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { formatPrice } from '../../utils/formatPrice';
 
-// Initialize Stripe (replace with your publishable key)
-const stripePromise = loadStripe('pk_test_your_stripe_publishable_key_here');
+// Initialize Stripe from environment variable
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '');
 
 interface CheckoutResult { paymentMethodId: string; amount: number; items: unknown[]; shippingInfo: unknown; }
 interface FormProps { onClose: () => void; onSuccess: (result: CheckoutResult) => void; }
