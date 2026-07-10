@@ -10,7 +10,7 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     css: true,
     // Exclude Playwright e2e tests — they require a running browser/server
-    exclude: ['node_modules/**', 'dist/**', 'tests/e2e/**'],
+    exclude: ['node_modules/**', 'functions/node_modules/**', 'dist/**', 'tests/e2e/**'],
     // Always use mock data in unit tests
     env: {
       VITE_USE_MOCK_DATA: 'true',

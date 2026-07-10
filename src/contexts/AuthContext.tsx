@@ -282,6 +282,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       };
     } else {
       // Firebase mode: use onAuthStateChanged
+      // Guard against auth being null — this can happen when localStorage has
+      // 'mock_auth_enabled=false' but Firebase credentials are not available
+      // (e.g. local dev without .env.local). Fall back gracefully instead of crashing.
+      if (!auth) {
+        console.warn(
+          'AuthContext: Firebase auth is null. ' +
+          'If running locally, run: localStorage.removeItem(\'mock_auth_enabled\') and refresh.'
+        );
+        setLoading(false);
+        return;
+      }
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         setCurrentUser(user);
         await loadUserProfile(user);
