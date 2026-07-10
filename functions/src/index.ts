@@ -1,15 +1,16 @@
 import {onCall, HttpsError} from 'firebase-functions/v2/https';
 import {onRequest} from 'firebase-functions/v2/https';
+import {defineSecret} from 'firebase-functions/params';
 import * as admin from 'firebase-admin';
 import Stripe from 'stripe';
 
+// Define secrets — these are resolved at runtime from Google Secret Manager
+const stripeSecretKey = defineSecret('STRIPE_SECRET_KEY');
+const stripeWebhookSecret = defineSecret('STRIPE_WEBHOOK_SECRET');
+const frontendUrl = defineSecret('FRONTEND_URL');
+
 // Initialize Firebase Admin
 admin.initializeApp();
-
-// Initialize Stripe with secret key from environment
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-12-15.clover',
-});
 
 // Firestore reference
 const db = admin.firestore();
@@ -39,7 +40,9 @@ interface CreateCheckoutSessionData {
  * 
  * Security: All price calculations happen server-side
  */
-export const createCheckoutSession = onCall(async (request) => {
+export const createCheckoutSession = onCall(
+  { secrets: [stripeSecretKey, frontendUrl] },
+  async (request) => {
   // Ensure user is authenticated
   if (!request.auth) {
     throw new HttpsError(
@@ -57,6 +60,11 @@ export const createCheckoutSession = onCall(async (request) => {
       'Cart items are required and must be a non-empty array.'
     );
   }
+
+  // Initialize Stripe with secret from Secret Manager
+  const stripe = new Stripe(stripeSecretKey.value(), {
+    apiVersion: '2025-12-15.clover',
+  });
 
   try {
     // Fetch monetization config
@@ -163,8 +171,8 @@ export const createCheckoutSession = onCall(async (request) => {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      success_url: successUrl || `${process.env.FRONTEND_URL}/order-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancelUrl || `${process.env.FRONTEND_URL}/cart`,
+      success_url: successUrl || `${frontendUrl.value()}/order-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${frontendUrl.value()}/cart`,
       client_reference_id: userId,
       metadata: {
         userId,
@@ -186,7 +194,8 @@ export const createCheckoutSession = onCall(async (request) => {
       'Failed to create checkout session: ' + error.message
     );
   }
-});
+  }
+);
 
 /**
  * Stripe Webhook Handler
@@ -196,7 +205,14 @@ export const createCheckoutSession = onCall(async (request) => {
  * 
  * Security: Verifies webhook signature to ensure requests come from Stripe
  */
-export const stripeWebhook = onRequest(async (req, res) => {
+export const stripeWebhook = onRequest(
+  { secrets: [stripeSecretKey, stripeWebhookSecret, frontendUrl] },
+  async (req, res) => {
+  // Initialize Stripe with secret from Secret Manager
+  const stripe = new Stripe(stripeSecretKey.value(), {
+    apiVersion: '2025-12-15.clover',
+  });
+
   const sig = req.headers['stripe-signature'];
 
   if (!sig) {
@@ -214,7 +230,7 @@ export const stripeWebhook = onRequest(async (req, res) => {
     event = stripe.webhooks.constructEvent(
       rawBody,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET || ''
+      stripeWebhookSecret.value()
     );
   } catch (err: any) {
     console.error('Webhook signature verification failed:', err.message);
@@ -234,7 +250,8 @@ export const stripeWebhook = onRequest(async (req, res) => {
   }
 
   res.json({ received: true });
-});
+  }
+);
 
 /**
  * Handle successful checkout session
