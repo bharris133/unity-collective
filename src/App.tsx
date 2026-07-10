@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import logoMain from './assets/logo_main.png';
 import './App.css';
 
@@ -110,6 +110,7 @@ export default function App() {
                   <Route path="/showcase" element={<PlatformShowcase />} />
                   <Route path="/onboarding" element={<OnboardingWizard />} />
                   <Route path="/dashboard" element={<MemberDashboard />} />
+                  <Route path="/profile" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
               </main>
               <Footer />
