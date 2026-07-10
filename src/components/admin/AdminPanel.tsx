@@ -21,16 +21,17 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  mockOnboardingInProgress,
-  mockOnboardingComplete,
   type OnboardingState,
   type VerificationStatus,
 } from '../../data/mockOnboarding';
 import {
-  getOnboardingState,
+  getAllOnboardingStates,
   saveOnboardingState,
 } from '../../services/onboardingService';
-import { mockUsers } from '../../data/mockUsers';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
 // ─── Shared style tokens ──────────────────────────────────────────────────────
 const PANEL_BG   = 'bg-[#0A0A0A]';
@@ -150,19 +151,8 @@ function PendingBadge() {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Pull all known onboarding states (async – falls back to mock IDs in mock mode) */
-async function getAllOnboardingStates(): Promise<OnboardingState[]> {
-  const knownIds = [
-    mockOnboardingInProgress.memberId,
-    mockOnboardingComplete.memberId,
-  ];
-  const results = await Promise.all(knownIds.map(id => getOnboardingState(id)));
-  return results.filter((s): s is OnboardingState => s !== null);
-}
-
 function getDisplayName(memberId: string): string {
-  const user = Object.values(mockUsers).find(u => u.uid === memberId);
-  return user?.displayName ?? memberId;
+  return memberId;
 }
 
 // ─── Verifications Tab ────────────────────────────────────────────────────────
@@ -502,14 +492,41 @@ function DashboardTab() {
 
 // ─── Users Tab ────────────────────────────────────────────────────────────────
 function UsersTab() {
-  const users = Object.values(mockUsers).map((u, i) => ({
-    id: i + 1,
-    name: u.displayName,
-    email: u.email,
-    role: u.role,
-    status: 'Active',
-    joinDate: (u as any).createdAt ? new Date((u as any).createdAt).toLocaleDateString() : 'N/A',
-  }));
+  const [users, setUsers] = useState<{ id: string; name: string; email: string; role: string; status: string; joinDate: string }[]>([]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      if (USE_MOCK_DATA) {
+        const { mockUsers } = await import('../../data/mockUsers');
+        setUsers(Object.values(mockUsers).map((u, i) => ({
+          id: String(i + 1),
+          name: u.displayName,
+          email: u.email,
+          role: u.role,
+          status: 'Active',
+          joinDate: (u as any).createdAt ? new Date((u as any).createdAt).toLocaleDateString() : 'N/A',
+        })));
+        return;
+      }
+      try {
+        const snapshot = await getDocs(collection(db, 'users'));
+        setUsers(snapshot.docs.map(d => {
+          const data = d.data();
+          return {
+            id: d.id,
+            name: data.displayName ?? data.firstName ?? d.id,
+            email: data.email ?? '',
+            role: data.role ?? 'buyer',
+            status: 'Active',
+            joinDate: data.joinedAt ? new Date(data.joinedAt).toLocaleDateString() : 'N/A',
+          };
+        }));
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    }
+    fetchUsers();
+  }, []);
 
   return (
     <div>

@@ -9,7 +9,7 @@
  * Document ID: the member's uid
  */
 
-import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc, collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import {
   getOnboardingState as mockGet,
@@ -59,6 +59,25 @@ export async function saveOnboardingState(state: OnboardingState): Promise<void>
     console.error(`Error saving onboarding state for ${state.memberId}:`, error);
     console.warn('⚠️ Falling back to mock onboarding store');
     mockSave(state);
+  }
+}
+
+/**
+ * Get all onboarding states (admin use only).
+ * In production, queries the full Firestore 'onboarding' collection.
+ * In mock mode, returns the known mock entries.
+ */
+export async function getAllOnboardingStates(): Promise<OnboardingState[]> {
+  if (USE_MOCK_DATA) {
+    const { mockOnboardingInProgress, mockOnboardingComplete } = await import('../data/mockOnboarding');
+    return [mockOnboardingInProgress, mockOnboardingComplete];
+  }
+  try {
+    const snapshot = await getDocs(collection(db, 'onboarding'));
+    return snapshot.docs.map(d => d.data() as OnboardingState);
+  } catch (error) {
+    console.error('Error fetching all onboarding states:', error);
+    return [];
   }
 }
 
