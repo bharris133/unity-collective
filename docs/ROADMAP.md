@@ -36,5 +36,6 @@
 2. **About Page:** Write the official mission, vision, and history of [Unity Collective].
 3. **Education & Media Centers:** Populate with initial real content or curated links.
 4. **Transactional Emails:** Draft copy for welcome emails, order confirmations, and vendor approvals.
+5. **Profile Page (`/profile`):** Build a dedicated `ProfilePage` component with editable display name, email, avatar, and role. Currently `/profile` redirects to `/dashboard` as a temporary fix (PR #40).
 
 *Note: Content strategy is intentionally deferred until Phase 3 is complete to avoid rewriting copy for features that may change during development.*
