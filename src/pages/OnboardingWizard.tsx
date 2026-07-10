@@ -143,7 +143,7 @@ export default function OnboardingWizard() {
         website: bizData.website,
       },
       isBlackOwned,
-      verificationStatus: verificationDocs.length > 0 ? 'pending' : 'unverified',
+      verificationStatus: 'pending',
       verificationDocs,
       skippedProducts,
       startedAt: new Date().toISOString(),
