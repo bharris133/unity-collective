@@ -86,6 +86,27 @@ export async function uploadBusinessLogo(
 }
 
 /**
+ * Upload a user profile avatar.
+ * Returns the download URL (real or mock).
+ */
+export async function uploadProfileAvatar(
+  userId: string,
+  file: File
+): Promise<UploadResult> {
+  if (USE_MOCK_DATA) {
+    const mockPath = `avatars/${userId}/${file.name}`;
+    console.log(`📦 [Mock] Skipping upload for ${file.name}`);
+    return { url: URL.createObjectURL(file), path: mockPath };
+  }
+
+  const path = `avatars/${userId}/${Date.now()}_${file.name}`;
+  const storageRef = ref(storage, path);
+  await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(storageRef);
+  return { url, path };
+}
+
+/**
  * Delete a file from Firebase Storage by its path.
  * No-op in mock mode.
  */

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import logoMain from './assets/logo_main.png';
 import './App.css';
 
@@ -14,6 +14,7 @@ import OnboardingWizard from './pages/OnboardingWizard';
 import MemberDashboard from './pages/MemberDashboard';
 import VendorOrdersPage from './pages/VendorOrdersPage';
 import BuyerOrdersPage from './pages/BuyerOrdersPage';
+import ProfilePage from './pages/ProfilePage';
 
 // Contexts
 import { AuthProvider } from './contexts/AuthContext';
@@ -112,7 +113,7 @@ export default function App() {
                   <Route path="/showcase" element={<PlatformShowcase />} />
                   <Route path="/onboarding" element={<OnboardingWizard />} />
                   <Route path="/dashboard" element={<MemberDashboard />} />
-                  <Route path="/profile" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/vendor/orders" element={<VendorOrdersPage />} />
                   <Route path="/orders" element={<BuyerOrdersPage />} />
                 </Routes>
