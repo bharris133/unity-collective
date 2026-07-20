@@ -2,7 +2,8 @@ import {onCall, onRequest, HttpsError} from 'firebase-functions/v2/https';
 import {defineSecret} from 'firebase-functions/params';
 import * as admin from 'firebase-admin';
 import Stripe from 'stripe';
-import sgMail from '@sendgrid/mail';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const sgMail = require('@sendgrid/mail') as typeof import('@sendgrid/mail');
 
 // Define secrets — these are resolved at runtime from Google Secret Manager
 const stripeSecretKey = defineSecret('STRIPE_SECRET_KEY');
