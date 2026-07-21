@@ -71,7 +71,7 @@ export const productService = {
     }
 
     try {
-      const q = query(collection(db, 'products'), where('businessId', '==', businessId));
+      const q = query(collection(db, 'products'), where('vendorId', '==', businessId));
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(d => ({ productId: d.id, ...d.data() } as Product));
     } catch (error) {

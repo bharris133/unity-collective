@@ -1,111 +1,156 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import VendorStorefront from '../../components/VendorStorefront';
 import { MarketplaceProvider } from '../../contexts/MarketplaceContext';
 
-// Mock useParams
+// Mock useParams to return a test vendor UID
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useParams: () => ({ vendorId: 'vendor-1' }),
+    useParams: () => ({ vendorId: 'test-uid-001' }),
     useNavigate: () => vi.fn(),
   };
 });
 
+// Mock onboardingService
+vi.mock('../../services/onboardingService', () => ({
+  getOnboardingState: vi.fn().mockResolvedValue({
+    memberId: 'test-uid-001',
+    currentStep: 'complete',
+    completedSteps: ['registration', 'business-profile', 'verification', 'products', 'review', 'complete'],
+    businessProfile: {
+      businessName: 'Thriving After Forty',
+      category: 'Wellness',
+      description: 'Empowering women over 40 through health, wellness, and community.',
+      location: 'Atlanta, GA',
+      phone: '',
+      email: '',
+      website: 'https://thrivingafterforty.com',
+    },
+    isBlackOwned: true,
+    verificationStatus: 'verified',
+    verificationDocs: [],
+    skippedProducts: false,
+    startedAt: '2025-01-01T00:00:00Z',
+    completedAt: '2025-01-02T00:00:00Z',
+  }),
+}));
+
+// Mock productService
+vi.mock('../../services/productService', () => ({
+  productService: {
+    getByBusinessId: vi.fn().mockResolvedValue([
+      {
+        productId: 'prod-001',
+        vendorId: 'test-uid-001',
+        name: 'Wellness Journal',
+        description: 'A guided journal for women over 40.',
+        price: 2499,
+        category: 'Books & Education',
+        images: [],
+        inStock: true,
+        stockQuantity: 10,
+        tags: [],
+        createdAt: '2025-01-01T00:00:00Z',
+        updatedAt: '2025-01-01T00:00:00Z',
+      },
+    ]),
+  },
+}));
+
+// Mock Firestore getDoc for businesses override (returns no override)
+vi.mock('firebase/firestore', async () => {
+  const actual = await vi.importActual('firebase/firestore');
+  return {
+    ...actual,
+    getDoc: vi.fn().mockResolvedValue({ exists: () => false, data: () => null }),
+    doc: vi.fn(),
+  };
+});
+
+// Mock firebase db
+vi.mock('../../firebase', () => ({
+  db: {},
+}));
+
 describe('VendorStorefront Component', () => {
-  const renderComponent = () => {
-    return render(
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const renderComponent = () =>
+    render(
       <BrowserRouter>
         <MarketplaceProvider>
           <VendorStorefront />
         </MarketplaceProvider>
       </BrowserRouter>
     );
-  };
 
-  it('should render vendor storefront with vendor information', async () => {
+  it('renders the business name from onboarding data', async () => {
     renderComponent();
-    
     await waitFor(() => {
-      expect(screen.getByText(/Afrocentric Books & Gifts/i)).toBeInTheDocument();
+      expect(screen.getByText('Thriving After Forty')).toBeInTheDocument();
     });
   });
 
-  it('should display vendor description', async () => {
+  it('renders the business description', async () => {
     renderComponent();
-    
     await waitFor(() => {
-      expect(screen.getByText(/Premier destination for African-American literature/i)).toBeInTheDocument();
+      expect(screen.getByText(/Empowering women over 40/i)).toBeInTheDocument();
     });
   });
 
-  it('should show verified badge for verified vendors', async () => {
+  it('shows Verified Business badge for verified vendors', async () => {
     renderComponent();
-    
     await waitFor(() => {
-      expect(screen.getByText(/Verified Business/i)).toBeInTheDocument();
+      expect(screen.getByText('Verified Business')).toBeInTheDocument();
     });
   });
 
-  it('should display founding member badge', async () => {
+  it('renders products from productService', async () => {
     renderComponent();
-    
     await waitFor(() => {
-      expect(screen.getByText(/Founding Member/i)).toBeInTheDocument();
+      expect(screen.getByText('Wellness Journal')).toBeInTheDocument();
     });
   });
 
-  it('should render product grid', async () => {
+  it('formats product price correctly', async () => {
     renderComponent();
-    
     await waitFor(() => {
-      expect(screen.getByText(/The Autobiography of Malcolm X/i)).toBeInTheDocument();
+      expect(screen.getByText('$24.99')).toBeInTheDocument();
     });
   });
 
-  it('should have search functionality', async () => {
+  it('renders search input', async () => {
     renderComponent();
-    
     await waitFor(() => {
-      const searchInput = screen.getByPlaceholderText(/Search products/i);
-      expect(searchInput).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Search products...')).toBeInTheDocument();
     });
   });
 
-  it('should have category filter', async () => {
+  it('renders category filter', async () => {
     renderComponent();
-    
     await waitFor(() => {
-      const categorySelect = screen.getByRole('combobox');
-      expect(categorySelect).toBeInTheDocument();
+      expect(screen.getByRole('combobox')).toBeInTheDocument();
     });
   });
 
-  it('should display vendor contact information', async () => {
+  it('shows location when provided', async () => {
     renderComponent();
-    
     await waitFor(() => {
-      expect(screen.getByText(/\(555\) 123-4567/i)).toBeInTheDocument();
-      expect(screen.getByText(/contact@afrocentricbooks\.com/i)).toBeInTheDocument();
+      expect(screen.getByText('Atlanta, GA')).toBeInTheDocument();
     });
   });
 
-  it('should show vendor rating', async () => {
+  it('shows "Store Not Found" when onboarding returns null', async () => {
+    const { getOnboardingState } = await import('../../services/onboardingService');
+    vi.mocked(getOnboardingState).mockResolvedValueOnce(null);
     renderComponent();
-    
     await waitFor(() => {
-      expect(screen.getByText(/4\.8/i)).toBeInTheDocument();
-      expect(screen.getByText(/127 reviews/i)).toBeInTheDocument();
-    });
-  });
-
-  it('should display product prices correctly', async () => {
-    renderComponent();
-    
-    await waitFor(() => {
-      expect(screen.getByText(/\$18\.99/i)).toBeInTheDocument();
+      expect(screen.getByText('Store Not Found')).toBeInTheDocument();
     });
   });
 });
