@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Store, Camera, Save, Loader2, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import ProductCsvUpload from '../components/ProductCsvUpload';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -330,6 +331,9 @@ export default function VendorSettingsPage() {
               <span>{errorMsg}</span>
             </div>
           )}
+
+          {/* CSV product upload */}
+          <ProductCsvUpload vendorId={currentUser.uid} />
 
           {/* Actions */}
           <div className="flex items-center justify-between">
