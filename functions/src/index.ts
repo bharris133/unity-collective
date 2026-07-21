@@ -155,8 +155,36 @@ function buildVendorNotificationHtml(
 }
 
 /**
+ * Write a structured email log entry to Firestore.
+ * Fire-and-forget — never throws.
+ */
+async function logEmail(
+  orderId: string,
+  vendorId: string,
+  type: 'buyer_confirmation' | 'vendor_notification',
+  to: string,
+  status: 'sent' | 'failed',
+  error?: string
+): Promise<void> {
+  try {
+    await db.collection('emailLogs').add({
+      orderId,
+      vendorId,
+      type,
+      to,
+      status,
+      error: error ?? null,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (err) {
+    console.error('Failed to write email log:', err);
+  }
+}
+
+/**
  * Send order confirmation to buyer and new-order notification to vendor.
  * Fire-and-forget: logs errors but never throws (order is already saved).
+ * Every attempt (success or failure) is recorded in emailLogs collection.
  */
 async function sendOrderEmails(
   orderId: string,
@@ -185,8 +213,11 @@ async function sendOrderEmails(
         html: buildOrderConfirmationHtml(orderId, items, subtotalCents, totalCents, frontendBaseUrl),
       });
       console.log(`Order confirmation sent to ${buyerEmail}`);
+      await logEmail(orderId, vendorId, 'buyer_confirmation', buyerEmail, 'sent');
     } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
       console.error('Failed to send buyer confirmation email:', err);
+      await logEmail(orderId, vendorId, 'buyer_confirmation', buyerEmail, 'failed', msg);
     }
   }
 
@@ -196,18 +227,26 @@ async function sendOrderEmails(
     const vendorEmail = vendorDoc.data()?.email as string | undefined;
 
     if (vendorEmail) {
-      await sgMail.send({
-        to: vendorEmail,
-        from: { email: FROM_EMAIL, name: FROM_NAME },
-        subject: `New order on Unity Collective! (#${orderId.slice(-8).toUpperCase()})`,
-        html: buildVendorNotificationHtml(orderId, items, subtotalCents, frontendBaseUrl),
-      });
-      console.log(`Vendor notification sent to ${vendorEmail}`);
+      try {
+        await sgMail.send({
+          to: vendorEmail,
+          from: { email: FROM_EMAIL, name: FROM_NAME },
+          subject: `New order on Unity Collective! (#${orderId.slice(-8).toUpperCase()})`,
+          html: buildVendorNotificationHtml(orderId, items, subtotalCents, frontendBaseUrl),
+        });
+        console.log(`Vendor notification sent to ${vendorEmail}`);
+        await logEmail(orderId, vendorId, 'vendor_notification', vendorEmail, 'sent');
+      } catch (sendErr) {
+        const msg = sendErr instanceof Error ? sendErr.message : String(sendErr);
+        console.error('Failed to send vendor notification email:', sendErr);
+        await logEmail(orderId, vendorId, 'vendor_notification', vendorEmail, 'failed', msg);
+      }
     } else {
       console.warn(`No email found for vendor ${vendorId} — skipping vendor notification`);
+      await logEmail(orderId, vendorId, 'vendor_notification', `vendor:${vendorId}`, 'failed', 'No email address on file for vendor');
     }
   } catch (err) {
-    console.error('Failed to send vendor notification email:', err);
+    console.error('Failed to look up vendor for email notification:', err);
   }
 }
 

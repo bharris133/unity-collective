@@ -18,7 +18,9 @@ import {
   ShieldX,
   ChevronRight,
   AlertTriangle,
+  Mail,
 } from 'lucide-react';
+import { emailLogService, type EmailLog } from '../../services/emailLogService';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   type OnboardingState,
@@ -85,6 +87,7 @@ export default function AdminPanel() {
     { id: 'businesses',    name: 'Businesses',     icon: Building },
     { id: 'products',      name: 'Products',       icon: Package },
     { id: 'events',        name: 'Events',         icon: Calendar },
+    { id: 'email_logs',    name: 'Email Logs',     icon: Mail },
     { id: 'settings',      name: 'Settings',       icon: Settings },
   ];
 
@@ -127,6 +130,7 @@ export default function AdminPanel() {
         {activeTab === 'businesses'    && <BusinessesTab />}
         {activeTab === 'products'      && <ProductsTab />}
         {activeTab === 'events'        && <EventsTab />}
+        {activeTab === 'email_logs'    && <EmailLogsTab />}
         {activeTab === 'settings'      && <SettingsTab />}
       </main>
     </div>
@@ -687,6 +691,125 @@ function EventsTab() {
         <Calendar size={48} className="text-[#333] mx-auto mb-3" />
         <p className={TEXT_MUTED}>Event management interface coming in Phase 3.</p>
       </div>
+    </div>
+  );
+}
+
+// ─── Email Logs Tab ──────────────────────────────────────────────────────────
+const EMAIL_TYPE_LABELS: Record<EmailLog['type'], string> = {
+  buyer_confirmation: 'Buyer Confirmation',
+  vendor_notification: 'Vendor Notification',
+};
+
+function formatLogTimestamp(ts: EmailLog['timestamp']): string {
+  if (!ts) return '—';
+  const date = (ts as { toDate?: () => Date }).toDate?.() ?? new Date(ts as string);
+  return date.toLocaleString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit',
+  });
+}
+
+function EmailLogsTab() {
+  const [logs, setLogs] = useState<EmailLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'sent' | 'failed'>('all');
+
+  useEffect(() => {
+    emailLogService.getAll()
+      .then(setLogs)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = filter === 'all' ? logs : logs.filter(l => l.status === filter);
+  const sentCount = logs.filter(l => l.status === 'sent').length;
+  const failedCount = logs.filter(l => l.status === 'failed').length;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Email Logs</h1>
+          <p className={TEXT_MUTED}>Transaction email activity across all orders</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-green-400 bg-green-900/30 border border-green-700/30 rounded-full px-3 py-1">{sentCount} sent</span>
+          {failedCount > 0 && (
+            <span className="text-xs text-red-400 bg-red-900/30 border border-red-700/30 rounded-full px-3 py-1">{failedCount} failed</span>
+          )}
+        </div>
+      </div>
+
+      {/* Filter buttons */}
+      <div className="flex gap-2 mb-6">
+        {(['all', 'sent', 'failed'] as const).map(f => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors capitalize ${
+              filter === f
+                ? 'bg-[#D4AF37] text-black'
+                : 'bg-[#2A2A2A] text-gray-400 hover:text-white'
+            }`}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      {loading && (
+        <p className={`${TEXT_MUTED} text-center py-12`}>Loading email logs...</p>
+      )}
+
+      {!loading && filtered.length === 0 && (
+        <div className={`${CARD_BG} border ${BORDER} rounded-lg p-12 text-center`}>
+          <Mail size={48} className="text-[#333] mx-auto mb-3" />
+          <p className={TEXT_MUTED}>
+            {filter === 'all' ? 'No email logs yet. They will appear here after the first purchase.' : `No ${filter} emails found.`}
+          </p>
+        </div>
+      )}
+
+      {!loading && filtered.length > 0 && (
+        <div className={`${CARD_BG} border ${BORDER} rounded-lg overflow-hidden`}>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[#2A2A2A]">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">To</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Order</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Timestamp</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Error</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((log, i) => (
+                <tr key={log.id} className={`border-b border-[#1E1E1E] ${ i % 2 === 0 ? '' : 'bg-white/[0.02]' }`}>
+                  <td className="px-4 py-3">
+                    {log.status === 'sent' ? (
+                      <span className="flex items-center gap-1.5 text-green-400 text-xs font-medium">
+                        <CheckCircle size={13} /> Sent
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-red-400 text-xs font-medium">
+                        <XCircle size={13} /> Failed
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-gray-300">{EMAIL_TYPE_LABELS[log.type]}</td>
+                  <td className="px-4 py-3 text-gray-300 max-w-[200px] truncate">{log.to}</td>
+                  <td className="px-4 py-3">
+                    <span className="font-mono text-xs text-[#D4AF37]">UC-{log.orderId.slice(-8).toUpperCase()}</span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">{formatLogTimestamp(log.timestamp)}</td>
+                  <td className="px-4 py-3 text-red-400 text-xs max-w-[200px] truncate">{log.error ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
