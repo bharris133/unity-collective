@@ -55,6 +55,7 @@ function Navigation() {
   const [showResourcesDropdown, setShowResourcesDropdown] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const { currentUser, userProfile, logout } = useAuth();
+  const vendorStoreUrl = currentUser ? `/vendors/${currentUser.uid}` : '/marketplace';
   const { getCartItemCount } = useMarketplace();
   const location = useLocation();
 
@@ -209,7 +210,7 @@ function Navigation() {
                   {/* My Store Button (if vendor) */}
                   {isVendor && (
                     <Link
-                      to={`/vendors/${userProfile?.vendorId || 'my-store'}`}
+                      to={vendorStoreUrl}
                       className="flex items-center px-3 py-2 rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 transition-colors"
                     >
                       <Store size={16} className="mr-1" />
@@ -256,7 +257,7 @@ function Navigation() {
                         {isVendor ? (
                           <>
                             <Link
-                              to={`/vendors/${userProfile?.vendorId || 'my-store'}`}
+                              to={vendorStoreUrl}
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                               onClick={() => setShowUserMenu(false)}
                             >
@@ -264,7 +265,7 @@ function Navigation() {
                               My Store
                             </Link>
                             <Link
-                              to="/vendor/products"
+                              to="/dashboard"
                               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                               onClick={() => setShowUserMenu(false)}
                             >
@@ -318,7 +319,7 @@ function Navigation() {
                         )}
 
                         <Link
-                          to="/settings"
+                          to="/profile"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                           onClick={() => setShowUserMenu(false)}
                         >
@@ -431,14 +432,14 @@ function Navigation() {
                     {isVendor ? (
                       <>
                         <Link
-                          to={`/vendors/${userProfile?.vendorId || 'my-store'}`}
+                          to={vendorStoreUrl}
                           className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-red-600 transition-colors"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           My Store
                         </Link>
                         <Link
-                          to="/vendor/products"
+                          to="/dashboard"
                           className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-red-600 transition-colors"
                           onClick={() => setIsMenuOpen(false)}
                         >
@@ -450,6 +451,13 @@ function Navigation() {
                           onClick={() => setIsMenuOpen(false)}
                         >
                           Orders
+                        </Link>
+                        <Link
+                          to="/vendor/settings"
+                          className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-red-600 transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Store Settings
                         </Link>
                       </>
                     ) : (
@@ -485,7 +493,7 @@ function Navigation() {
                       </>
                     )}
                     <Link
-                      to="/settings"
+                      to="/profile"
                       className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-red-600 transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
