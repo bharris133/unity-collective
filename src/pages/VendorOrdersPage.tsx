@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, ChevronDown, ArrowLeft } from 'lucide-react';
+import EmailActivitySection from '../components/EmailActivitySection';
 import { useAuth } from '../contexts/AuthContext';
 import { orderService } from '../services/orderService';
 import { formatPrice } from '../utils/formatPrice';
@@ -140,6 +141,9 @@ export default function VendorOrdersPage() {
                       Total: {formatPrice(order.total)}
                     </div>
                   </div>
+
+                  {/* Email activity */}
+                  <EmailActivitySection orderId={order.orderId} />
                 </div>
               );
             })}
