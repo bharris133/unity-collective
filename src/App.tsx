@@ -13,6 +13,7 @@ import PlatformShowcase from './pages/PlatformShowcase';
 import OnboardingWizard from './pages/OnboardingWizard';
 import MemberDashboard from './pages/MemberDashboard';
 import VendorOrdersPage from './pages/VendorOrdersPage';
+import VendorSettingsPage from './pages/VendorSettingsPage';
 import BuyerOrdersPage from './pages/BuyerOrdersPage';
 import ProfilePage from './pages/ProfilePage';
 
@@ -115,6 +116,7 @@ export default function App() {
                   <Route path="/dashboard" element={<MemberDashboard />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/vendor/orders" element={<VendorOrdersPage />} />
+                  <Route path="/vendor/settings" element={<VendorSettingsPage />} />
                   <Route path="/orders" element={<BuyerOrdersPage />} />
                 </Routes>
               </main>
