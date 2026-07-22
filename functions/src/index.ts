@@ -547,3 +547,50 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     console.error('Error handling checkout session:', error);
   }
 }
+
+/**
+ * Callable: Send order emails directly from the client after checkout.
+ * Used by the client-side checkout flow (CheckoutModal) which creates orders
+ * directly in Firestore without going through the Stripe-hosted checkout page.
+ *
+ * Sends:
+ *   1. Buyer order confirmation
+ *   2. Vendor new-order notification
+ *
+ * Both attempts are logged to emailLogs/{autoId} in Firestore.
+ */
+interface SendOrderEmailsData {
+  orderId: string;
+  buyerEmail: string;
+  vendorId: string;
+  items: CartItem[];
+  subtotalCents: number;
+  totalCents: number;
+}
+
+export const sendOrderEmailsCallable = onCall(
+  { secrets: [sendgridApiKey, frontendUrl] },
+  async (request) => {
+    const data = request.data as SendOrderEmailsData;
+
+    if (!data.orderId || !data.vendorId) {
+      throw new HttpsError('invalid-argument', 'orderId and vendorId are required');
+    }
+
+    const baseUrl = (() => {
+      try { return frontendUrl.value(); } catch { return 'https://unitycollective.app'; }
+    })();
+
+    await sendOrderEmails(
+      data.orderId,
+      data.buyerEmail || null,
+      data.vendorId,
+      data.items || [],
+      data.subtotalCents || 0,
+      data.totalCents || 0,
+      baseUrl
+    );
+
+    return { success: true };
+  }
+);

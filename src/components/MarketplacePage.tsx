@@ -6,7 +6,8 @@ import { useAuth } from "../contexts/AuthContext";
 import ShoppingCartModal from "./marketplace/ShoppingCart";
 import CheckoutModal, { type CheckoutResult } from "./marketplace/CheckoutModal";
 import { formatPrice } from "../utils/formatPrice";
-import { orderService } from "../services/orderService";
+import { orderService } from '../services/orderService';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import type { Product } from "../types";
 
 export default function MarketplacePage() {
@@ -44,6 +45,9 @@ export default function MarketplacePage() {
     setShowCheckout(false);
     setShowCart(false);
     try {
+      const subtotal = result.items.reduce((s, i) => s + i.price * i.quantity, 0);
+      const tax = Math.round(subtotal * 0.08);
+      const total = subtotal + tax;
       const orderId = await orderService.createOrder({
         userId: currentUser?.uid ?? 'guest',
         vendorId: result.vendorId,
@@ -72,6 +76,29 @@ export default function MarketplacePage() {
         },
       });
       navigate(`/order-success?orderId=${orderId}`);
+
+      // Fire-and-forget: send order confirmation + vendor notification emails
+      try {
+        const functions = getFunctions();
+        const sendEmails = httpsCallable(functions, 'sendOrderEmailsCallable');
+        sendEmails({
+          orderId,
+          buyerEmail: result.shippingInfo.email,
+          vendorId: result.vendorId,
+          items: result.items.map(i => ({
+            productId: i.productId,
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+            image: i.image,
+            vendorId: i.vendorId ?? result.vendorId,
+          })),
+          subtotalCents: subtotal,
+          totalCents: total,
+        }).catch(err => console.warn('Email notification failed (non-blocking):', err));
+      } catch (emailErr) {
+        console.warn('Could not invoke email function:', emailErr);
+      }
     } catch {
       navigate('/order-success');
     }
