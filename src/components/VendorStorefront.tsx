@@ -5,8 +5,13 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { getOnboardingState } from '../services/onboardingService';
 import { productService } from '../services/productService';
+import { getBusinessVerification } from '../services/verificationService';
 import type { OnboardingState } from '../data/mockOnboarding';
 import type { Product } from '../types/Product';
+import type { BusinessVerification } from '../types/Verification';
+import { VerificationBadge } from './VerificationBadge';
+import { EndorseButton } from './EndorseButton';
+import { ReportDialog } from './ReportDialog';
 
 const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
@@ -29,6 +34,7 @@ export const VendorStorefront: React.FC = () => {
 
   const [onboarding, setOnboarding] = useState<OnboardingState | null>(null);
   const [override, setOverride] = useState<BusinessOverride | null>(null);
+  const [verification, setVerification] = useState<BusinessVerification | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -55,6 +61,10 @@ export const VendorStorefront: React.FC = () => {
           }
         }
 
+        // Load verification tier
+        const verif = await getBusinessVerification(vendorId);
+        setVerification(verif);
+
         // Load real products for this vendor
         const prods = await productService.getByBusinessId(vendorId);
         setProducts(prods);
@@ -76,7 +86,7 @@ export const VendorStorefront: React.FC = () => {
   const website = override?.website ?? bp?.website ?? '';
   const category = override?.category ?? bp?.category ?? '';
   const logoUrl = override?.logoUrl ?? null;
-  const isVerified = onboarding?.verificationStatus === 'verified';
+  const verificationTier = verification?.verificationTier ?? onboarding?.verificationTier ?? 1;
   const isFoundingMember = override?.foundingMember ?? false;
 
   const categories = ['all', ...Array.from(new Set(products.map(p => p.category)))];
@@ -166,16 +176,17 @@ export const VendorStorefront: React.FC = () => {
               </div>
             </div>
 
-            {isVerified && (
-              <div className="bg-white/10 backdrop-blur-sm px-4 py-3 rounded-lg border border-white/20 shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 bg-[#228B22] rounded-full" />
-                  <span className="text-sm font-semibold text-white">Verified Business</span>
-                </div>
-              </div>
-            )}
+            <div className="bg-white/10 backdrop-blur-sm px-4 py-3 rounded-lg border border-white/20 shrink-0">
+              <VerificationBadge tier={verificationTier as 1 | 2 | 3} size="md" />
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Endorse / Report bar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between border-b border-[#2A2A2A]">
+        <EndorseButton vendorId={vendorId!} vendorName={businessName} />
+        <ReportDialog vendorId={vendorId!} vendorName={businessName} />
       </div>
 
       {/* Products Section */}

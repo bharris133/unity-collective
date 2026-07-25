@@ -12,13 +12,15 @@ import {
   ChevronRight,
   X,
   Save,
+  Shield,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { type OnboardingState, type VerificationStatus } from '../data/mockOnboarding';
+import { type OnboardingState } from '../data/mockOnboarding';
 import { type Product } from '../data/mockProducts';
 import { getOnboardingState } from '../services/onboardingService';
 import { productService } from '../services/productService';
 import { formatPrice } from '../utils/formatPrice';
+import { VerificationBadge } from '../components/VerificationBadge';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -40,40 +42,7 @@ const EMPTY_FORM: ProductFormData = {
   inStock: true,
 };
 
-// ─── Verification badge helper ────────────────────────────────────────────────
-
-function VerificationBadge({ status }: { status: VerificationStatus }) {
-  if (status === 'verified') {
-    return (
-      <div className="inline-flex items-center gap-1.5 bg-[#228B22]/20 border border-[#228B22]/40 rounded-full px-3 py-1">
-        <CheckCircle size={14} className="text-[#228B22]" />
-        <span className="text-xs font-semibold text-[#228B22]">Verified</span>
-      </div>
-    );
-  }
-  if (status === 'pending') {
-    return (
-      <div className="inline-flex items-center gap-1.5 bg-yellow-500/10 border border-yellow-500/30 rounded-full px-3 py-1">
-        <Clock size={14} className="text-yellow-400" />
-        <span className="text-xs font-semibold text-yellow-400">Verification Pending</span>
-      </div>
-    );
-  }
-  if (status === 'rejected') {
-    return (
-      <div className="inline-flex items-center gap-1.5 bg-red-600/10 border border-red-600/30 rounded-full px-3 py-1">
-        <AlertCircle size={14} className="text-red-500" />
-        <span className="text-xs font-semibold text-red-500">Verification Rejected</span>
-      </div>
-    );
-  }
-  return (
-    <div className="inline-flex items-center gap-1.5 bg-[#2A2A2A] border border-[#3A3A3A] rounded-full px-3 py-1">
-      <AlertCircle size={14} className="text-gray-400" />
-      <span className="text-xs font-semibold text-gray-400">Not Verified</span>
-    </div>
-  );
-}
+// VerificationBadge is now imported from components/VerificationBadge.tsx
 
 // ─── Product Form Modal ───────────────────────────────────────────────────────
 
@@ -346,7 +315,7 @@ export default function MemberDashboard() {
     );
   }
 
-  const { businessProfile, verificationStatus, isBlackOwned } = onboarding;
+  const { businessProfile, verificationStatus, verificationTier, isBlackOwned } = onboarding;
 
   return (
     <div className="min-h-screen bg-[#111111] py-8">
@@ -368,7 +337,7 @@ export default function MemberDashboard() {
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <h2 className="text-xl font-bold text-white">{businessProfile.businessName}</h2>
-                  <VerificationBadge status={verificationStatus} />
+                  <VerificationBadge tier={verificationTier ?? 1} />
                   {isBlackOwned && (
                     <div
                       className="inline-flex items-center gap-1 rounded-full px-3 py-1 border"
@@ -437,13 +406,37 @@ export default function MemberDashboard() {
             </div>
           </div>
         )}
-        {verificationStatus === 'verified' && (
+        {(verificationTier ?? 1) === 1 && verificationStatus !== 'pending' && (
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6 flex items-start gap-3">
+            <AlertCircle size={18} className="text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-yellow-400">You are Self-Declared (Tier 1)</p>
+              <p className="text-xs text-yellow-400/70 mt-0.5">
+                Upgrade to Community Verified (Tier 2) by collecting endorsements, or to Document Certified (Tier 3) by uploading an official certification in{' '}
+                <a href="/vendor/settings" className="underline hover:text-yellow-300">Store Settings</a>.
+              </p>
+            </div>
+          </div>
+        )}
+        {(verificationTier ?? 1) === 2 && (
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6 flex items-start gap-3">
+            <Shield size={18} className="text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-blue-400">Community Verified (Tier 2)</p>
+              <p className="text-xs text-blue-400/70 mt-0.5">
+                Your business is endorsed by the community. Upload an official certification in{' '}
+                <a href="/vendor/settings" className="underline hover:text-blue-300">Store Settings</a>{' '}to reach Document Certified (Tier 3).
+              </p>
+            </div>
+          </div>
+        )}
+        {(verificationTier ?? 1) === 3 && (
           <div className="bg-[#228B22]/10 border border-[#228B22]/30 rounded-xl p-4 mb-6 flex items-start gap-3">
             <CheckCircle size={18} className="text-[#228B22] flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-[#228B22]">Business Verified</p>
+              <p className="text-sm font-semibold text-[#228B22]">Document Certified (Tier 3)</p>
               <p className="text-xs text-[#228B22]/70 mt-0.5">
-                Your business has been verified. Your listing now displays the Verified badge in the directory.
+                Your business has the highest level of verification. Your listing displays the Certified badge in the directory.
               </p>
             </div>
           </div>

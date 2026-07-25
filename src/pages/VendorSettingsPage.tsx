@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Store, Camera, Save, Loader2, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
 import ProductCsvUpload from '../components/ProductCsvUpload';
+import { VerificationProgress } from '../components/VerificationProgress';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -331,6 +332,12 @@ export default function VendorSettingsPage() {
               <span>{errorMsg}</span>
             </div>
           )}
+
+          {/* Verification Progress */}
+          <VerificationProgress
+            tier={onboarding?.verificationTier ?? 1}
+            endorsementCount={0}
+          />
 
           {/* CSV product upload */}
           <ProductCsvUpload vendorId={currentUser.uid} />

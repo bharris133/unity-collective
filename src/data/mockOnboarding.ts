@@ -46,6 +46,7 @@ export interface OnboardingState {
   // Verification
   isBlackOwned: boolean;     // self-declaration
   verificationStatus: VerificationStatus;
+  verificationTier: 1 | 2 | 3;  // 1=Self-Declared, 2=Community Verified, 3=Document Certified
   verificationDocs: OnboardingVerificationDoc[];
   // Products: added during onboarding or skipped
   skippedProducts: boolean;
@@ -77,6 +78,7 @@ export const mockOnboardingInProgress: OnboardingState = {
   },
   isBlackOwned: true,
   verificationStatus: 'pending',
+  verificationTier: 1,
   verificationDocs: [
     {
       docType: 'business-license',
@@ -109,6 +111,7 @@ export const mockOnboardingComplete: OnboardingState = {
   },
   isBlackOwned: true,
   verificationStatus: 'verified',
+  verificationTier: 3,
   verificationDocs: [
     {
       docType: 'ein',

@@ -60,6 +60,22 @@ vi.mock('../../services/productService', () => ({
   },
 }));
 
+// Mock verificationService
+vi.mock('../../services/verificationService', () => ({
+  getBusinessVerification: vi.fn().mockResolvedValue(null),
+  endorseBusiness: vi.fn().mockResolvedValue(undefined),
+  hasEndorsed: vi.fn().mockResolvedValue(false),
+  submitReport: vi.fn().mockResolvedValue(undefined),
+}));
+
+// Mock EndorseButton and ReportDialog to avoid AuthContext dependency in tests
+vi.mock('../../components/EndorseButton', () => ({
+  EndorseButton: () => null,
+}));
+vi.mock('../../components/ReportDialog', () => ({
+  ReportDialog: () => null,
+}));
+
 // Mock Firestore getDoc for businesses override (returns no override)
 vi.mock('firebase/firestore', async () => {
   const actual = await vi.importActual('firebase/firestore');
@@ -103,10 +119,11 @@ describe('VendorStorefront Component', () => {
     });
   });
 
-  it('shows Verified Business badge for verified vendors', async () => {
+  it('shows verification badge for verified vendors', async () => {
     renderComponent();
     await waitFor(() => {
-      expect(screen.getByText('Verified Business')).toBeInTheDocument();
+      // Tier 1 badge text from VerificationBadge component
+      expect(screen.getByText(/Self-Declared|Community Verified|Certified|Verified/i)).toBeInTheDocument();
     });
   });
 

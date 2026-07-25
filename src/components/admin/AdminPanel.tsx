@@ -19,6 +19,8 @@ import {
   ChevronRight,
   AlertTriangle,
   Mail,
+  Flag,
+  ThumbsUp,
 } from 'lucide-react';
 import { emailLogService, type EmailLog } from '../../services/emailLogService';
 import { useAuth } from '../../contexts/AuthContext';
@@ -87,6 +89,7 @@ export default function AdminPanel() {
     { id: 'businesses',    name: 'Businesses',     icon: Building },
     { id: 'products',      name: 'Products',       icon: Package },
     { id: 'events',        name: 'Events',         icon: Calendar },
+    { id: 'moderation',    name: 'Moderation',     icon: Flag },
     { id: 'email_logs',    name: 'Email Logs',     icon: Mail },
     { id: 'settings',      name: 'Settings',       icon: Settings },
   ];
@@ -116,6 +119,7 @@ export default function AdminPanel() {
                 <Icon size={18} className="mr-3 flex-shrink-0" />
                 {tab.name}
                 {tab.id === 'verifications' && <PendingBadge />}
+                {tab.id === 'moderation' && <ModerationBadge />}
               </button>
             );
           })}
@@ -130,6 +134,7 @@ export default function AdminPanel() {
         {activeTab === 'businesses'    && <BusinessesTab />}
         {activeTab === 'products'      && <ProductsTab />}
         {activeTab === 'events'        && <EventsTab />}
+        {activeTab === 'moderation'    && <ModerationTab />}
         {activeTab === 'email_logs'    && <EmailLogsTab />}
         {activeTab === 'settings'      && <SettingsTab />}
       </main>
@@ -826,6 +831,224 @@ function SettingsTab() {
         <Settings size={48} className="text-[#333] mx-auto mb-3" />
         <p className={TEXT_MUTED}>Settings interface coming in Phase 3.</p>
       </div>
+    </div>
+  );
+}
+
+// ─── Moderation Badge (red dot for open reports) ─────────────────────────────
+function ModerationBadge() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (USE_MOCK_DATA) { setCount(2); return; }
+    import('firebase/firestore').then(({ collection, getDocs, query, where }) => {
+      query(collection(db, 'reports'), where('status', '==', 'open'));
+      getDocs(query(collection(db, 'reports'), where('status', '==', 'open')))
+        .then(snap => setCount(snap.size))
+        .catch(() => {});
+    });
+  }, []);
+  if (!count) return null;
+  return (
+    <span className="ml-auto bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+      {count > 9 ? '9+' : count}
+    </span>
+  );
+}
+
+// ─── Moderation Tab ───────────────────────────────────────────────────────────
+interface Report {
+  id: string;
+  vendorId: string;
+  vendorName?: string;
+  reporterId: string;
+  reason: string;
+  details?: string;
+  status: 'open' | 'resolved' | 'dismissed';
+  createdAt: { toDate: () => Date } | null;
+}
+
+interface Endorsement {
+  id: string;
+  vendorId: string;
+  vendorName?: string;
+  endorserId: string;
+  endorserName?: string;
+  createdAt: { toDate: () => Date } | null;
+}
+
+const MOCK_REPORTS: Report[] = [
+  {
+    id: 'rpt-001',
+    vendorId: 'vendor-abc',
+    vendorName: 'Sample Business A',
+    reporterId: 'user-xyz',
+    reason: 'Not Black-owned',
+    details: 'Ownership changed recently.',
+    status: 'open',
+    createdAt: null,
+  },
+  {
+    id: 'rpt-002',
+    vendorId: 'vendor-def',
+    vendorName: 'Sample Business B',
+    reporterId: 'user-uvw',
+    reason: 'Misrepresentation',
+    details: '',
+    status: 'open',
+    createdAt: null,
+  },
+];
+
+const MOCK_ENDORSEMENTS: Endorsement[] = [
+  {
+    id: 'end-001',
+    vendorId: 'vendor-abc',
+    vendorName: 'Sample Business A',
+    endorserId: 'user-111',
+    endorserName: 'Verified Member 1',
+    createdAt: null,
+  },
+];
+
+function ModerationTab() {
+  const [reports, setReports] = useState<Report[]>([]);
+  const [endorsements, setEndorsements] = useState<Endorsement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState<'reports' | 'endorsements'>('reports');
+
+  useEffect(() => {
+    if (USE_MOCK_DATA) {
+      setReports(MOCK_REPORTS);
+      setEndorsements(MOCK_ENDORSEMENTS);
+      setLoading(false);
+      return;
+    }
+    const loadData = async () => {
+      try {
+        const { collection: col, getDocs, query, where, orderBy } = await import('firebase/firestore');
+        const [rSnap, eSnap] = await Promise.all([
+          getDocs(query(col(db, 'reports'), where('status', '==', 'open'), orderBy('createdAt', 'desc'))),
+          getDocs(query(col(db, 'endorsements'), orderBy('createdAt', 'desc'))),
+        ]);
+        setReports(rSnap.docs.map(d => ({ id: d.id, ...d.data() } as Report)));
+        setEndorsements(eSnap.docs.map(d => ({ id: d.id, ...d.data() } as Endorsement)));
+      } catch (err) {
+        console.error('Moderation load error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const resolveReport = async (reportId: string, action: 'resolved' | 'dismissed') => {
+    if (USE_MOCK_DATA) {
+      setReports(prev => prev.filter(r => r.id !== reportId));
+      return;
+    }
+    try {
+      const { doc: docRef, updateDoc } = await import('firebase/firestore');
+      await updateDoc(docRef(db, 'reports', reportId), { status: action });
+      setReports(prev => prev.filter(r => r.id !== reportId));
+    } catch (err) {
+      console.error('Resolve report error:', err);
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white">Moderation</h1>
+        <p className={TEXT_MUTED}>Review open reports and community endorsements</p>
+      </div>
+
+      {/* Section toggle */}
+      <div className="flex gap-2 mb-6">
+        {(['reports', 'endorsements'] as const).map(s => (
+          <button
+            key={s}
+            onClick={() => setActiveSection(s)}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold capitalize transition-colors
+              ${activeSection === s
+                ? 'bg-[#D4AF37] text-black'
+                : `${CARD_BG} border ${BORDER} text-gray-300 hover:text-white`
+              }`}
+          >
+            {s === 'reports' ? `Open Reports (${reports.length})` : `Endorsements (${endorsements.length})`}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-16">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#D4AF37]" />
+        </div>
+      ) : activeSection === 'reports' ? (
+        reports.length === 0 ? (
+          <div className={`${CARD_BG} border ${BORDER} rounded-lg p-12 text-center`}>
+            <Flag size={40} className="text-[#333] mx-auto mb-3" />
+            <p className={TEXT_MUTED}>No open reports — all clear.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {reports.map(report => (
+              <div key={report.id} className={`${CARD_BG} border ${BORDER} rounded-lg p-5`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <AlertTriangle size={15} className="text-red-400 flex-shrink-0" />
+                      <span className="text-white font-semibold text-sm truncate">
+                        {report.vendorName ?? report.vendorId}
+                      </span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-red-900/40 text-red-400 border border-red-700/50">
+                        {report.reason}
+                      </span>
+                    </div>
+                    {report.details && (
+                      <p className="text-xs text-gray-400 mt-1 ml-5">{report.details}</p>
+                    )}
+                    <p className="text-xs text-gray-600 mt-1 ml-5">Reporter: {report.reporterId}</p>
+                  </div>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => resolveReport(report.id, 'dismissed')}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg ${BTN_RED} transition-colors`}
+                    >
+                      Dismiss
+                    </button>
+                    <button
+                      onClick={() => resolveReport(report.id, 'resolved')}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg ${BTN_GREEN} transition-colors`}
+                    >
+                      Resolve
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      ) : (
+        endorsements.length === 0 ? (
+          <div className={`${CARD_BG} border ${BORDER} rounded-lg p-12 text-center`}>
+            <ThumbsUp size={40} className="text-[#333] mx-auto mb-3" />
+            <p className={TEXT_MUTED}>No endorsements recorded yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {endorsements.map(e => (
+              <div key={e.id} className={`${CARD_BG} border ${BORDER} rounded-lg p-4 flex items-center gap-4`}>
+                <ThumbsUp size={16} className="text-blue-400 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <span className="text-white text-sm font-semibold">{e.vendorName ?? e.vendorId}</span>
+                  <span className="text-gray-500 text-xs ml-2">endorsed by</span>
+                  <span className="text-gray-300 text-sm ml-1">{e.endorserName ?? e.endorserId}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      )}
     </div>
   );
 }
