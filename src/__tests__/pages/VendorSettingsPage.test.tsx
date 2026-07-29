@@ -92,10 +92,12 @@ describe('VendorSettingsPage', () => {
     });
   });
 
-  it('shows verification status', async () => {
+  it('shows verification progress section', async () => {
+    // The old binary "Verification Status" section was removed (PR #59).
+    // VerificationProgress replaces it; check for its heading.
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText('verified')).toBeInTheDocument();
+      expect(screen.getByText(/Verification Progress/i)).toBeInTheDocument();
     });
   });
 

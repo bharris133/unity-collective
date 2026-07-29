@@ -22,7 +22,8 @@ function BusinessDetail() {
       try {
         setLoading(true);
 
-        const businessData = await businessService.getById(parseInt(businessId ?? '0'));
+        // Pass the raw string ID (may be a Firebase UID or a legacy numeric id)
+        const businessData = await businessService.getById(businessId ?? '0');
         setBusiness(businessData);
 
         if (businessData) {

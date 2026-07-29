@@ -47,12 +47,12 @@ export function ReportDialog({ vendorId, vendorName }: ReportDialogProps) {
     if (loading) return;
     setLoading(true);
     try {
-      await submitReport({
+      await submitReport(
         vendorId,
-        reporterId: currentUser.uid,
+        currentUser.uid,
         reason,
-        details: details.trim(),
-      });
+        details.trim()
+      );
       setSubmitted(true);
     } catch (err) {
       console.error('Report submission failed:', err);
