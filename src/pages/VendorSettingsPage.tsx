@@ -301,30 +301,6 @@ export default function VendorSettingsPage() {
             </div>
           </div>
 
-          {/* Verification status (read-only) */}
-          <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 mb-6">
-            <h2 className="text-lg font-semibold text-white mb-3">Verification Status</h2>
-            <div className="flex items-center gap-3">
-              <div className={`h-3 w-3 rounded-full ${
-                onboarding?.verificationStatus === 'verified' ? 'bg-[#228B22]' :
-                onboarding?.verificationStatus === 'pending' ? 'bg-yellow-500' :
-                onboarding?.verificationStatus === 'rejected' ? 'bg-[#CC0000]' :
-                'bg-[#555555]'
-              }`} />
-              <span className="text-white capitalize">
-                {onboarding?.verificationStatus ?? 'Not started'}
-              </span>
-              {onboarding?.verificationStatus !== 'verified' && (
-                <Link
-                  to="/onboarding"
-                  className="ml-auto text-sm text-[#D4AF37] hover:text-[#C49B2A] transition-colors"
-                >
-                  Complete verification →
-                </Link>
-              )}
-            </div>
-          </div>
-
           {/* Error message */}
           {saveState === 'error' && (
             <div className="flex items-center gap-2 text-red-400 text-sm mb-4 bg-red-600/10 border border-red-600/20 rounded-lg px-4 py-3">

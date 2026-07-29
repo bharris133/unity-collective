@@ -100,13 +100,19 @@ export async function setTier1OnAttestation(businessId: string): Promise<void> {
 export async function getEndorsementsForBusiness(businessId: string): Promise<Endorsement[]> {
   if (USE_MOCK) return getMockEndorsements(businessId);
 
+  // Single-field filter only — no composite index needed
   const q = query(
     collection(db, 'endorsements'),
-    where('businessId', '==', businessId),
-    orderBy('createdAt', 'desc')
+    where('businessId', '==', businessId)
   );
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ endorsementId: d.id, ...d.data() } as Endorsement));
+  const endorsements = snap.docs.map(d => ({ endorsementId: d.id, ...d.data() } as Endorsement));
+  // Sort client-side by createdAt descending
+  return endorsements.sort((a, b) => {
+    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return bTime - aTime;
+  });
 }
 
 export async function hasUserEndorsed(businessId: string, userId: string): Promise<boolean> {
@@ -199,13 +205,19 @@ export async function getAllPendingSubmissions(): Promise<VerificationSubmission
 export async function getAllOpenReports(): Promise<Report[]> {
   if (USE_MOCK) return getMockOpenReports();
 
+  // Avoid composite index requirement by filtering status only, then sorting client-side
   const q = query(
     collection(db, 'reports'),
-    where('status', 'in', ['open', 'investigating']),
-    orderBy('createdAt', 'desc')
+    where('status', 'in', ['open', 'investigating'])
   );
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ reportId: d.id, ...d.data() } as Report));
+  const reports = snap.docs.map(d => ({ reportId: d.id, ...d.data() } as Report));
+  // Sort client-side by createdAt descending
+  return reports.sort((a, b) => {
+    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return bTime - aTime;
+  });
 }
 
 // ─── Admin: all flagged businesses ───────────────────────────────────────────
