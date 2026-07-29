@@ -15,7 +15,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThumbsUp, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { endorseBusiness, hasEndorsed } from '../services/verificationService';
+import { addEndorsement, hasUserEndorsed } from '../services/verificationService';
 
 interface EndorseButtonProps {
   vendorId: string;
@@ -36,7 +36,7 @@ export function EndorseButton({ vendorId, vendorName }: EndorseButtonProps) {
       setChecking(false);
       return;
     }
-    hasEndorsed(vendorId, currentUser.uid)
+    hasUserEndorsed(vendorId, currentUser.uid)
       .then(result => setEndorsed(result))
       .finally(() => setChecking(false));
   }, [vendorId, currentUser, isOwnBusiness]);
@@ -48,7 +48,7 @@ export function EndorseButton({ vendorId, vendorName }: EndorseButtonProps) {
     if (endorsed || loading || !currentUser) return;
     setLoading(true);
     try {
-      await endorseBusiness(vendorId, currentUser.uid, userProfile?.displayName ?? 'A verified member');
+      await addEndorsement(vendorId, currentUser.uid, 'customer', '', 1);
       setEndorsed(true);
     } catch (err) {
       console.error('Endorsement failed:', err);
