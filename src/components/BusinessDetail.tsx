@@ -4,6 +4,9 @@ import { ArrowLeft, CheckCircle, Globe, Mail, MapPin, Phone, Star } from 'lucide
 import { businessService, productService } from '../services';
 import { formatPrice } from '../utils/formatPrice';
 import { useMarketplace } from '../contexts/MarketplaceContext';
+import { VerificationBadge } from './VerificationBadge';
+import { EndorseButton } from './EndorseButton';
+import { ReportDialog } from './ReportDialog';
 import type { Business } from '../data/mockBusinesses';
 import type { Product } from '../data/mockProducts';
 
@@ -110,12 +113,7 @@ function BusinessDetail() {
                 {/* Business Name + Badges */}
                 <div className="flex flex-wrap items-center gap-3 mb-3">
                   <h1 className="text-3xl font-bold text-white">{business.name}</h1>
-                  {business.verified && (
-                    <div className="flex items-center gap-1 bg-[#228B22]/20 border border-[#228B22]/40 rounded-full px-3 py-1">
-                      <CheckCircle size={16} className="text-[#228B22]" />
-                      <span className="text-xs font-semibold text-[#228B22]">Verified</span>
-                    </div>
-                  )}
+                  <VerificationBadge tier={(business.verificationTier ?? 1) as 1 | 2 | 3} size="md" />
                   {business.isBlackOwned && (
                     <div
                       className="flex items-center gap-1.5 rounded-full px-3 py-1 border"
@@ -164,6 +162,8 @@ function BusinessDetail() {
 
               {/* Action Buttons */}
               <div className="mt-4 md:mt-0 md:ml-6 flex flex-col gap-2">
+                <EndorseButton vendorId={businessId ?? ''} vendorName={business.name} />
+                <ReportDialog vendorId={businessId ?? ''} vendorName={business.name} />
                 {business.phone && (
                   <a
                     href={`tel:${business.phone}`}
