@@ -925,13 +925,22 @@ function ModerationTab() {
     }
     const loadData = async () => {
       try {
-        const { collection: col, getDocs, query, where, orderBy } = await import('firebase/firestore');
+        // Use single-field filters only to avoid composite index requirements.
+        // Sort client-side after fetching.
+        const { collection: col, getDocs, query, where } = await import('firebase/firestore');
         const [rSnap, eSnap] = await Promise.all([
-          getDocs(query(col(db, 'reports'), where('status', '==', 'open'), orderBy('createdAt', 'desc'))),
-          getDocs(query(col(db, 'endorsements'), orderBy('createdAt', 'desc'))),
+          getDocs(query(col(db, 'reports'), where('status', '==', 'open'))),
+          getDocs(col(db, 'endorsements')),
         ]);
-        setReports(rSnap.docs.map(d => ({ id: d.id, ...d.data() } as Report)));
-        setEndorsements(eSnap.docs.map(d => ({ id: d.id, ...d.data() } as Endorsement)));
+        const sortByCreatedAt = <T extends { createdAt: { toDate: () => Date } | null }>(a: T, b: T) => {
+          const aTime = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+          const bTime = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+          return bTime - aTime;
+        };
+        const rawReports = rSnap.docs.map(d => ({ id: d.id, ...d.data() } as Report));
+        const rawEndorsements = eSnap.docs.map(d => ({ id: d.id, ...d.data() } as Endorsement));
+        setReports(rawReports.sort(sortByCreatedAt));
+        setEndorsements(rawEndorsements.sort(sortByCreatedAt));
       } catch (err) {
         console.error('Moderation load error:', err);
       } finally {
