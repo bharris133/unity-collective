@@ -34,8 +34,10 @@ service cloud.firestore {
     // ─── Onboarding ──────────────────────────────────────────────────────────
     // Members can read and write their own onboarding state.
     // Admins can read and update all onboarding states (for verification).
+    // Public read is allowed so the Business Directory can display vendor listings
+    // without requiring authentication.  Write access remains owner/admin only.
     match /onboarding/{memberId} {
-      allow read: if isOwner(memberId) || isAdmin();
+      allow read: if true;
       allow create: if isOwner(memberId);
       allow update: if isOwner(memberId) || isAdmin();
       allow delete: if isAdmin();
