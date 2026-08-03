@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { CheckCircle, Globe, MapPin, Phone, Search, Star } from 'lucide-react';
+import { Globe, MapPin, Phone, Search, Star } from 'lucide-react';
+import { VerificationBadge } from '../components/VerificationBadge';
 import { businessService } from '../services';
 import type { Business } from '../data';
 import { Button } from '../components/ui/button.jsx';
@@ -103,12 +104,12 @@ export default function BusinessDirectoryPage() {
                 <CardHeader className="">
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="flex items-center">
+                      <CardTitle className="flex items-center gap-2">
                         {business.name}
-                        {business.verified && (
-                          <CheckCircle size={16} className="ml-2 text-green-600" />
-                        )}
                       </CardTitle>
+                      <div className="mt-1">
+                        <VerificationBadge tier={(business.verificationTier ?? 1) as 1 | 2 | 3} />
+                      </div>
                       <Badge variant="secondary" className="mt-1">
                         {business.category}
                       </Badge>

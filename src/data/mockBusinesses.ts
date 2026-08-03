@@ -9,6 +9,7 @@ export interface Business {
   longDescription?: string;
   image: string;
   verified: boolean;
+  verificationTier?: 1 | 2 | 3;
   isBlackOwned?: boolean;
   owner?: string;
   since?: number;

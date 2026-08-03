@@ -74,6 +74,27 @@ service cloud.firestore {
       allow delete: if false; // Orders are never deleted
     }
 
+    // ─── Reports ─────────────────────────────────────────────────────────────
+    // Any authenticated user can file a report.
+    // Only admins can read or update reports (moderation queue).
+    match /reports/{reportId} {
+      allow create: if isAuthenticated();
+      allow read: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ─── Endorsements ────────────────────────────────────────────────────────
+    // Any authenticated user can read endorsements (public trust signal).
+    // Any authenticated user can create an endorsement for another business.
+    // Only admins can delete endorsements.
+    match /endorsements/{endorsementId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
     // ─── Messages ────────────────────────────────────────────────────────────
     // Only the sender or recipient can read a message thread.
     match /messages/{messageId} {
