@@ -26,6 +26,7 @@ function onboardingToBusinessShape(state: OnboardingState): Business {
     description: bp.description,
     image: '',
     verified: state.verificationStatus === 'verified',
+    verificationTier: (state.verificationTier as 1 | 2 | 3) ?? 1,
     isBlackOwned: state.isBlackOwned,
     website: bp.website || undefined,
     phone: bp.phone || undefined,
