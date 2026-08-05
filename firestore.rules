@@ -97,6 +97,17 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ─── Message Threads ──────────────────────────────────────────────────────
+    // Only participants can read or write their own threads.
+    match /messageThreads/{threadId} {
+      allow read: if isAuthenticated() &&
+        request.auth.uid in resource.data.participantIds;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        request.auth.uid in resource.data.participantIds;
+      allow delete: if false;
+    }
+
     // ─── Messages ────────────────────────────────────────────────────────────
     // Only the sender or recipient can read a message thread.
     match /messages/{messageId} {

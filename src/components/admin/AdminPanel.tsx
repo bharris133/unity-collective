@@ -927,18 +927,62 @@ function ModerationTab() {
       try {
         // Use single-field filters only to avoid composite index requirements.
         // Sort client-side after fetching.
-        const { collection: col, getDocs, query, where } = await import('firebase/firestore');
+        const { collection: col, getDocs, getDoc, doc: docRef, query, where } = await import('firebase/firestore');
         const [rSnap, eSnap] = await Promise.all([
           getDocs(query(col(db, 'reports'), where('status', '==', 'open'))),
           getDocs(col(db, 'endorsements')),
         ]);
+
+        // Helper: resolve business name from onboarding collection
+        const bizNameCache: Record<string, string> = {};
+        const resolveBizName = async (bizId: string): Promise<string> => {
+          if (bizNameCache[bizId]) return bizNameCache[bizId];
+          try {
+            const snap = await getDoc(docRef(db, 'onboarding', bizId));
+            const name = snap.exists() ? (snap.data()?.businessProfile?.businessName ?? bizId) : bizId;
+            bizNameCache[bizId] = name;
+            return name;
+          } catch { return bizId; }
+        };
+
+        // Map Firestore field names to interface field names
+        const rawReports: Report[] = await Promise.all(
+          rSnap.docs.map(async d => {
+            const data = d.data();
+            const bizId = data.businessId ?? data.vendorId ?? '';
+            return {
+              id: d.id,
+              vendorId: bizId,
+              vendorName: await resolveBizName(bizId),
+              reporterId: data.reportedBy ?? data.reporterId ?? '',
+              reason: data.reason ?? '',
+              details: data.detail ?? data.details ?? '',
+              status: data.status ?? 'open',
+              createdAt: data.createdAt ?? null,
+            } as Report;
+          })
+        );
+
+        const rawEndorsements: Endorsement[] = await Promise.all(
+          eSnap.docs.map(async d => {
+            const data = d.data();
+            const bizId = data.businessId ?? data.vendorId ?? '';
+            return {
+              id: d.id,
+              vendorId: bizId,
+              vendorName: await resolveBizName(bizId),
+              endorserId: data.fromUserId ?? data.endorserId ?? '',
+              endorserName: data.endorserName ?? undefined,
+              createdAt: data.createdAt ?? null,
+            } as Endorsement;
+          })
+        );
+
         const sortByCreatedAt = <T extends { createdAt: { toDate: () => Date } | null }>(a: T, b: T) => {
           const aTime = a.createdAt ? a.createdAt.toDate().getTime() : 0;
           const bTime = b.createdAt ? b.createdAt.toDate().getTime() : 0;
           return bTime - aTime;
         };
-        const rawReports = rSnap.docs.map(d => ({ id: d.id, ...d.data() } as Report));
-        const rawEndorsements = eSnap.docs.map(d => ({ id: d.id, ...d.data() } as Endorsement));
         setReports(rawReports.sort(sortByCreatedAt));
         setEndorsements(rawEndorsements.sort(sortByCreatedAt));
       } catch (err) {
@@ -1014,9 +1058,16 @@ function ModerationTab() {
                       </span>
                     </div>
                     {report.details && (
-                      <p className="text-xs text-gray-400 mt-1 ml-5">{report.details}</p>
+                      <p className="text-xs text-gray-400 mt-1 ml-5 italic">"{report.details}"</p>
                     )}
-                    <p className="text-xs text-gray-600 mt-1 ml-5">Reporter: {report.reporterId}</p>
+                    <p className="text-xs text-gray-600 mt-1 ml-5">
+                      Reporter: <span className="font-mono">{report.reporterId.slice(0, 12)}…</span>
+                    </p>
+                    {report.createdAt && (
+                      <p className="text-xs text-gray-600 mt-0.5 ml-5">
+                        {report.createdAt.toDate().toLocaleDateString()}
+                      </p>
+                    )}
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
                     <button
@@ -1051,7 +1102,14 @@ function ModerationTab() {
                 <div className="flex-1 min-w-0">
                   <span className="text-white text-sm font-semibold">{e.vendorName ?? e.vendorId}</span>
                   <span className="text-gray-500 text-xs ml-2">endorsed by</span>
-                  <span className="text-gray-300 text-sm ml-1">{e.endorserName ?? e.endorserId}</span>
+                  <span className="text-gray-300 text-sm ml-1">
+                    {e.endorserName ?? <span className="font-mono text-xs">{e.endorserId.slice(0, 12)}…</span>}
+                  </span>
+                  {e.createdAt && (
+                    <span className="text-gray-600 text-xs ml-2">
+                      {e.createdAt.toDate().toLocaleDateString()}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
