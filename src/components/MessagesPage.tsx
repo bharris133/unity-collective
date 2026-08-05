@@ -15,7 +15,7 @@ export const MessagesPage: React.FC = () => {
 
   // Load threads on mount
   useEffect(() => {
-    messageService.getAllThreads().then(data => {
+    messageService.getAllThreads(currentUser?.uid).then(data => {
       setThreads(data);
       setLoading(false);
     });

@@ -13,17 +13,24 @@ const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
 export const messageService = {
   /**
-   * Get all message threads for the current user
+   * Get all message threads for the current user.
+   * Requires userId so Firestore can enforce the participantIds rule.
    */
-  async getAllThreads(): Promise<MessageThread[]> {
+  async getAllThreads(userId?: string): Promise<MessageThread[]> {
     if (USE_MOCK_DATA) {
       console.log('📦 Using mock data for message threads');
       return Promise.resolve(mockThreads);
     }
 
+    if (!userId) return [];
+
     console.log('🔥 Fetching message threads from Firebase');
     try {
-      const querySnapshot = await getDocs(collection(db, 'messageThreads'));
+      const q = query(
+        collection(db, 'messageThreads'),
+        where('participantIds', 'array-contains', userId)
+      );
+      const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
@@ -94,10 +101,10 @@ export const messageService = {
   },
 
   /**
-   * Get total unread message count
+   * Get total unread message count for a specific user.
    */
-  async getUnreadCount(): Promise<number> {
-    const threads = await this.getAllThreads();
+  async getUnreadCount(userId?: string): Promise<number> {
+    const threads = await this.getAllThreads(userId);
     return threads.reduce((total, thread) => total + thread.unreadCount, 0);
   },
 

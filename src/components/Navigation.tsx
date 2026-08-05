@@ -64,7 +64,7 @@ function Navigation() {
     const loadUnreadCount = async () => {
       if (currentUser) {
         try {
-          const count = await messageService.getUnreadCount();
+          const count = await messageService.getUnreadCount(currentUser.uid);
           setUnreadMessageCount(count);
         } catch (error) {
           console.error('Error loading unread message count:', error);
