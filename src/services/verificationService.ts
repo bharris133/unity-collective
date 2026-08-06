@@ -185,18 +185,22 @@ export async function getSubmissionsForBusiness(businessId: string): Promise<Ver
 export async function getAllPendingSubmissions(): Promise<VerificationSubmission[]> {
   if (USE_MOCK) return getMockAllPendingSubmissions();
 
-  // Firestore doesn't support cross-collection-group queries without an index,
-  // so we use a collectionGroup query on verificationSubmissions
+  // Avoid composite index requirement: filter by status only, sort client-side
   const { collectionGroup } = await import('firebase/firestore');
   const q = query(
     collectionGroup(db, 'verificationSubmissions'),
-    where('status', '==', 'pending'),
-    orderBy('createdAt', 'desc')
+    where('status', '==', 'pending')
   );
   const snap = await getDocs(q);
-  return snap.docs.map(d => {
+  const submissions = snap.docs.map(d => {
     const bizId = d.ref.parent.parent?.id ?? '';
     return { submissionId: d.id, businessId: bizId, ...d.data() } as VerificationSubmission;
+  });
+  // Sort client-side by createdAt descending
+  return submissions.sort((a, b) => {
+    const aTime = (a.createdAt as any)?.toMillis?.() ?? new Date(a.createdAt as string).getTime() ?? 0;
+    const bTime = (b.createdAt as any)?.toMillis?.() ?? new Date(b.createdAt as string).getTime() ?? 0;
+    return bTime - aTime;
   });
 }
 
