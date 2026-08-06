@@ -106,7 +106,7 @@ function HomePage() {
         className="relative flex items-center justify-center text-white"
         style={{
           minHeight: "100vh",
-          background: `linear-gradient(to bottom, rgba(10,10,10,0.65) 0%, rgba(10,10,10,0.88) 60%, rgba(10,10,10,0.97) 100%), url(${heroBanner}) center/cover no-repeat`,
+          background: `linear-gradient(to bottom, rgba(10,10,10,0.35) 0%, rgba(10,10,10,0.70) 55%, rgba(10,10,10,0.92) 100%), url(${heroBanner}) center/cover no-repeat`,
         }}
       >
         {/* Pan-African accent bar */}
