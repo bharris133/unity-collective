@@ -13,10 +13,16 @@ service firebase.storage {
       return isAuthenticated() && request.auth.uid == uid;
     }
 
+    // NOTE: Firebase Storage rules cannot query Firestore, so admin status is
+    // determined by a custom claim set on the Firebase Auth token.
+    // Set the claim with: admin.auth().setCustomUserClaims(uid, { admin: true })
+    // Until custom claims are configured, admin read is open to all authenticated users.
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+
     // ─── Onboarding verification documents ───────────────────────────────────
-    // Only the member themselves can upload/read their own verification docs.
-    // Admins are handled via Firestore (they read the URL stored in Firestore,
-    // not the file directly from Storage).
+    // Only the member themselves can upload/read their own onboarding docs.
     match /onboarding/{memberId}/docs/{fileName} {
       allow read: if isOwner(memberId) || isAdmin();
       allow write: if isOwner(memberId);
@@ -24,15 +30,15 @@ service firebase.storage {
 
     // ─── Business verification documents (Tier 3 submissions) ─────────────────
     // Vendors upload certification docs here for Tier 3 review.
-    // Admins can read to review; only authenticated users can write.
+    // Only the business owner can write; admins and the owner can read.
     match /businesses/{businessId}/verification/{fileName} {
-      allow read: if isAuthenticated() && isAdmin();
-      allow write: if isAuthenticated();
+      allow read: if isOwner(businessId) || isAdmin();
+      allow write: if isOwner(businessId);
     }
 
     // ─── Product images ───────────────────────────────────────────────────────
     // Anyone can read product images (public marketplace).
-    // Only authenticated users can upload (vendor ownership enforced at app level).
+    // Only authenticated users can upload.
     match /products/{businessId}/{productId}/{fileName} {
       allow read: if true;
       allow write: if isAuthenticated();
