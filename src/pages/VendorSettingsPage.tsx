@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Store, Camera, Save, Loader2, CheckCircle, AlertCircle, ExternalLink, Upload, FileText, Clock } from 'lucide-react';
 import ProductCsvUpload from '../components/ProductCsvUpload';
 import { VerificationProgress } from '../components/VerificationProgress';
-import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -170,16 +170,41 @@ export default function VendorSettingsPage() {
         );
       });
 
-      // 2. Call Cloud Function to create submission record
+      // 2. Create submission record — try Cloud Function first, fall back to direct Firestore write
       setDocUploadState('submitting');
-      const functions = getFunctions();
-      const submitFn = httpsCallable(functions, 'submitVerificationDocument');
-      await submitFn({
-        businessId: currentUser.uid,
-        fileUrls: [downloadUrl],
-        notes: docNotes,
-        type: 'document',
-      });
+      try {
+        // Wrap the Cloud Function call in a 12-second timeout so it fails fast if not deployed
+        const fnTimeout = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('FUNCTION_TIMEOUT')), 12000)
+        );
+        const functions = getFunctions();
+        const submitFn = httpsCallable(functions, 'submitVerificationDocument');
+        await Promise.race([
+          submitFn({ businessId: currentUser.uid, fileUrls: [downloadUrl], notes: docNotes, type: 'document' }),
+          fnTimeout,
+        ]);
+      } catch (fnErr: unknown) {
+        // Cloud Function unavailable (not yet deployed) or timed out — write directly to Firestore
+        const isTimeout = fnErr instanceof Error && fnErr.message === 'FUNCTION_TIMEOUT';
+        const isFnNotFound = fnErr instanceof Error && fnErr.message.includes('NOT_FOUND');
+        if (isTimeout || isFnNotFound) {
+          const subsRef = collection(db, 'businesses', currentUser.uid, 'verificationSubmissions');
+          await addDoc(subsRef, {
+            businessId: currentUser.uid,
+            type: 'document',
+            status: 'pending',
+            fileUrls: [downloadUrl],
+            notes: docNotes,
+            reviewedBy: null,
+            reviewedAt: null,
+            rejectionReason: null,
+            createdAt: serverTimestamp(),
+          });
+        } else {
+          // Re-throw genuine errors (auth, storage, etc.)
+          throw fnErr;
+        }
+      }
 
       setDocUploadState('submitted');
       setDocFile(null);
