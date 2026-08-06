@@ -52,6 +52,20 @@ service cloud.firestore {
       allow update: if isAuthenticated() &&
         (resource.data.ownerId == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
+
+      // ─── Verification Submissions (subcollection) ──────────────────────────
+      // Vendors can create and read their own submissions.
+      // Admins can read and update all submissions (approve/reject).
+      // Cloud Functions (server-side) bypass these rules entirely.
+      match /verificationSubmissions/{submissionId} {
+        allow read: if isAuthenticated() &&
+          (get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId == request.auth.uid
+           || isAdmin());
+        allow create: if isAuthenticated() &&
+          get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId == request.auth.uid;
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
     }
 
     // ─── Products ────────────────────────────────────────────────────────────

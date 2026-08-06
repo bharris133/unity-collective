@@ -18,7 +18,16 @@ service firebase.storage {
     // Admins are handled via Firestore (they read the URL stored in Firestore,
     // not the file directly from Storage).
     match /onboarding/{memberId}/docs/{fileName} {
-      allow read, write: if isOwner(memberId);
+      allow read: if isOwner(memberId) || isAdmin();
+      allow write: if isOwner(memberId);
+    }
+
+    // ─── Business verification documents (Tier 3 submissions) ─────────────────
+    // Vendors upload certification docs here for Tier 3 review.
+    // Admins can read to review; only authenticated users can write.
+    match /businesses/{businessId}/verification/{fileName} {
+      allow read: if isAuthenticated() && isAdmin();
+      allow write: if isAuthenticated();
     }
 
     // ─── Product images ───────────────────────────────────────────────────────

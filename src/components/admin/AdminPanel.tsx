@@ -21,6 +21,7 @@ import {
   Mail,
   Flag,
   ThumbsUp,
+  Loader2,
 } from 'lucide-react';
 import { emailLogService, type EmailLog } from '../../services/emailLogService';
 import { useAuth } from '../../contexts/AuthContext';
@@ -31,9 +32,15 @@ import {
 import {
   getAllOnboardingStates,
   saveOnboardingState,
+  getOnboardingState,
 } from '../../services/onboardingService';
-import { collection, getDocs } from 'firebase/firestore';
+import {
+  getAllPendingSubmissions,
+} from '../../services/verificationService';
+import type { VerificationSubmission } from '../../types/Verification';
+import { collection, getDocs, collectionGroup, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
@@ -142,13 +149,22 @@ export default function AdminPanel() {
   );
 }
 
-// Small red dot badge showing pending count
+// Small red dot badge showing pending submissions count
 function PendingBadge() {
   const [pendingCount, setPendingCount] = useState(0);
   useEffect(() => {
-    getAllOnboardingStates()
-      .then(states => setPendingCount(states.filter(s => s.verificationStatus === 'pending').length))
-      .catch(() => setPendingCount(0));
+    // Count pending verificationSubmissions across all businesses
+    const countPending = async () => {
+      try {
+        const snap = await getDocs(
+          query(collectionGroup(db, 'verificationSubmissions'), where('status', '==', 'pending'))
+        );
+        setPendingCount(snap.size);
+      } catch {
+        setPendingCount(0);
+      }
+    };
+    countPending();
   }, []);
   if (pendingCount === 0) return null;
   return (
@@ -164,65 +180,121 @@ function getDisplayName(memberId: string): string {
   return memberId;
 }
 
-// ─── Verifications Tab ────────────────────────────────────────────────────────
+// ─── Verifications Tab (Session 2) ───────────────────────────────────────────
 function VerificationsTab() {
-  const [states, setStates] = useState<OnboardingState[]>([]);
-  const [selected, setSelected] = useState<OnboardingState | null>(null);
+  const [submissions, setSubmissions] = useState<VerificationSubmission[]>([]);
+  const [selected, setSelected] = useState<VerificationSubmission | null>(null);
+  const [businessNames, setBusinessNames] = useState<Record<string, string>>({});
   const [rejectReason, setRejectReason] = useState('');
   const [showRejectInput, setShowRejectInput] = useState(false);
-  const [filter, setFilter] = useState<'all' | VerificationStatus>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [actionState, setActionState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [actionError, setActionError] = useState('');
 
-  // Reload from store on mount and after actions
-  const reload = () => { getAllOnboardingStates().then(setStates); };
+  const reload = async () => {
+    try {
+      const subs = await getAllPendingSubmissions();
+      // Also fetch all (not just pending) for the full list view
+      let allSubs: VerificationSubmission[] = subs;
+      if (!USE_MOCK_DATA) {
+        try {
+          const snap = await getDocs(collectionGroup(db, 'verificationSubmissions'));
+          allSubs = snap.docs.map(d => ({
+            submissionId: d.id,
+            businessId: d.ref.parent.parent?.id ?? '',
+            ...d.data(),
+          } as VerificationSubmission));
+        } catch {
+          allSubs = subs;
+        }
+      }
+      setSubmissions(allSubs);
+
+      // Resolve business names from onboarding docs
+      const ids = [...new Set(allSubs.map(s => s.businessId))];
+      const names: Record<string, string> = {};
+      await Promise.all(ids.map(async id => {
+        try {
+          const ob = await getOnboardingState(id);
+          names[id] = ob?.businessProfile?.businessName ?? id.slice(0, 12) + '…';
+        } catch {
+          names[id] = id.slice(0, 12) + '…';
+        }
+      }));
+      setBusinessNames(names);
+    } catch {
+      setSubmissions([]);
+    }
+  };
+
   useEffect(() => { reload(); }, []);
 
   const filtered = filter === 'all'
-    ? states
-    : states.filter(s => s.verificationStatus === filter);
+    ? submissions
+    : submissions.filter(s => s.status === filter);
 
-  const pendingCount  = states.filter(s => s.verificationStatus === 'pending').length;
-  const verifiedCount = states.filter(s => s.verificationStatus === 'verified').length;
-  const rejectedCount = states.filter(s => s.verificationStatus === 'rejected').length;
+  const pendingCount  = submissions.filter(s => s.status === 'pending').length;
+  const approvedCount = submissions.filter(s => s.status === 'approved').length;
+  const rejectedCount = submissions.filter(s => s.status === 'rejected').length;
 
-  async function handleApprove(state: OnboardingState) {
-    const updated = { ...state, verificationStatus: 'verified' as VerificationStatus };
-    await saveOnboardingState(updated);
-    reload();
-    setSelected(updated);
-    setShowRejectInput(false);
-  }
-
-  async function handleReject(state: OnboardingState) {
-    if (!showRejectInput) {
-      setShowRejectInput(true);
-      return;
+  async function handleApprove(sub: VerificationSubmission) {
+    setActionState('loading');
+    setActionError('');
+    try {
+      const fns = getFunctions();
+      const reviewFn = httpsCallable(fns, 'reviewSubmission');
+      await reviewFn({ businessId: sub.businessId, submissionId: sub.submissionId, decision: 'approved' });
+      await reload();
+      setSelected(prev => prev ? { ...prev, status: 'approved' } : null);
+      setShowRejectInput(false);
+      setActionState('done');
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Approval failed.');
+      setActionState('error');
     }
-    const updated = {
-      ...state,
-      verificationStatus: 'rejected' as VerificationStatus,
-      rejectionReason: rejectReason || 'No reason provided.',
-    };
-    await saveOnboardingState(updated);
-    reload();
-    setSelected(updated);
-    setShowRejectInput(false);
-    setRejectReason('');
   }
+
+  async function handleReject(sub: VerificationSubmission) {
+    if (!showRejectInput) { setShowRejectInput(true); return; }
+    setActionState('loading');
+    setActionError('');
+    try {
+      const fns = getFunctions();
+      const reviewFn = httpsCallable(fns, 'reviewSubmission');
+      await reviewFn({ businessId: sub.businessId, submissionId: sub.submissionId, decision: 'rejected', rejectionReason: rejectReason || 'Insufficient documentation.' });
+      await reload();
+      setSelected(prev => prev ? { ...prev, status: 'rejected', rejectionReason: rejectReason } : null);
+      setShowRejectInput(false);
+      setRejectReason('');
+      setActionState('done');
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Rejection failed.');
+      setActionState('error');
+    }
+  }
+
+  const subStatusBadge = (status: string) => {
+    if (status === 'pending')   return 'bg-yellow-900/40 text-yellow-400 border border-yellow-700/50';
+    if (status === 'approved')  return 'bg-green-900/40 text-green-400 border border-green-700/50';
+    if (status === 'rejected')  return 'bg-red-900/40 text-red-400 border border-red-700/50';
+    if (status === 'needs_info') return 'bg-orange-900/40 text-orange-400 border border-orange-700/50';
+    return 'bg-gray-800 text-gray-400 border border-gray-700';
+  };
 
   return (
     <div>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white">Business Verifications</h1>
-        <p className={TEXT_MUTED}>Review and approve Black-owned business applications</p>
+        <p className={TEXT_MUTED}>Review Tier 3 certification document submissions</p>
       </div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-4 mb-8">
         {[
-          { label: 'Pending Review', count: pendingCount,  icon: Clock,        color: 'text-yellow-400', bg: 'bg-yellow-900/20 border-yellow-800/40' },
-          { label: 'Verified',       count: verifiedCount, icon: ShieldCheck,  color: 'text-green-400',  bg: 'bg-green-900/20 border-green-800/40' },
-          { label: 'Rejected',       count: rejectedCount, icon: ShieldX,      color: 'text-red-400',    bg: 'bg-red-900/20 border-red-800/40' },
+          { label: 'Pending Review', count: pendingCount,  icon: Clock,       color: 'text-yellow-400', bg: 'bg-yellow-900/20 border-yellow-800/40' },
+          { label: 'Approved',       count: approvedCount, icon: ShieldCheck, color: 'text-green-400',  bg: 'bg-green-900/20 border-green-800/40' },
+          { label: 'Rejected',       count: rejectedCount, icon: ShieldX,     color: 'text-red-400',    bg: 'bg-red-900/20 border-red-800/40' },
         ].map(({ label, count, icon: Icon, color, bg }) => (
           <div key={label} className={`${CARD_BG} border ${bg} rounded-lg p-5 flex items-center gap-4`}>
             <Icon size={32} className={color} />
@@ -236,17 +308,15 @@ function VerificationsTab() {
 
       {/* Filter tabs */}
       <div className="flex gap-2 mb-6">
-        {(['all', 'pending', 'verified', 'rejected'] as const).map(f => (
+        {(['all', 'pending', 'approved', 'rejected'] as const).map(f => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium capitalize transition-colors ${
-              filter === f
-                ? `${BTN_GOLD}`
-                : `${CARD_BG} text-[#AAAAAA] border ${BORDER} hover:text-white`
+              filter === f ? BTN_GOLD : `${CARD_BG} text-[#AAAAAA] border ${BORDER} hover:text-white`
             }`}
           >
-            {f === 'all' ? 'All' : statusLabel(f as VerificationStatus)}
+            {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
           </button>
         ))}
       </div>
@@ -262,12 +332,12 @@ function VerificationsTab() {
             </div>
           ) : (
             <ul className="divide-y divide-[#2A2A2A]">
-              {filtered.map(state => (
+              {filtered.map(sub => (
                 <li
-                  key={state.memberId}
-                  onClick={() => { setSelected(state); setShowRejectInput(false); setRejectReason(''); }}
+                  key={sub.submissionId}
+                  onClick={() => { setSelected(sub); setShowRejectInput(false); setRejectReason(''); setActionState('idle'); setActionError(''); }}
                   className={`flex items-center justify-between px-6 py-4 cursor-pointer transition-colors ${
-                    selected?.memberId === state.memberId
+                    selected?.submissionId === sub.submissionId
                       ? 'bg-[#D4AF37]/10 border-l-2 border-[#D4AF37]'
                       : 'hover:bg-white/5'
                   }`}
@@ -277,19 +347,16 @@ function VerificationsTab() {
                       <Building size={18} className={TEXT_GOLD} />
                     </div>
                     <div>
-                      <p className="text-white font-medium text-sm">{state.businessProfile.businessName}</p>
-                      <p className={`text-xs ${TEXT_MUTED}`}>{getDisplayName(state.memberId)} · {state.businessProfile.category}</p>
+                      <p className="text-white font-medium text-sm">{businessNames[sub.businessId] ?? sub.businessId.slice(0, 12) + '…'}</p>
+                      <p className={`text-xs ${TEXT_MUTED}`}>
+                        {sub.type} · {sub.createdAt ? new Date((sub.createdAt as any)?.toDate?.() ?? sub.createdAt).toLocaleDateString() : '—'}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusBadgeClass(state.verificationStatus)}`}>
-                      {statusLabel(state.verificationStatus)}
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${subStatusBadge(sub.status)}`}>
+                      {sub.status.charAt(0).toUpperCase() + sub.status.slice(1)}
                     </span>
-                    {state.isBlackOwned && (
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gradient-to-r from-red-900/40 via-black/40 to-green-900/40 text-[#D4AF37] border border-[#D4AF37]/40">
-                        ✦ Black-Owned
-                      </span>
-                    )}
                     <ChevronRight size={14} className={TEXT_MUTED} />
                   </div>
                 </li>
@@ -300,102 +367,109 @@ function VerificationsTab() {
 
         {/* Detail pane */}
         {selected ? (
-          <div className={`w-96 ${CARD_BG} border ${BORDER} rounded-lg p-6 flex flex-col gap-5`}>
+          <div className={`w-96 ${CARD_BG} border ${BORDER} rounded-lg p-6 flex flex-col gap-5 overflow-y-auto`} style={{ maxHeight: '70vh' }}>
             <div>
-              <h2 className="text-lg font-bold text-white">{selected.businessProfile.businessName}</h2>
-              <p className={`text-sm ${TEXT_MUTED}`}>{getDisplayName(selected.memberId)}</p>
+              <h2 className="text-lg font-bold text-white">{businessNames[selected.businessId] ?? selected.businessId}</h2>
+              <p className={`text-xs ${TEXT_MUTED} font-mono`}>{selected.businessId}</p>
             </div>
 
-            {/* Status */}
-            <div className="flex items-center gap-2">
-              <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusBadgeClass(selected.verificationStatus)}`}>
-                {statusLabel(selected.verificationStatus)}
-              </span>
-              {selected.isBlackOwned && (
-                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-gradient-to-r from-red-900/40 via-black/40 to-green-900/40 text-[#D4AF37] border border-[#D4AF37]/40">
-                  ✦ Black-Owned (Self-Declared)
+            {/* Status badge */}
+            <span className={`self-start text-xs font-semibold px-3 py-1 rounded-full ${subStatusBadge(selected.status)}`}>
+              {selected.status.charAt(0).toUpperCase() + selected.status.slice(1)}
+            </span>
+
+            {/* Submission details */}
+            <div className={`border ${BORDER} rounded-lg p-4 space-y-2`}>
+              <p className={`text-xs font-semibold uppercase tracking-wider ${TEXT_MUTED} mb-3`}>Submission Details</p>
+              <div className="flex justify-between text-sm">
+                <span className={TEXT_MUTED}>Type</span>
+                <span className="text-white capitalize">{selected.type}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className={TEXT_MUTED}>Submitted</span>
+                <span className="text-white">
+                  {selected.createdAt ? new Date((selected.createdAt as any)?.toDate?.() ?? selected.createdAt).toLocaleDateString() : '—'}
                 </span>
+              </div>
+              {selected.notes && (
+                <div className="pt-2">
+                  <p className={`text-xs ${TEXT_MUTED} mb-1`}>Notes from vendor</p>
+                  <p className="text-sm text-white italic">&ldquo;{selected.notes}&rdquo;</p>
+                </div>
               )}
             </div>
 
-            {/* Business profile */}
-            <div className={`border ${BORDER} rounded-lg p-4 space-y-2`}>
-              <p className={`text-xs font-semibold uppercase tracking-wider ${TEXT_MUTED} mb-3`}>Business Profile</p>
-              {[
-                { label: 'Category',    value: selected.businessProfile.category },
-                { label: 'Location',    value: selected.businessProfile.location },
-                { label: 'Phone',       value: selected.businessProfile.phone },
-                { label: 'Email',       value: selected.businessProfile.email },
-                { label: 'Website',     value: selected.businessProfile.website || '—' },
-              ].map(({ label, value }) => (
-                <div key={label} className="flex justify-between text-sm">
-                  <span className={TEXT_MUTED}>{label}</span>
-                  <span className="text-white text-right max-w-[180px] truncate">{value}</span>
-                </div>
-              ))}
-              <div className="pt-2">
-                <p className={`text-xs ${TEXT_MUTED} mb-1`}>Description</p>
-                <p className="text-sm text-white leading-relaxed">{selected.businessProfile.description}</p>
-              </div>
-            </div>
-
-            {/* Submitted documents */}
+            {/* Document links */}
             <div className={`border ${BORDER} rounded-lg p-4`}>
               <p className={`text-xs font-semibold uppercase tracking-wider ${TEXT_MUTED} mb-3`}>
-                Submitted Documents ({selected.verificationDocs.length})
+                Documents ({selected.fileUrls.length})
               </p>
-              {selected.verificationDocs.length === 0 ? (
-                <p className={`text-sm ${TEXT_MUTED}`}>No documents uploaded.</p>
+              {selected.fileUrls.length === 0 ? (
+                <p className={`text-sm ${TEXT_MUTED}`}>No files attached.</p>
               ) : (
                 <ul className="space-y-2">
-                  {selected.verificationDocs.map((doc, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm">
-                      <FileText size={16} className={TEXT_GOLD} />
-                      <div>
-                        <p className="text-white">{doc.fileName}</p>
-                        <p className={`text-xs ${TEXT_MUTED}`}>{doc.docType} · {new Date(doc.uploadedAt).toLocaleDateString()}</p>
-                      </div>
+                  {selected.fileUrls.map((url, i) => (
+                    <li key={i}>
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex items-center gap-2 text-sm text-[#D4AF37] hover:underline`}
+                      >
+                        <FileText size={14} />
+                        Document {i + 1}
+                      </a>
                     </li>
                   ))}
                 </ul>
               )}
             </div>
 
-            {/* Timestamps */}
-            <div className={`text-xs ${TEXT_MUTED} space-y-1`}>
-              <p>Submitted: {new Date(selected.startedAt).toLocaleDateString()}</p>
-              {selected.completedAt && <p>Completed: {new Date(selected.completedAt).toLocaleDateString()}</p>}
-            </div>
+            {/* Rejection reason if rejected */}
+            {selected.status === 'rejected' && selected.rejectionReason && (
+              <div className="flex items-start gap-2 text-red-400 text-sm p-3 bg-red-900/10 rounded-lg border border-red-900/30">
+                <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
+                <span>{selected.rejectionReason}</span>
+              </div>
+            )}
 
-            {/* Actions — only show if pending */}
-            {selected.verificationStatus === 'pending' && (
+            {/* Action error */}
+            {actionState === 'error' && (
+              <div className="flex items-center gap-2 text-red-400 text-xs p-2 bg-red-900/10 rounded border border-red-900/30">
+                <AlertTriangle size={12} />
+                {actionError}
+              </div>
+            )}
+
+            {/* Actions — only for pending */}
+            {selected.status === 'pending' && (
               <div className="space-y-3 pt-2 border-t border-[#2A2A2A]">
                 <button
                   onClick={() => handleApprove(selected)}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold ${BTN_GREEN} transition-colors`}
+                  disabled={actionState === 'loading'}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold ${BTN_GREEN} transition-colors disabled:opacity-50`}
                 >
-                  <ShieldCheck size={16} />
-                  Approve & Verify
+                  {actionState === 'loading' ? <Loader2 size={16} className="animate-spin" /> : <ShieldCheck size={16} />}
+                  Approve — Promote to Tier 3
                 </button>
 
                 {showRejectInput && (
-                  <div>
-                    <textarea
-                      value={rejectReason}
-                      onChange={e => setRejectReason(e.target.value)}
-                      placeholder="Reason for rejection (optional)..."
-                      rows={3}
-                      className={`w-full ${CARD_BG} border ${BORDER} rounded-lg px-3 py-2 text-sm text-white placeholder-[#555] focus:outline-none focus:border-red-700 resize-none`}
-                    />
-                  </div>
+                  <textarea
+                    value={rejectReason}
+                    onChange={e => setRejectReason(e.target.value)}
+                    placeholder="Reason for rejection (required)..."
+                    rows={3}
+                    className={`w-full ${CARD_BG} border ${BORDER} rounded-lg px-3 py-2 text-sm text-white placeholder-[#555] focus:outline-none focus:border-red-700 resize-none`}
+                  />
                 )}
 
                 <button
                   onClick={() => handleReject(selected)}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold ${BTN_RED} transition-colors`}
+                  disabled={actionState === 'loading'}
+                  className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold ${BTN_RED} transition-colors disabled:opacity-50`}
                 >
                   <ShieldX size={16} />
-                  {showRejectInput ? 'Confirm Rejection' : 'Reject Application'}
+                  {showRejectInput ? 'Confirm Rejection' : 'Reject Submission'}
                 </button>
 
                 {showRejectInput && (
@@ -409,26 +483,10 @@ function VerificationsTab() {
               </div>
             )}
 
-            {/* Already actioned */}
-            {selected.verificationStatus === 'verified' && (
+            {selected.status === 'approved' && (
               <div className="flex items-center gap-2 text-green-400 text-sm pt-2 border-t border-[#2A2A2A]">
                 <CheckCircle size={16} />
-                This business has been verified.
-              </div>
-            )}
-            {selected.verificationStatus === 'rejected' && (
-              <div className="pt-2 border-t border-[#2A2A2A]">
-                <div className="flex items-center gap-2 text-red-400 text-sm mb-2">
-                  <AlertTriangle size={16} />
-                  This application was rejected.
-                </div>
-                <button
-                  onClick={() => handleApprove(selected)}
-                  className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold ${BTN_GREEN} transition-colors`}
-                >
-                  <ShieldCheck size={16} />
-                  Override — Approve Anyway
-                </button>
+                Approved. Business promoted to Tier 3 Certified.
               </div>
             )}
           </div>
