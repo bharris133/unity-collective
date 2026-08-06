@@ -594,3 +594,214 @@ export const sendOrderEmailsCallable = onCall(
     return { success: true };
   }
 );
+
+
+// ─── Verification Session 2 ────────────────────────────────────────────────────
+
+/**
+ * submitVerificationDocument
+ *
+ * Called by a vendor after uploading a certification document to Firebase Storage.
+ * Creates a verificationSubmission record under businesses/{businessId}/verificationSubmissions
+ * and triggers a trust-score recalculation.
+ *
+ * Input:  { businessId, fileUrls, notes, type }
+ * Output: { submissionId }
+ */
+export const submitVerificationDocument = onCall(
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Must be authenticated to submit a verification document.');
+    }
+
+    const { businessId, fileUrls, notes, type } = request.data as {
+      businessId: string;
+      fileUrls: string[];
+      notes: string;
+      type: 'document' | 'video' | 'other';
+    };
+
+    if (!businessId || !fileUrls || fileUrls.length === 0) {
+      throw new HttpsError('invalid-argument', 'businessId and at least one fileUrl are required.');
+    }
+
+    // Verify the caller owns this business
+    const bizRef = db.collection('businesses').doc(businessId);
+    const bizSnap = await bizRef.get();
+    if (bizSnap.exists && bizSnap.data()?.ownerId && bizSnap.data()?.ownerId !== request.auth.uid) {
+      throw new HttpsError('permission-denied', 'You do not own this business.');
+    }
+
+    // Check for existing pending submission — one at a time
+    const existingSnap = await db
+      .collection('businesses').doc(businessId)
+      .collection('verificationSubmissions')
+      .where('status', '==', 'pending')
+      .limit(1)
+      .get();
+
+    if (!existingSnap.empty) {
+      throw new HttpsError('already-exists', 'A pending submission already exists for this business. Please wait for it to be reviewed.');
+    }
+
+    const submissionRef = await db
+      .collection('businesses').doc(businessId)
+      .collection('verificationSubmissions')
+      .add({
+        businessId,
+        type: type ?? 'document',
+        status: 'pending',
+        fileUrls,
+        notes: notes ?? '',
+        reviewedBy: null,
+        reviewedAt: null,
+        rejectionReason: null,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+    // Log for admin visibility
+    console.log(`Verification submission created: ${submissionRef.id} for business ${businessId}`);
+
+    return { submissionId: submissionRef.id };
+  }
+);
+
+/**
+ * reviewSubmission
+ *
+ * Called by an admin to approve or reject a Tier 3 document submission.
+ * On approval: sets verificationTier=3, documentVerifiedAt, clears flaggedForReview.
+ * On rejection: sets submission status to 'rejected', stores rejectionReason.
+ *
+ * Input:  { businessId, submissionId, decision: 'approved'|'rejected', rejectionReason? }
+ * Output: { success: true, newTier?: number }
+ */
+export const reviewSubmission = onCall(
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Must be authenticated.');
+    }
+
+    // Verify caller is an admin
+    const callerDoc = await db.collection('users').doc(request.auth.uid).get();
+    if (!callerDoc.exists || callerDoc.data()?.role !== 'admin') {
+      throw new HttpsError('permission-denied', 'Only admins can review submissions.');
+    }
+
+    const { businessId, submissionId, decision, rejectionReason } = request.data as {
+      businessId: string;
+      submissionId: string;
+      decision: 'approved' | 'rejected';
+      rejectionReason?: string;
+    };
+
+    if (!businessId || !submissionId || !decision) {
+      throw new HttpsError('invalid-argument', 'businessId, submissionId, and decision are required.');
+    }
+
+    const subRef = db
+      .collection('businesses').doc(businessId)
+      .collection('verificationSubmissions').doc(submissionId);
+
+    const subSnap = await subRef.get();
+    if (!subSnap.exists) {
+      throw new HttpsError('not-found', `Submission ${submissionId} not found.`);
+    }
+    if (subSnap.data()?.status !== 'pending') {
+      throw new HttpsError('failed-precondition', 'Submission has already been reviewed.');
+    }
+
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const bizRef = db.collection('businesses').doc(businessId);
+
+    if (decision === 'approved') {
+      // Update submission
+      await subRef.update({
+        status: 'approved',
+        reviewedBy: request.auth.uid,
+        reviewedAt: now,
+        rejectionReason: null,
+      });
+
+      // Promote business to Tier 3
+      await bizRef.set(
+        {
+          verificationTier: 3,
+          documentVerifiedAt: now,
+          flaggedForReview: false,
+        },
+        { merge: true }
+      );
+
+      console.log(`Business ${businessId} promoted to Tier 3 by ${request.auth.uid}`);
+      return { success: true, newTier: 3 };
+
+    } else {
+      // Reject
+      await subRef.update({
+        status: 'rejected',
+        reviewedBy: request.auth.uid,
+        reviewedAt: now,
+        rejectionReason: rejectionReason ?? 'Insufficient documentation.',
+      });
+
+      console.log(`Submission ${submissionId} rejected by ${request.auth.uid}`);
+      return { success: true, newTier: null };
+    }
+  }
+);
+
+/**
+ * updateTrustScore
+ *
+ * Recalculates a business's trust score from all endorsements.
+ * Auto-promotes to Tier 2 when weighted endorsement sum >= 3.
+ * Should be called after any endorsement is added.
+ *
+ * Input:  { businessId }
+ * Output: { trustScore, tier }
+ */
+export const updateTrustScore = onCall(
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Must be authenticated.');
+    }
+
+    const { businessId } = request.data as { businessId: string };
+    if (!businessId) {
+      throw new HttpsError('invalid-argument', 'businessId is required.');
+    }
+
+    // Fetch all endorsements for this business
+    const endorsementsSnap = await db
+      .collection('endorsements')
+      .where('businessId', '==', businessId)
+      .get();
+
+    const totalWeight = endorsementsSnap.docs.reduce((sum, d) => sum + (d.data().weight ?? 1), 0);
+    const endorserIds = endorsementsSnap.docs.map(d => d.data().fromUserId as string);
+
+    // Trust score: capped at 100, 10 points per weighted endorsement unit
+    const trustScore = Math.min(totalWeight * 10, 100);
+
+    const bizRef = db.collection('businesses').doc(businessId);
+    const bizSnap = await bizRef.get();
+    const currentTier: number = bizSnap.data()?.verificationTier ?? 1;
+
+    const updates: Record<string, unknown> = {
+      trustScore,
+      endorserIds,
+    };
+
+    // Auto-promote to Tier 2 when weighted sum >= 3 and currently Tier 1
+    if (totalWeight >= 3 && currentTier === 1) {
+      updates.verificationTier = 2;
+      updates.verifiedByCommunityAt = admin.firestore.FieldValue.serverTimestamp();
+      console.log(`Business ${businessId} auto-promoted to Tier 2 (trustScore=${trustScore})`);
+    }
+
+    await bizRef.set(updates, { merge: true });
+
+    return { trustScore, tier: updates.verificationTier ?? currentTier };
+  }
+);

@@ -1,14 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Store, Camera, Save, Loader2, CheckCircle, AlertCircle, ExternalLink } from 'lucide-react';
+import { Store, Camera, Save, Loader2, CheckCircle, AlertCircle, ExternalLink, Upload, FileText, Clock } from 'lucide-react';
 import ProductCsvUpload from '../components/ProductCsvUpload';
 import { VerificationProgress } from '../components/VerificationProgress';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { getOnboardingState } from '../services/onboardingService';
 import { uploadBusinessLogo } from '../services/storageService';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import type { OnboardingState } from '../data/mockOnboarding';
+import type { VerificationSubmission } from '../types/Verification';
 
 const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
@@ -41,7 +44,16 @@ export default function VendorSettingsPage() {
   const [dataLoading, setDataLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load onboarding data + any existing override
+  // Verification document upload state
+  const [docFile, setDocFile] = useState<File | null>(null);
+  const [docNotes, setDocNotes] = useState('');
+  const [docUploadState, setDocUploadState] = useState<'idle' | 'uploading' | 'submitting' | 'submitted' | 'error'>('idle');
+  const [docUploadProgress, setDocUploadProgress] = useState(0);
+  const [docUploadError, setDocUploadError] = useState('');
+  const [existingSubmission, setExistingSubmission] = useState<VerificationSubmission | null>(null);
+  const docFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load onboarding data + any existing override + existing submission
   useEffect(() => {
     if (!currentUser) return;
 
@@ -49,6 +61,24 @@ export default function VendorSettingsPage() {
       setDataLoading(true);
       try {
         const ob = await getOnboardingState(currentUser.uid);
+
+        // Check for existing verification submission
+        if (!USE_MOCK_DATA) {
+          try {
+            const subSnap = await getDocs(
+              query(
+                collection(db, 'businesses', currentUser.uid, 'verificationSubmissions'),
+                where('status', 'in', ['pending', 'approved', 'needs_info'])
+              )
+            );
+            if (!subSnap.empty) {
+              const d = subSnap.docs[0];
+              setExistingSubmission({ submissionId: d.id, businessId: currentUser.uid, ...d.data() } as VerificationSubmission);
+            }
+          } catch {
+            // Submission check is non-critical — ignore errors
+          }
+        }
         setOnboarding(ob);
 
         // Start form from onboarding data
@@ -112,6 +142,66 @@ export default function VendorSettingsPage() {
     if (!file) return;
     setLogoFile(file);
     setLogoPreview(URL.createObjectURL(file));
+  };
+
+  const handleDocUpload = async () => {
+    if (!docFile || !currentUser) return;
+    setDocUploadState('uploading');
+    setDocUploadProgress(0);
+    setDocUploadError('');
+
+    try {
+      // 1. Upload file to Firebase Storage
+      const storageRef = ref(storage, `businesses/${currentUser.uid}/verification/${Date.now()}_${docFile.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, docFile);
+
+      const downloadUrl = await new Promise<string>((resolve, reject) => {
+        uploadTask.on(
+          'state_changed',
+          snapshot => {
+            const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+            setDocUploadProgress(pct);
+          },
+          reject,
+          async () => {
+            const url = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(url);
+          }
+        );
+      });
+
+      // 2. Call Cloud Function to create submission record
+      setDocUploadState('submitting');
+      const functions = getFunctions();
+      const submitFn = httpsCallable(functions, 'submitVerificationDocument');
+      await submitFn({
+        businessId: currentUser.uid,
+        fileUrls: [downloadUrl],
+        notes: docNotes,
+        type: 'document',
+      });
+
+      setDocUploadState('submitted');
+      setDocFile(null);
+      setDocNotes('');
+      // Refresh submission status
+      setExistingSubmission({
+        submissionId: 'pending-refresh',
+        businessId: currentUser.uid,
+        type: 'document',
+        status: 'pending',
+        fileUrls: [downloadUrl],
+        notes: docNotes,
+        reviewedBy: null,
+        reviewedAt: null,
+        rejectionReason: null,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err: unknown) {
+      setDocUploadState('error');
+      const msg = err instanceof Error ? err.message : 'Upload failed. Please try again.';
+      setDocUploadError(msg);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -314,6 +404,114 @@ export default function VendorSettingsPage() {
             tier={onboarding?.verificationTier ?? 1}
             endorsementCount={0}
           />
+
+          {/* Tier 3 Document Upload — only show when Tier 1 or 2 and not already certified */}
+          {(onboarding?.verificationTier ?? 1) < 3 && (
+            <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6">
+              <h3 className="text-base font-bold text-white mb-1">Apply for Tier 3 Certification</h3>
+              <p className="text-xs text-gray-400 mb-4">
+                Upload an official certification document (NMSDC, state MBE, ByBlack certificate, or equivalent).
+                Our team will review it and promote your listing to Certified status.
+              </p>
+
+              {existingSubmission ? (
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-[#2A2A2A] border border-[#3A3A3A]">
+                  {existingSubmission.status === 'pending' && <Clock size={18} className="text-yellow-400 mt-0.5 flex-shrink-0" />}
+                  {existingSubmission.status === 'approved' && <CheckCircle size={18} className="text-green-400 mt-0.5 flex-shrink-0" />}
+                  {existingSubmission.status === 'needs_info' && <AlertCircle size={18} className="text-orange-400 mt-0.5 flex-shrink-0" />}
+                  <div>
+                    <div className="text-sm font-semibold text-white capitalize">{existingSubmission.status === 'pending' ? 'Under Review' : existingSubmission.status === 'approved' ? 'Approved' : 'More Info Needed'}</div>
+                    <div className="text-xs text-gray-400 mt-0.5">
+                      {existingSubmission.status === 'pending' && 'Your document has been submitted and is awaiting review by our team.'}
+                      {existingSubmission.status === 'approved' && 'Your certification has been approved. Your listing is now Tier 3 Certified.'}
+                      {existingSubmission.status === 'needs_info' && 'Our team needs additional information. Please check your messages.'}
+                    </div>
+                    {existingSubmission.notes && (
+                      <div className="text-xs text-gray-500 mt-1 italic">&ldquo;{existingSubmission.notes}&rdquo;</div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* File picker */}
+                  <div
+                    className="border-2 border-dashed border-[#3A3A3A] rounded-lg p-6 text-center cursor-pointer hover:border-[#D4AF37] transition-colors mb-3"
+                    onClick={() => docFileInputRef.current?.click()}
+                  >
+                    {docFile ? (
+                      <div className="flex items-center justify-center gap-2 text-sm text-white">
+                        <FileText size={18} className="text-[#D4AF37]" />
+                        <span>{docFile.name}</span>
+                        <span className="text-gray-500">({(docFile.size / 1024).toFixed(0)} KB)</span>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload size={24} className="text-gray-500 mx-auto mb-2" />
+                        <p className="text-sm text-gray-400">Click to select a PDF or image file</p>
+                        <p className="text-xs text-gray-600 mt-1">Max 10 MB &mdash; PDF, JPG, PNG accepted</p>
+                      </>
+                    )}
+                  </div>
+                  <input
+                    ref={docFileInputRef}
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="hidden"
+                    onChange={e => setDocFile(e.target.files?.[0] ?? null)}
+                  />
+
+                  {/* Notes */}
+                  <textarea
+                    value={docNotes}
+                    onChange={e => setDocNotes(e.target.value)}
+                    placeholder="Optional: describe the document (e.g. ByBlack certificate, state MBE cert)"
+                    rows={2}
+                    className="w-full bg-[#2A2A2A] border border-[#3A3A3A] rounded-lg px-3 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-[#D4AF37] transition-colors mb-3 resize-none"
+                  />
+
+                  {/* Upload progress */}
+                  {docUploadState === 'uploading' && (
+                    <div className="mb-3">
+                      <div className="flex justify-between text-xs text-gray-400 mb-1">
+                        <span>Uploading...</span>
+                        <span>{docUploadProgress}%</span>
+                      </div>
+                      <div className="h-1.5 bg-[#2A2A2A] rounded-full overflow-hidden">
+                        <div className="h-full bg-[#D4AF37] rounded-full transition-all" style={{ width: `${docUploadProgress}%` }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {docUploadState === 'error' && (
+                    <div className="flex items-center gap-2 text-red-400 text-xs mb-3">
+                      <AlertCircle size={14} />
+                      <span>{docUploadError}</span>
+                    </div>
+                  )}
+
+                  {docUploadState === 'submitted' && (
+                    <div className="flex items-center gap-2 text-green-400 text-sm mb-3">
+                      <CheckCircle size={16} />
+                      <span>Document submitted for review. Our team will respond within 3&ndash;5 business days.</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={!docFile || docUploadState === 'uploading' || docUploadState === 'submitting' || docUploadState === 'submitted'}
+                    onClick={handleDocUpload}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-[#228B22] hover:bg-[#1a6b1a] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors text-sm"
+                  >
+                    {docUploadState === 'uploading' || docUploadState === 'submitting' ? (
+                      <><Loader2 size={16} className="animate-spin" />Submitting...</>
+                    ) : (
+                      <><Upload size={16} />Submit for Review</>
+                    )}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
 
           {/* CSV product upload */}
           <ProductCsvUpload vendorId={currentUser.uid} />
