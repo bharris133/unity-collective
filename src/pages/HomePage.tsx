@@ -20,7 +20,7 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { businessService, eventService } from "../services";
 import { Input } from "../components/ui/input.jsx";
-import heroBanner from "../assets/hero_banner.png";
+import heroBanner from "../assets/hero_community.jpg";
 import communityHubBanner from "../assets/community_hub_banner.png";
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ function HomePage() {
         className="relative flex items-center justify-center text-white"
         style={{
           minHeight: "100vh",
-          background: `linear-gradient(rgba(10,10,10,0.82), rgba(10,10,10,0.92)), url(${heroBanner}) center/cover no-repeat`,
+          background: `linear-gradient(to bottom, rgba(10,10,10,0.65) 0%, rgba(10,10,10,0.88) 60%, rgba(10,10,10,0.97) 100%), url(${heroBanner}) center/cover no-repeat`,
         }}
       >
         {/* Pan-African accent bar */}
@@ -121,40 +121,50 @@ function HomePage() {
             className="inline-block text-xs font-bold tracking-widest uppercase px-4 py-1 rounded-full mb-6"
             style={{ background: "rgba(255,215,0,0.15)", color: C.gold, border: `1px solid ${C.gold}` }}
           >
-            Community Platform
+            The Buy Black Movement Needs Infrastructure
           </div>
 
           <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
-            Empowering Our Community{" "}
-            <span style={{ color: C.gold }}>Through Unity</span> and Economic
-            Strength
+            $2 Trillion in Black{" "}
+            <span style={{ color: C.gold }}>Spending Power.</span>{" "}
+            Let&rsquo;s Keep It in the Community.
           </h1>
 
           <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto" style={{ color: "rgba(255,255,255,0.85)" }}>
-            Building a stronger Black community through the five pillars: Unity,
-            Economic Control, Self-Sufficiency, Protection, and Control of Our
-            Narrative.
+            The first verified Black business directory. Not just listed &mdash; certified.
+            Find businesses you can trust, support owners who are building generational wealth,
+            and redirect your dollars where they make the most impact.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link to={currentUser ? "/community" : "/community"}>
+            <Link to="/marketplace">
               <button
                 className="px-10 py-4 text-lg font-bold rounded-lg transition-all duration-200"
-                style={{ background: C.red, color: C.white }}
-                onMouseEnter={e => (e.currentTarget.style.background = C.redBright)}
-                onMouseLeave={e => (e.currentTarget.style.background = C.red)}
+                style={{ background: C.gold, color: C.black }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.9")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
               >
-                {currentUser ? "Explore Community" : "Join Our Community"}
+                Shop Verified Businesses
               </button>
             </Link>
             <Link to="/directory">
               <button
                 className="px-10 py-4 text-lg font-bold rounded-lg transition-all duration-200"
-                style={{ background: "transparent", color: C.gold, border: `2px solid ${C.gold}` }}
-                onMouseEnter={e => { e.currentTarget.style.background = C.gold; e.currentTarget.style.color = C.black; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.gold; }}
+                style={{ background: "transparent", color: C.white, border: `2px solid ${C.white}` }}
+                onMouseEnter={e => { e.currentTarget.style.background = C.white; e.currentTarget.style.color = C.black; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.white; }}
               >
-                Explore Businesses
+                Find a Business
+              </button>
+            </Link>
+            <Link to={currentUser ? "/onboarding" : "/community"}>
+              <button
+                className="px-10 py-4 text-lg font-bold rounded-lg transition-all duration-200"
+                style={{ background: "transparent", color: C.green, border: `2px solid ${C.green}` }}
+                onMouseEnter={e => { e.currentTarget.style.background = C.green; e.currentTarget.style.color = C.white; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.green; }}
+              >
+                List Your Business
               </button>
             </Link>
           </div>
@@ -202,6 +212,45 @@ function HomePage() {
                 <div className="text-sm uppercase tracking-wider" style={{ color: C.muted }}>
                   {stat.label}
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── VERIFICATION VALUE PROP ─────────────────────────────────────────── */}
+      <section className="py-20 px-6" style={{ background: C.darkBg }}>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: C.gold }}>Why We’re Different</div>
+            <h2 className="text-4xl md:text-5xl font-black mb-4">Not Just Listed. <span style={{ color: C.gold }}>Verified.</span></h2>
+            <p className="text-lg max-w-2xl mx-auto" style={{ color: C.muted }}>
+              Every business on this platform has earned its place. Our 3-tier verification system
+              means you know exactly who you’re supporting before you spend a dollar.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { tier: "Tier 1", label: "Self-Declared",       color: C.gold,        icon: "★",    description: "Owner has attested to Black ownership. A starting point of trust — the business stands behind its identity." },
+              { tier: "Tier 2", label: "Community Verified",  color: "#4A90D9",     icon: "🛡️", description: "Endorsed by fellow community members and verified business owners. Trust built through collective accountability." },
+              { tier: "Tier 3", label: "Certified",           color: C.greenBright, icon: "✔️",   description: "Document-verified by our team or a partner organization. The highest standard of Black business certification." },
+            ].map((v) => (
+              <div
+                key={v.tier}
+                className="rounded-2xl p-8 text-center transition-all duration-200"
+                style={{ background: C.cardBg, border: `1px solid ${C.cardBorder}` }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = v.color)}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = C.cardBorder)}
+              >
+                <div
+                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"
+                  style={{ background: `${v.color}22`, border: `1px solid ${v.color}44` }}
+                >
+                  {v.icon}
+                </div>
+                <div className="text-xs font-bold tracking-widest uppercase mb-1" style={{ color: v.color }}>{v.tier}</div>
+                <h3 className="text-xl font-bold mb-3">{v.label}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: C.muted }}>{v.description}</p>
               </div>
             ))}
           </div>
