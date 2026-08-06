@@ -57,12 +57,15 @@ service cloud.firestore {
       // Vendors can create and read their own submissions.
       // Admins can read and update all submissions (approve/reject).
       // Cloud Functions (server-side) bypass these rules entirely.
+      //
+      // IMPORTANT: Use field-based ownership (resource.data.businessId) instead
+      // of get() lookups. get() on a parent doc fails silently in collection
+      // group queries, causing all documents to be excluded from results.
       match /verificationSubmissions/{submissionId} {
         allow read: if isAuthenticated() &&
-          (get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId == request.auth.uid
-           || isAdmin());
+          (resource.data.businessId == request.auth.uid || isAdmin());
         allow create: if isAuthenticated() &&
-          get(/databases/$(database)/documents/businesses/$(businessId)).data.ownerId == request.auth.uid;
+          request.resource.data.businessId == request.auth.uid;
         allow update: if isAdmin();
         allow delete: if isAdmin();
       }
