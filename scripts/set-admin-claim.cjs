@@ -18,7 +18,9 @@
  *   Firebase Console → Authentication → Users → find your admin email → copy the User UID column
  */
 
-const admin = require('firebase-admin');
+// firebase-admin v12+ uses modular imports — admin.auth() no longer exists
+const { initializeApp, applicationDefault } = require('firebase-admin/app');
+const { getAuth } = require('firebase-admin/auth');
 
 // ─── REPLACE THIS ─────────────────────────────────────────────────────────────
 const ADMIN_UID = 'REPLACE_WITH_YOUR_ADMIN_UID';
@@ -26,15 +28,17 @@ const ADMIN_UID = 'REPLACE_WITH_YOUR_ADMIN_UID';
 
 if (ADMIN_UID === 'REPLACE_WITH_YOUR_ADMIN_UID') {
   console.error('ERROR: Please replace ADMIN_UID in this script with your actual Firebase UID.');
+  console.error('Find it at: Firebase Console → Authentication → Users → copy the User UID column');
   process.exit(1);
 }
 
-admin.initializeApp();
+initializeApp({ credential: applicationDefault() });
 
-admin.auth().setCustomUserClaims(ADMIN_UID, { admin: true })
+getAuth()
+  .setCustomUserClaims(ADMIN_UID, { admin: true })
   .then(() => {
     console.log(`✅ Admin claim set successfully for UID: ${ADMIN_UID}`);
-    console.log('   The user must sign out and sign back in for the claim to take effect.');
+    console.log('   Sign out and sign back in for the claim to take effect.');
     process.exit(0);
   })
   .catch((err) => {
