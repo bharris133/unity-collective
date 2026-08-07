@@ -65,18 +65,24 @@ export default function VendorSettingsPage() {
         // Check for existing verification submission
         if (!USE_MOCK_DATA) {
           try {
+            // Fetch all submissions for this vendor — no status filter to avoid index requirements
             const subSnap = await getDocs(
-              query(
-                collection(db, 'businesses', currentUser.uid, 'verificationSubmissions'),
-                where('status', 'in', ['pending', 'approved', 'needs_info'])
-              )
+              collection(db, 'businesses', currentUser.uid, 'verificationSubmissions')
             );
             if (!subSnap.empty) {
-              const d = subSnap.docs[0];
-              setExistingSubmission({ submissionId: d.id, businessId: currentUser.uid, ...d.data() } as VerificationSubmission);
+              // Find the most recent active submission
+              const active = subSnap.docs
+                .map(d => ({ submissionId: d.id, businessId: currentUser.uid, ...d.data() } as VerificationSubmission))
+                .filter(s => ['pending', 'approved', 'needs_info'].includes(s.status))
+                .sort((a, b) => {
+                  const aT = (a.createdAt as any)?.toMillis?.() ?? 0;
+                  const bT = (b.createdAt as any)?.toMillis?.() ?? 0;
+                  return bT - aT;
+                });
+              if (active.length > 0) setExistingSubmission(active[0]);
             }
-          } catch {
-            // Submission check is non-critical — ignore errors
+          } catch (err) {
+            console.warn('Submission status check failed:', err);
           }
         }
         setOnboarding(ob);
