@@ -204,7 +204,8 @@ function VerificationsTab() {
             businessId: d.ref.parent.parent?.id ?? '',
             ...d.data(),
           } as VerificationSubmission));
-        } catch {
+        } catch (err) {
+          console.error('[Admin Verifications] collectionGroup query failed:', err);
           allSubs = subs;
         }
       }
@@ -222,7 +223,8 @@ function VerificationsTab() {
         }
       }));
       setBusinessNames(names);
-    } catch {
+    } catch (err) {
+      console.error('[Admin Verifications] reload failed:', err);
       setSubmissions([]);
     }
   };
