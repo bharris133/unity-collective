@@ -16,10 +16,11 @@ service cloud.firestore {
     }
 
     // Is the request from an admin user?
-    // Admins have isAdmin: true in their Firestore user document.
+    // Uses a custom claim set via scripts/set-admin-claim.cjs.
+    // Custom claims are embedded in the auth token and work correctly in
+    // collection group queries (unlike get() lookups which fail in that context).
     function isAdmin() {
-      return isAuthenticated() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      return isAuthenticated() && request.auth.token.admin == true;
     }
 
     // ─── Users ───────────────────────────────────────────────────────────────
