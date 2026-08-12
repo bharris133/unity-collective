@@ -21,6 +21,8 @@ import { getOnboardingState } from '../services/onboardingService';
 import { productService } from '../services/productService';
 import { formatPrice } from '../utils/formatPrice';
 import { VerificationBadge } from '../components/VerificationBadge';
+import { getBusinessVerification } from '../services/verificationService';
+import type { VerificationTier } from '../types/Verification';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -219,6 +221,7 @@ export default function MemberDashboard() {
   const { userProfile, currentUser, loading: authLoading } = useAuth();
 
   const [onboarding, setOnboarding] = useState<OnboardingState | null>(null);
+  const [verificationTier, setVerificationTier] = useState<VerificationTier>(1);
   const [products, setProducts] = useState<Product[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -249,6 +252,8 @@ export default function MemberDashboard() {
       }
 
       setOnboarding(state);
+      const verification = await getBusinessVerification(uid);
+      setVerificationTier(verification?.verificationTier ?? state.verificationTier ?? 1);
 
       // Load products for this vendor using their Firebase UID
       const bid = uid;
@@ -315,7 +320,7 @@ export default function MemberDashboard() {
     );
   }
 
-  const { businessProfile, verificationStatus, verificationTier, isBlackOwned } = onboarding;
+  const { businessProfile, verificationStatus, isBlackOwned } = onboarding;
 
   return (
     <div className="min-h-screen bg-[#111111] py-8">
@@ -337,7 +342,7 @@ export default function MemberDashboard() {
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <h2 className="text-xl font-bold text-white">{businessProfile.businessName}</h2>
-                  <VerificationBadge tier={verificationTier ?? 1} />
+                  <VerificationBadge tier={verificationTier} />
                   {isBlackOwned && (
                     <div
                       className="inline-flex items-center gap-1 rounded-full px-3 py-1 border"
@@ -406,7 +411,7 @@ export default function MemberDashboard() {
             </div>
           </div>
         )}
-        {(verificationTier ?? 1) === 1 && verificationStatus !== 'pending' && (
+        {verificationTier === 1 && verificationStatus !== 'pending' && (
           <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6 flex items-start gap-3">
             <AlertCircle size={18} className="text-yellow-400 flex-shrink-0 mt-0.5" />
             <div>
@@ -418,7 +423,7 @@ export default function MemberDashboard() {
             </div>
           </div>
         )}
-        {(verificationTier ?? 1) === 2 && (
+        {verificationTier === 2 && (
           <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6 flex items-start gap-3">
             <Shield size={18} className="text-blue-400 flex-shrink-0 mt-0.5" />
             <div>
@@ -430,7 +435,7 @@ export default function MemberDashboard() {
             </div>
           </div>
         )}
-        {(verificationTier ?? 1) === 3 && (
+        {verificationTier === 3 && (
           <div className="bg-[#228B22]/10 border border-[#228B22]/30 rounded-xl p-4 mb-6 flex items-start gap-3">
             <CheckCircle size={18} className="text-[#228B22] flex-shrink-0 mt-0.5" />
             <div>

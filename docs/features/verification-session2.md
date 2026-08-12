@@ -21,6 +21,8 @@ Implements the full 3-tier business verification document submission and review 
 | `src/types/Verification.ts` | TypeScript types: `VerificationSubmission`, `Endorsement`, `Report`, `BusinessVerification` |
 | `src/components/VerificationProgress.tsx` | 3-step tier checklist shown to vendors |
 | `src/components/VerificationBadge.tsx` | Tier badge shown on directory cards and storefront headers |
+| `src/components/VendorStorefront.tsx` | Public storefront header and high-contrast verification display |
+| `src/pages/MemberDashboard.tsx` | Vendor dashboard verification status and tier messaging |
 | `firestore.rules` | `verificationSubmissions` subcollection rule |
 | `storage.rules` | Admin read access to verification docs; `businesses/{id}/verification/**` path |
 | `src/__tests__/verification/VerificationSession2.test.tsx` | Session 2 component and service coverage |
@@ -53,6 +55,12 @@ Implements the full 3-tier business verification document submission and review 
    - Approve / Reject actions
 5. **Approve:** Calls `reviewSubmission` Cloud Function → sets `verificationTier=3`, `documentVerifiedAt`, clears `flaggedForReview` on the `businesses` doc.
 6. **Reject:** Calls `reviewSubmission` with `decision='rejected'` and a rejection reason.
+
+### Verification Tier Data Contract
+
+`businesses/{uid}.verificationTier` is the authoritative 3-tier verification value. Tier promotions are written there by Cloud Functions. Any display that combines onboarding profile data with store overrides must prioritize `businesses/{uid}.verificationTier` over `onboarding/{uid}.verificationTier`.
+
+This keeps the public directory, directory detail page, storefront, vendor settings, and vendor dashboard synchronized immediately after a Tier 2 or Tier 3 promotion. Do not introduce a second write to `onboarding` solely to mirror a verification tier.
 
 ### Admin Authorization
 
@@ -147,7 +155,7 @@ firebase deploy --only firestore:rules,storage --project unity-collective
 
 ```bash
 pnpm test --run
-# Expected: 179 tests pass (20 test files)
+# Expected: 181 tests pass (20 test files)
 ```
 
 The Session 2 tests are in `src/__tests__/verification/VerificationSession2.test.tsx` and cover:
@@ -157,3 +165,4 @@ The Session 2 tests are in `src/__tests__/verification/VerificationSession2.test
 - Upload widget logic (state machine, progress clamping, tier gating)
 - `AdminPanel` VerificationsTab UI rendering
 - Collection-group rule and Cloud Function admin-authorization contract
+- Authoritative business-tier mapping for directory, settings, and dashboard displays
