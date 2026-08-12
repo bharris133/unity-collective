@@ -16,11 +16,17 @@ service cloud.firestore {
     }
 
     // Is the request from an admin user?
-    // Uses a custom claim set via scripts/set-admin-claim.cjs.
-    // Custom claims are embedded in the auth token and work correctly in
-    // collection group queries (unlike get() lookups which fail in that context).
+    // Prefer the custom claim and fall back to the established Firestore profile.
+    // The fallback keeps rules consistent with the admin UI while a refreshed
+    // Firebase Auth token is propagating the claim.
     function isAdmin() {
-      return isAuthenticated() && request.auth.token.admin == true;
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+        )
+      );
     }
 
     // ─── Users ───────────────────────────────────────────────────────────────
@@ -60,15 +66,18 @@ service cloud.firestore {
       // Cloud Functions (server-side) bypass these rules entirely.
       match /verificationSubmissions/{submissionId} {
         // Use path-based ownership: businessId in the path IS the vendor's UID.
-        // resource.data cannot be used for list queries (resource is null when
-        // listing a collection), so we use isOwner(businessId) from the path.
-        // For collection group queries (admin), isAdmin() covers access.
         allow read: if isOwner(businessId) || isAdmin();
         allow create: if isOwner(businessId) &&
           request.resource.data.businessId == businessId;
         allow update: if isAdmin();
         allow delete: if isAdmin();
       }
+    }
+
+    // Collection-group queries require an explicit recursive match in rules v2.
+    // Only administrators may aggregate submission records across businesses.
+    match /{path=**}/verificationSubmissions/{submissionId} {
+      allow read: if isAdmin();
     }
 
     // ─── Products ────────────────────────────────────────────────────────────
