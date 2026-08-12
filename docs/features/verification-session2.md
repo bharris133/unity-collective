@@ -23,7 +23,8 @@ Implements the full 3-tier business verification document submission and review 
 | `src/components/VerificationBadge.tsx` | Tier badge shown on directory cards and storefront headers |
 | `firestore.rules` | `verificationSubmissions` subcollection rule |
 | `storage.rules` | Admin read access to verification docs; `businesses/{id}/verification/**` path |
-| `src/__tests__/verification/VerificationSession2.test.tsx` | 28 tests covering all new functionality |
+| `src/__tests__/verification/VerificationSession2.test.tsx` | Session 2 component and service coverage |
+| `src/__tests__/verification/VerificationAdminAuthorization.test.ts` | Regression contract for collection-group access and aligned admin authorization |
 
 ---
 
@@ -52,6 +53,17 @@ Implements the full 3-tier business verification document submission and review 
    - Approve / Reject actions
 5. **Approve:** Calls `reviewSubmission` Cloud Function → sets `verificationTier=3`, `documentVerifiedAt`, clears `flaggedForReview` on the `businesses` doc.
 6. **Reject:** Calls `reviewSubmission` with `decision='rejected'` and a rejection reason.
+
+### Admin Authorization
+
+The Admin Panel gates access with `users/{uid}.isAdmin`. Verification review uses the same field, with support for the legacy `role: 'admin'` value and the Firebase Auth `admin` custom claim. The Firestore rules mirror this contract.
+
+The Admin Verifications list is a Firestore **collection-group query** across every `verificationSubmissions` subcollection. It requires both:
+
+- The `COLLECTION_GROUP` index in `firestore.indexes.json` for `status` and `createdAt`.
+- The explicit recursive rule `match /{path=**}/verificationSubmissions/{submissionId}` in `firestore.rules`, which permits admins to read the aggregate queue.
+
+Do not remove the recursive rule when editing nested `businesses/{businessId}/verificationSubmissions` access. The nested rule serves vendor-scoped access; the recursive rule serves the admin-wide queue.
 
 ### Trust Score / Tier 2 Auto-Promotion
 
@@ -135,7 +147,7 @@ firebase deploy --only firestore:rules,storage --project unity-collective
 
 ```bash
 pnpm test --run
-# Expected: 175 tests pass (19 test files)
+# Expected: 179 tests pass (20 test files)
 ```
 
 The Session 2 tests are in `src/__tests__/verification/VerificationSession2.test.tsx` and cover:
@@ -144,3 +156,4 @@ The Session 2 tests are in `src/__tests__/verification/VerificationSession2.test
 - `VerificationBadge` tier badges
 - Upload widget logic (state machine, progress clamping, tier gating)
 - `AdminPanel` VerificationsTab UI rendering
+- Collection-group rule and Cloud Function admin-authorization contract

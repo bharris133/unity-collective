@@ -682,9 +682,13 @@ export const reviewSubmission = onCall(
       throw new HttpsError('unauthenticated', 'Must be authenticated.');
     }
 
-    // Verify caller is an admin
+    // Verify caller is an admin. The application stores this on isAdmin;
+    // support the legacy role value during the transition.
     const callerDoc = await db.collection('users').doc(request.auth.uid).get();
-    if (!callerDoc.exists || callerDoc.data()?.role !== 'admin') {
+    const callerData = callerDoc.data();
+    const isAdmin = request.auth.token.admin === true ||
+      callerData?.isAdmin === true || callerData?.role === 'admin';
+    if (!isAdmin) {
       throw new HttpsError('permission-denied', 'Only admins can review submissions.');
     }
 
