@@ -11,7 +11,7 @@ import { getOnboardingState } from '../services/onboardingService';
 import { uploadBusinessLogo } from '../services/storageService';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import type { OnboardingState } from '../data/mockOnboarding';
-import type { VerificationSubmission } from '../types/Verification';
+import type { VerificationSubmission, VerificationTier } from '../types/Verification';
 
 const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
@@ -51,6 +51,7 @@ export default function VendorSettingsPage() {
   const [docUploadProgress, setDocUploadProgress] = useState(0);
   const [docUploadError, setDocUploadError] = useState('');
   const [existingSubmission, setExistingSubmission] = useState<VerificationSubmission | null>(null);
+  const [verificationTier, setVerificationTier] = useState<VerificationTier>(1);
   const docFileInputRef = useRef<HTMLInputElement>(null);
 
   // Load onboarding data + any existing override + existing submission
@@ -89,6 +90,7 @@ export default function VendorSettingsPage() {
 
         // Start form from onboarding data
         const bp = ob?.businessProfile;
+        let currentTier = (ob?.verificationTier as VerificationTier) ?? 1;
         let merged: StoreForm = {
           businessName: bp?.businessName ?? '',
           category: bp?.category ?? '',
@@ -110,9 +112,11 @@ export default function VendorSettingsPage() {
               website: ov.website ?? merged.website,
             };
             if (ov.logoUrl) setLogoPreview(ov.logoUrl);
+            currentTier = (ov.verificationTier as VerificationTier) ?? currentTier;
           }
         }
 
+        setVerificationTier(currentTier);
         setForm(merged);
       } catch (err) {
         console.error('Error loading vendor settings:', err);
@@ -432,12 +436,12 @@ export default function VendorSettingsPage() {
 
           {/* Verification Progress */}
           <VerificationProgress
-            tier={onboarding?.verificationTier ?? 1}
+            tier={verificationTier}
             endorsementCount={0}
           />
 
           {/* Tier 3 Document Upload — only show when Tier 1 or 2 and not already certified */}
-          {(onboarding?.verificationTier ?? 1) < 3 && (
+          {verificationTier < 3 && (
             <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6">
               <h3 className="text-base font-bold text-white mb-1">Apply for Tier 3 Certification</h3>
               <p className="text-xs text-gray-400 mb-4">

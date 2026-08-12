@@ -40,9 +40,9 @@ const TIER_CONFIG: Record<
   3: {
     label: 'Certified',
     icon: CheckCircle,
-    bg: 'bg-[#228B22]/20',
-    border: 'border-[#228B22]/40',
-    text: 'text-[#228B22]',
+    bg: 'bg-emerald-400/20',
+    border: 'border-emerald-300/70',
+    text: 'text-emerald-200',
   },
 };
 

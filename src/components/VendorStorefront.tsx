@@ -176,7 +176,8 @@ export const VendorStorefront: React.FC = () => {
               </div>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-sm px-4 py-3 rounded-lg border border-white/20 shrink-0">
+            <div className="bg-[#111111]/90 backdrop-blur-sm px-4 py-3 rounded-lg border border-[#D4AF37]/50 shadow-lg shadow-black/30 shrink-0">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">Verification</p>
               <VerificationBadge tier={verificationTier as 1 | 2 | 3} size="md" />
             </div>
           </div>

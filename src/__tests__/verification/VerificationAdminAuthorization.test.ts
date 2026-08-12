@@ -5,6 +5,9 @@ import { describe, expect, it } from 'vitest';
 const projectRoot = process.cwd();
 const rules = readFileSync(resolve(projectRoot, 'firestore.rules'), 'utf8');
 const functionsSource = readFileSync(resolve(projectRoot, 'functions/src/index.ts'), 'utf8');
+const businessServiceSource = readFileSync(resolve(projectRoot, 'src/services/businessService.ts'), 'utf8');
+const vendorSettingsSource = readFileSync(resolve(projectRoot, 'src/pages/VendorSettingsPage.tsx'), 'utf8');
+const memberDashboardSource = readFileSync(resolve(projectRoot, 'src/pages/MemberDashboard.tsx'), 'utf8');
 const firestoreIndexes = JSON.parse(
   readFileSync(resolve(projectRoot, 'firestore.indexes.json'), 'utf8')
 ) as {
@@ -38,6 +41,18 @@ describe('Verification administration authorization contract', () => {
       fieldPath: 'status',
       indexes: [{ queryScope: 'COLLECTION_GROUP', order: 'ASCENDING' }],
     });
+  });
+
+  it('uses the business verification record for directory, settings, and dashboard tier displays', () => {
+    expect(businessServiceSource).toContain(
+      'verificationTier: (ov.verificationTier as 1 | 2 | 3) ?? base.verificationTier'
+    );
+    expect(vendorSettingsSource).toContain(
+      'currentTier = (ov.verificationTier as VerificationTier) ?? currentTier'
+    );
+    expect(vendorSettingsSource).toContain('tier={verificationTier}');
+    expect(memberDashboardSource).toContain('getBusinessVerification(uid)');
+    expect(memberDashboardSource).toContain('tier={verificationTier}');
   });
 
   it('uses the same admin contract when the reviewSubmission Cloud Function authorizes a review', () => {

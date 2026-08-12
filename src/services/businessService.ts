@@ -84,6 +84,7 @@ export const businessService = {
           location: (ov.location as string) || base.location,
           image: (ov.logoUrl as string) || base.image,
           website: (ov.website as string) || base.website,
+          verificationTier: (ov.verificationTier as 1 | 2 | 3) ?? base.verificationTier,
         };
       });
     } catch (error) {
@@ -128,6 +129,7 @@ export const businessService = {
             location: (ov.location as string) || base.location,
             image: (ov.logoUrl as string) || base.image,
             website: (ov.website as string) || base.website,
+            verificationTier: (ov.verificationTier as 1 | 2 | 3) ?? base.verificationTier,
           };
         }
         return base;
