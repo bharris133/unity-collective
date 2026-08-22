@@ -2,7 +2,17 @@
 
 Welcome to the Unity Collective documentation! This directory contains comprehensive guides for setting up, developing, testing, and deploying the platform.
 
+> **New agents and technical collaborators:** Start with the current [`handoff/README.md`](handoff/README.md) and read [`Guidelines.md`](Guidelines.md) before changing code. The handoff package is the current operational source for setup, Firebase operations, testing, deployment, and backlog. Several older documents below are preserved for historical context and may describe earlier mock-data or pre-Firebase workflows.
+
 ## 📚 Documentation Structure
+
+### **Current Cross-Agent Handoff**
+
+| Document | Description |
+|----------|-------------|
+| [Handoff Package](handoff/README.md) | Current reading order, project state, architecture, setup, Firebase operations, testing, deployment, agent instructions, and backlog |
+| [Guidelines.md](Guidelines.md) | **Mandatory** coding and decision-making standard before any change |
+| [Handoff Acceptance Checklist](handoff/HANDOFF_ACCEPTANCE_CHECKLIST.md) | Objective validation that a collaborator or coding agent can take over safely |
 
 ### **Setup & Installation**
 
@@ -127,11 +137,11 @@ Version history and future plans.
 
 ## 🚀 Quick Start
 
-1.  **New to the project?** Start with [SETUP.md](setup/SETUP.md)
+1.  **New to the project or joining as an agent?** Start with [Handoff Package](handoff/README.md), then read [Guidelines.md](Guidelines.md).
 2.  **Ready to develop?** Read [DEVELOPER_GUIDE.md](development/DEVELOPER_GUIDE.md)
 3.  **Want to contribute?** Check [CONTRIBUTING.md](development/CONTRIBUTING.md)
-4.  **Need to test?** See [TESTING_GUIDE.md](testing/TESTING_GUIDE.md) and [AUTOMATED_TESTING_GUIDE.md](testing/AUTOMATED_TESTING_GUIDE.md)
-5.  **Deploying to production?** Follow [DEPLOYMENT_GUIDE.md](deployment/DEPLOYMENT_GUIDE.md)
+4.  **Need to test?** See [Testing and Quality](handoff/TESTING_AND_QUALITY.md) first, then historical testing guides as needed.
+5.  **Deploying to production?** Follow [Deployment and Rollback](handoff/DEPLOYMENT_AND_ROLLBACK.md).
 6.  **Understanding refactoring?** Check [Refactoring Index](refactoring/README.md)
 
 ---
@@ -140,14 +150,14 @@ Version history and future plans.
 
 ### **I want to...**
 
--   **Set up my local environment** → [SETUP.md](setup/SETUP.md)
+-   **Set up my local environment** → [Local Setup](handoff/LOCAL_SETUP.md)
 -   **Understand the code structure** → [DEVELOPER_GUIDE.md](development/DEVELOPER_GUIDE.md)
 -   **Add a new feature** → [DEVELOPER_GUIDE.md](development/DEVELOPER_GUIDE.md)
 -   **Use mock data for development** → [MOCK_DATA_GUIDE.md](development/MOCK_DATA_GUIDE.md)
 -   **Switch between mock and Firebase** → [DATA_SOURCE_SWITCHING_GUIDE.md](development/DATA_SOURCE_SWITCHING_GUIDE.md)
 -   **Run tests** → [TESTING_GUIDE.md](testing/TESTING_GUIDE.md) or [AUTOMATED_TESTING_GUIDE.md](testing/AUTOMATED_TESTING_GUIDE.md)
 -   **Verify UI components** → [VISUAL_REVIEW_CHECKLIST.md](testing/VISUAL_REVIEW_CHECKLIST.md)
--   **Deploy to production** → [DEPLOYMENT_GUIDE.md](deployment/DEPLOYMENT_GUIDE.md)
+-   **Deploy to production** → [Deployment and Rollback](handoff/DEPLOYMENT_AND_ROLLBACK.md)
 -   **Understand the architecture** → [ARCHITECTURE.md](architecture/ARCHITECTURE.md)
 -   **Learn about the API** → [API_DOCUMENTATION.md](architecture/API_DOCUMENTATION.md)
 -   **See what's changed** → [CHANGELOG.md](CHANGELOG.md)
