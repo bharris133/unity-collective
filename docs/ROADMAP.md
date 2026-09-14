@@ -1,5 +1,7 @@
 # [Unity Collective] Development Roadmap
 
+> **Historical planning record:** This roadmap preserves earlier phase goals and implementation context, including mock-data and pre-Firebase assumptions. Do **not** use it as the current product, deployment, or operational source of truth. For current status and priorities, read [`handoff/CURRENT_STATE.md`](handoff/CURRENT_STATE.md), [`handoff/BACKLOG_AND_KNOWN_ISSUES.md`](handoff/BACKLOG_AND_KNOWN_ISSUES.md), and [`HISTORICAL_DOCUMENTATION.md`](HISTORICAL_DOCUMENTATION.md).
+
 ## Phase 1: Foundation & Visual Identity (Completed)
 - ✅ Core platform architecture (React, TypeScript, Vite)
 - ✅ Mock authentication system
