@@ -2,7 +2,7 @@
 
 Welcome to the Unity Collective documentation! This directory contains comprehensive guides for setting up, developing, testing, and deploying the platform.
 
-> **New agents and technical collaborators:** Start with the current [`handoff/README.md`](handoff/README.md) and read [`Guidelines.md`](Guidelines.md) before changing code. The handoff package is the current operational source for setup, Firebase operations, testing, deployment, and backlog. Several older documents below are preserved for historical context and may describe earlier mock-data or pre-Firebase workflows.
+> **New agents and technical collaborators:** Start with the current [`handoff/README.md`](handoff/README.md) and read [`Guidelines.md`](Guidelines.md) before changing code. The handoff package is the current operational source for setup, Firebase operations, testing, deployment, and backlog. See [`HISTORICAL_DOCUMENTATION.md`](HISTORICAL_DOCUMENTATION.md) before relying on older mock-data, phase, testing, deployment, or planning material.
 
 ## 📚 Documentation Structure
 
@@ -13,6 +13,7 @@ Welcome to the Unity Collective documentation! This directory contains comprehen
 | [Handoff Package](handoff/README.md) | Current reading order, project state, architecture, setup, Firebase operations, testing, deployment, agent instructions, and backlog |
 | [Guidelines.md](Guidelines.md) | **Mandatory** coding and decision-making standard before any change |
 | [Handoff Acceptance Checklist](handoff/HANDOFF_ACCEPTANCE_CHECKLIST.md) | Objective validation that a collaborator or coding agent can take over safely |
+| [Historical Documentation Guide](HISTORICAL_DOCUMENTATION.md) | Explains which older documents are context only and points to their current operational replacements |
 
 ### **Setup & Installation**
 
@@ -138,8 +139,8 @@ Version history and future plans.
 ## 🚀 Quick Start
 
 1.  **New to the project or joining as an agent?** Start with [Handoff Package](handoff/README.md), then read [Guidelines.md](Guidelines.md).
-2.  **Ready to develop?** Read [DEVELOPER_GUIDE.md](development/DEVELOPER_GUIDE.md)
-3.  **Want to contribute?** Check [CONTRIBUTING.md](development/CONTRIBUTING.md)
+2.  **Ready to develop?** Read the [Agent Operating Guide](handoff/AGENT_OPERATING_GUIDE.md), then consult historical development references only as needed.
+3.  **Want to contribute?** Check [CONTRIBUTING.md](development/CONTRIBUTING.md) together with the current handoff package.
 4.  **Need to test?** See [Testing and Quality](handoff/TESTING_AND_QUALITY.md) first, then historical testing guides as needed.
 5.  **Deploying to production?** Follow [Deployment and Rollback](handoff/DEPLOYMENT_AND_ROLLBACK.md).
 6.  **Understanding refactoring?** Check [Refactoring Index](refactoring/README.md)
@@ -153,15 +154,15 @@ Version history and future plans.
 -   **Set up my local environment** → [Local Setup](handoff/LOCAL_SETUP.md)
 -   **Understand the code structure** → [DEVELOPER_GUIDE.md](development/DEVELOPER_GUIDE.md)
 -   **Add a new feature** → [DEVELOPER_GUIDE.md](development/DEVELOPER_GUIDE.md)
--   **Use mock data for development** → [MOCK_DATA_GUIDE.md](development/MOCK_DATA_GUIDE.md)
+-   **Use mock data for development** → [Local Setup](handoff/LOCAL_SETUP.md), then [DATA_SOURCE_SWITCHING_GUIDE.md](development/DATA_SOURCE_SWITCHING_GUIDE.md) for historical implementation context
 -   **Switch between mock and Firebase** → [DATA_SOURCE_SWITCHING_GUIDE.md](development/DATA_SOURCE_SWITCHING_GUIDE.md)
--   **Run tests** → [TESTING_GUIDE.md](testing/TESTING_GUIDE.md) or [AUTOMATED_TESTING_GUIDE.md](testing/AUTOMATED_TESTING_GUIDE.md)
+-   **Run tests** → [Testing and Quality](handoff/TESTING_AND_QUALITY.md); consult historical testing guides only for background
 -   **Verify UI components** → [VISUAL_REVIEW_CHECKLIST.md](testing/VISUAL_REVIEW_CHECKLIST.md)
 -   **Deploy to production** → [Deployment and Rollback](handoff/DEPLOYMENT_AND_ROLLBACK.md)
 -   **Understand the architecture** → [ARCHITECTURE.md](architecture/ARCHITECTURE.md)
 -   **Learn about the API** → [API_DOCUMENTATION.md](architecture/API_DOCUMENTATION.md)
 -   **See what's changed** → [CHANGELOG.md](CHANGELOG.md)
--   **See what's coming** → [ROADMAP.md](ROADMAP.md)
+-   **See what's coming** → [Current State](handoff/CURRENT_STATE.md) and [Backlog](handoff/BACKLOG_AND_KNOWN_ISSUES.md); [ROADMAP.md](ROADMAP.md) is historical planning context
 -   **Fix a problem** → [TROUBLESHOOTING.md](setup/TROUBLESHOOTING.md)
 -   **Review refactoring work** → [Refactoring Index](refactoring/README.md)
 -   **Check project status** → [Project Management Index](project-management/README.md)
