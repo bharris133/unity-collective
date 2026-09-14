@@ -69,11 +69,10 @@ The Firebase Web SDK was upgraded to `12.17.1` after a non-blocking Firestore `B
 | 1 | Email notifications | Hold a design discussion first; simplify the buyer/vendor notification architecture before implementation |
 | 2 | Final product name and rebrand | Await owner decision; plan a single coordinated rebrand rather than piecemeal copy changes |
 | 3 | Community launch content | Refine recruitment and partnership content around the identified Black-owned business communities |
-| 4 | Moderation refinement | Improve readable reporter/endorser identity, business context, and audit history |
-| 5 | Community collaboration / offers | Evaluate and refine as a distinct engagement workflow |
-| 6 | Partner organization onboarding | Future work for certifiers, chambers, and trusted organizations |
-| 7 | Stripe Connect / tier-gated commercial features | Future expansion after core marketplace validation |
-| 8 | Performance hardening | Conduct load tests and add pagination, aggregation, alerting, or caching based on measurements |
+| 4 | Community collaboration / offers | Evaluate and refine as a distinct engagement workflow |
+| 5 | Partner organization onboarding | Future work for certifiers, chambers, and trusted organizations |
+| 6 | Stripe Connect / tier-gated commercial features | Future expansion after core marketplace validation |
+| 7 | Performance hardening | Conduct load tests and add pagination, aggregation, alerting, or caching based on measurements |
 
 ## Non-Blocking Known Follow-Ups
 
