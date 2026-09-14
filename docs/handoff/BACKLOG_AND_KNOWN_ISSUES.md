@@ -63,19 +63,13 @@ The source and production identity are **Unity Collective**. **Black Jubilee** a
 
 Do this as one deliberate project, with redirect and rollback planning—not a piecemeal find-and-replace.
 
-## 3. Moderation Display Refinement
+## 3. Moderation Display Refinement — Completed
 
-### Current State
+The Admin Moderation tab now presents business name, category, report reason, details, submission date, and privacy-safe member references. Endorsements include the available relationship and comment context. Dismiss and resolve actions record the acting administrator and decision timestamp, then appear in a visible Decision History view.
 
-Reports and endorsements load in the Admin Moderation tab. Business names are resolved where possible. Reporter/endorser identities currently use truncated identifiers rather than human-readable profile names because unrestricted client-side Auth lookup is unavailable and privacy must be preserved.
+The implementation uses status-only Firestore filters and client-side sorting, avoiding untracked composite-index requirements. It does not perform broad client-side reads of private user profiles or expose personal profile data in the queue.
 
-### Desired Outcomes
-
-- Clear business name, category, report reason, details, and date.
-- Admin-safe identity presentation with minimum necessary personal information.
-- Explicit status history for dismiss/resolve actions.
-- Consistent list counts and filters.
-- No Firestore query pattern that requires untracked indexes or causes a broad private-data read.
+Future moderation changes should preserve this minimum-necessary identity model and extend the existing decision record rather than create a separate audit path without an approved data-contract change.
 
 ## 4. Community Offers / Collaboration
 

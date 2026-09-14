@@ -384,3 +384,66 @@ describe('AdminPanel — VerificationsTab (Session 2)', () => {
     });
   });
 });
+
+// ─── AdminPanel Moderation refinement ─────────────────────────────────────────
+
+describe('AdminPanel — Moderation refinement', () => {
+  const renderPanel = () =>
+    render(
+      <BrowserRouter>
+        <AdminPanel />
+      </BrowserRouter>
+    );
+
+  async function openModeration() {
+    fireEvent.click(screen.getByRole('button', { name: /^Moderation/ }));
+    await waitFor(() => {
+      expect(screen.getByText('Open Reports (2)')).toBeInTheDocument();
+    });
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('shows business category and a privacy-safe reporter reference without exposing the full UID', async () => {
+    renderPanel();
+    await openModeration();
+
+    expect(screen.getByText('Sample Business A')).toBeInTheDocument();
+    expect(screen.getByText('Retail')).toBeInTheDocument();
+    expect(screen.getByText('Reporter: Member • er-xyz')).toBeInTheDocument();
+    expect(screen.queryByText('user-xyz')).not.toBeInTheDocument();
+    expect(screen.getAllByText(/Submitted: Date unavailable/i)).toHaveLength(2);
+  });
+
+  it('moves a resolved report into visible decision history with the moderator reference', async () => {
+    renderPanel();
+    await openModeration();
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Resolve' })[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText('Open Reports (1)')).toBeInTheDocument();
+      expect(screen.getByText('Decision History (1)')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Decision History (1)' }));
+
+    expect(screen.getByText('Resolved')).toBeInTheDocument();
+    expect(screen.getByText('Moderator: Member • in-uid')).toBeInTheDocument();
+    expect(screen.getByText(/Decision recorded: /i)).toBeInTheDocument();
+  });
+
+  it('shows endorsement category, relationship, comment, and a privacy-safe member reference', async () => {
+    renderPanel();
+    await openModeration();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Endorsements (1)' }));
+
+    expect(screen.getByText('Sample Business A')).toBeInTheDocument();
+    expect(screen.getByText('Relationship: customer')).toBeInTheDocument();
+    expect(screen.getByText('Consistently excellent service.')).toBeInTheDocument();
+    expect(screen.getByText('Endorsed by: Verified Member 1')).toBeInTheDocument();
+  });
+});

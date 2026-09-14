@@ -916,24 +916,35 @@ function ModerationBadge() {
 }
 
 // ─── Moderation Tab ───────────────────────────────────────────────────────────
+interface ModerationTimestamp {
+  toDate: () => Date;
+}
+
 interface Report {
   id: string;
   vendorId: string;
   vendorName?: string;
+  vendorCategory?: string;
   reporterId: string;
   reason: string;
   details?: string;
-  status: 'open' | 'resolved' | 'dismissed';
-  createdAt: { toDate: () => Date } | null;
+  status: 'open' | 'investigating' | 'resolved' | 'dismissed';
+  moderatorNotes?: string | null;
+  resolvedBy?: string | null;
+  createdAt: ModerationTimestamp | null;
+  resolvedAt?: ModerationTimestamp | null;
 }
 
 interface Endorsement {
   id: string;
   vendorId: string;
   vendorName?: string;
+  vendorCategory?: string;
   endorserId: string;
   endorserName?: string;
-  createdAt: { toDate: () => Date } | null;
+  relationship?: string;
+  comment?: string;
+  createdAt: ModerationTimestamp | null;
 }
 
 const MOCK_REPORTS: Report[] = [
@@ -941,6 +952,7 @@ const MOCK_REPORTS: Report[] = [
     id: 'rpt-001',
     vendorId: 'vendor-abc',
     vendorName: 'Sample Business A',
+    vendorCategory: 'Retail',
     reporterId: 'user-xyz',
     reason: 'Not Black-owned',
     details: 'Ownership changed recently.',
@@ -951,6 +963,7 @@ const MOCK_REPORTS: Report[] = [
     id: 'rpt-002',
     vendorId: 'vendor-def',
     vendorName: 'Sample Business B',
+    vendorCategory: 'Food & Beverage',
     reporterId: 'user-uvw',
     reason: 'Misrepresentation',
     details: '',
@@ -964,77 +977,116 @@ const MOCK_ENDORSEMENTS: Endorsement[] = [
     id: 'end-001',
     vendorId: 'vendor-abc',
     vendorName: 'Sample Business A',
+    vendorCategory: 'Retail',
     endorserId: 'user-111',
     endorserName: 'Verified Member 1',
+    relationship: 'customer',
+    comment: 'Consistently excellent service.',
     createdAt: null,
   },
 ];
 
+function formatModerationDate(timestamp: ModerationTimestamp | null | undefined): string {
+  if (!timestamp) return 'Date unavailable';
+  return timestamp.toDate().toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+  });
+}
+
+function memberReference(uid: string): string {
+  return uid ? `Member • ${uid.slice(-6)}` : 'Member reference unavailable';
+}
+
+function decisionLabel(status: Report['status']): string {
+  return status === 'resolved' ? 'Resolved' : 'Dismissed';
+}
+
 function ModerationTab() {
+  const { currentUser } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
+  const [decisionHistory, setDecisionHistory] = useState<Report[]>([]);
   const [endorsements, setEndorsements] = useState<Endorsement[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState<'reports' | 'endorsements'>('reports');
+  const [actionError, setActionError] = useState('');
+  const [activeSection, setActiveSection] = useState<'reports' | 'endorsements' | 'history'>('reports');
 
   useEffect(() => {
     if (USE_MOCK_DATA) {
       setReports(MOCK_REPORTS);
+      setDecisionHistory([]);
       setEndorsements(MOCK_ENDORSEMENTS);
       setLoading(false);
       return;
     }
     const loadData = async () => {
       try {
-        // Use single-field filters only to avoid composite index requirements.
-        // Sort client-side after fetching.
+        // Use single-field filters only and sort client-side to avoid untracked
+        // composite-index requirements in the moderation workflow.
         const { collection: col, getDocs, getDoc, doc: docRef, query, where } = await import('firebase/firestore');
-        const [rSnap, eSnap] = await Promise.all([
-          getDocs(query(col(db, 'reports'), where('status', '==', 'open'))),
+        const [openSnap, historySnap, eSnap] = await Promise.all([
+          getDocs(query(col(db, 'reports'), where('status', 'in', ['open', 'investigating']))),
+          getDocs(query(col(db, 'reports'), where('status', 'in', ['resolved', 'dismissed']))),
           getDocs(col(db, 'endorsements')),
         ]);
 
-        // Helper: resolve business name from onboarding collection
-        const bizNameCache: Record<string, string> = {};
-        const resolveBizName = async (bizId: string): Promise<string> => {
-          if (bizNameCache[bizId]) return bizNameCache[bizId];
+        // Resolve only public business profile context. Reporter and endorser
+        // identities remain privacy-safe references unless a stored display name exists.
+        const bizInfoCache: Record<string, { name: string; category: string }> = {};
+        const resolveBizInfo = async (bizId: string): Promise<{ name: string; category: string }> => {
+          if (bizInfoCache[bizId]) return bizInfoCache[bizId];
           try {
             const snap = await getDoc(docRef(db, 'onboarding', bizId));
-            const name = snap.exists() ? (snap.data()?.businessProfile?.businessName ?? bizId) : bizId;
-            bizNameCache[bizId] = name;
-            return name;
-          } catch { return bizId; }
+            const profile = snap.exists() ? snap.data()?.businessProfile : null;
+            const info = {
+              name: profile?.businessName ?? bizId,
+              category: profile?.category ?? 'Uncategorized',
+            };
+            bizInfoCache[bizId] = info;
+            return info;
+          } catch {
+            return { name: bizId, category: 'Uncategorized' };
+          }
         };
 
-        // Map Firestore field names to interface field names
-        const rawReports: Report[] = await Promise.all(
-          rSnap.docs.map(async d => {
-            const data = d.data();
-            const bizId = data.businessId ?? data.vendorId ?? '';
-            return {
-              id: d.id,
-              vendorId: bizId,
-              vendorName: await resolveBizName(bizId),
-              reporterId: data.reportedBy ?? data.reporterId ?? '',
-              reason: data.reason ?? '',
-              details: data.detail ?? data.details ?? '',
-              status: data.status ?? 'open',
-              createdAt: data.createdAt ?? null,
-            } as Report;
-          })
-        );
+        const mapReport = async (d: { id: string; data: () => Record<string, unknown> }): Promise<Report> => {
+          const data = d.data();
+          const bizId = (data.businessId ?? data.vendorId ?? '') as string;
+          const business = await resolveBizInfo(bizId);
+          return {
+            id: d.id,
+            vendorId: bizId,
+            vendorName: business.name,
+            vendorCategory: business.category,
+            reporterId: (data.reportedBy ?? data.reporterId ?? '') as string,
+            reason: (data.reason ?? '') as string,
+            details: (data.detail ?? data.details ?? '') as string,
+            status: (data.status ?? 'open') as Report['status'],
+            moderatorNotes: (data.moderatorNotes ?? null) as string | null,
+            resolvedBy: (data.resolvedBy ?? null) as string | null,
+            createdAt: (data.createdAt ?? null) as ModerationTimestamp | null,
+            resolvedAt: (data.resolvedAt ?? null) as ModerationTimestamp | null,
+          };
+        };
+
+        const rawReports = await Promise.all(openSnap.docs.map(mapReport));
+        const rawHistory = await Promise.all(historySnap.docs.map(mapReport));
 
         const rawEndorsements: Endorsement[] = await Promise.all(
           eSnap.docs.map(async d => {
             const data = d.data();
-            const bizId = data.businessId ?? data.vendorId ?? '';
+            const bizId = (data.businessId ?? data.vendorId ?? '') as string;
+            const business = await resolveBizInfo(bizId);
             return {
               id: d.id,
               vendorId: bizId,
-              vendorName: await resolveBizName(bizId),
-              endorserId: data.fromUserId ?? data.endorserId ?? '',
-              endorserName: data.endorserName ?? undefined,
-              createdAt: data.createdAt ?? null,
-            } as Endorsement;
+              vendorName: business.name,
+              vendorCategory: business.category,
+              endorserId: (data.fromUserId ?? data.endorserId ?? '') as string,
+              endorserName: data.endorserName as string | undefined,
+              relationship: data.relationship as string | undefined,
+              comment: data.comment as string | undefined,
+              createdAt: (data.createdAt ?? null) as ModerationTimestamp | null,
+            };
           })
         );
 
@@ -1044,6 +1096,11 @@ function ModerationTab() {
           return bTime - aTime;
         };
         setReports(rawReports.sort(sortByCreatedAt));
+        setDecisionHistory(rawHistory.sort((a, b) => {
+          const aTime = a.resolvedAt?.toDate().getTime() ?? a.createdAt?.toDate().getTime() ?? 0;
+          const bTime = b.resolvedAt?.toDate().getTime() ?? b.createdAt?.toDate().getTime() ?? 0;
+          return bTime - aTime;
+        }));
         setEndorsements(rawEndorsements.sort(sortByCreatedAt));
       } catch (err) {
         console.error('Moderation load error:', err);
@@ -1055,16 +1112,36 @@ function ModerationTab() {
   }, []);
 
   const resolveReport = async (reportId: string, action: 'resolved' | 'dismissed') => {
+    setActionError('');
+    const report = reports.find(item => item.id === reportId);
+    if (!report) return;
+
+    const decidedAt: ModerationTimestamp = { toDate: () => new Date() };
+    const decidedReport: Report = {
+      ...report,
+      status: action,
+      resolvedBy: currentUser?.uid ?? null,
+      resolvedAt: decidedAt,
+    };
+
     if (USE_MOCK_DATA) {
-      setReports(prev => prev.filter(r => r.id !== reportId));
+      setReports(prev => prev.filter(item => item.id !== reportId));
+      setDecisionHistory(prev => [decidedReport, ...prev]);
       return;
     }
+
     try {
-      const { doc: docRef, updateDoc } = await import('firebase/firestore');
-      await updateDoc(docRef(db, 'reports', reportId), { status: action });
-      setReports(prev => prev.filter(r => r.id !== reportId));
+      const { doc: docRef, updateDoc, serverTimestamp } = await import('firebase/firestore');
+      await updateDoc(docRef(db, 'reports', reportId), {
+        status: action,
+        resolvedBy: currentUser?.uid ?? null,
+        resolvedAt: serverTimestamp(),
+      });
+      setReports(prev => prev.filter(item => item.id !== reportId));
+      setDecisionHistory(prev => [decidedReport, ...prev]);
     } catch (err) {
       console.error('Resolve report error:', err);
+      setActionError('The decision could not be saved. Please try again.');
     }
   };
 
@@ -1075,22 +1152,35 @@ function ModerationTab() {
         <p className={TEXT_MUTED}>Review open reports and community endorsements</p>
       </div>
 
-      {/* Section toggle */}
-      <div className="flex gap-2 mb-6">
-        {(['reports', 'endorsements'] as const).map(s => (
+      <div className="flex flex-wrap gap-2 mb-4">
+        {[
+          { id: 'reports', label: `Open Reports (${reports.length})` },
+          { id: 'history', label: `Decision History (${decisionHistory.length})` },
+          { id: 'endorsements', label: `Endorsements (${endorsements.length})` },
+        ].map(section => (
           <button
-            key={s}
-            onClick={() => setActiveSection(s)}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold capitalize transition-colors
-              ${activeSection === s
+            key={section.id}
+            onClick={() => setActiveSection(section.id as typeof activeSection)}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors
+              ${activeSection === section.id
                 ? 'bg-[#D4AF37] text-black'
                 : `${CARD_BG} border ${BORDER} text-gray-300 hover:text-white`
               }`}
           >
-            {s === 'reports' ? `Open Reports (${reports.length})` : `Endorsements (${endorsements.length})`}
+            {section.label}
           </button>
         ))}
       </div>
+
+      <p className={`text-xs ${TEXT_MUTED} mb-6`}>
+        Member identities are shown only as minimum-necessary internal references. Public profiles are never loaded into this queue.
+      </p>
+
+      {actionError && (
+        <div role="alert" className="mb-4 rounded-lg border border-red-700/50 bg-red-900/20 px-4 py-3 text-sm text-red-300">
+          {actionError}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
@@ -1108,26 +1198,19 @@ function ModerationTab() {
               <div key={report.id} className={`${CARD_BG} border ${BORDER} rounded-lg p-5`}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-2">
                       <AlertTriangle size={15} className="text-red-400 flex-shrink-0" />
-                      <span className="text-white font-semibold text-sm truncate">
-                        {report.vendorName ?? report.vendorId}
-                      </span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-red-900/40 text-red-400 border border-red-700/50">
+                      <span className="text-white font-semibold text-sm">{report.vendorName ?? report.vendorId}</span>
+                      <span className="text-xs text-gray-500">{report.vendorCategory ?? 'Uncategorized'}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-red-900/40 text-red-300 border border-red-700/50">
                         {report.reason}
                       </span>
                     </div>
-                    {report.details && (
-                      <p className="text-xs text-gray-400 mt-1 ml-5 italic">"{report.details}"</p>
-                    )}
-                    <p className="text-xs text-gray-600 mt-1 ml-5">
-                      Reporter: <span className="font-mono">{report.reporterId.slice(0, 12)}…</span>
-                    </p>
-                    {report.createdAt && (
-                      <p className="text-xs text-gray-600 mt-0.5 ml-5">
-                        {report.createdAt.toDate().toLocaleDateString()}
-                      </p>
-                    )}
+                    {report.details && <p className="text-sm text-gray-300 mt-3">{report.details}</p>}
+                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                      <span>Reporter: {memberReference(report.reporterId)}</span>
+                      <span>Submitted: {formatModerationDate(report.createdAt)}</span>
+                    </div>
                   </div>
                   <div className="flex gap-2 flex-shrink-0">
                     <button
@@ -1148,33 +1231,66 @@ function ModerationTab() {
             ))}
           </div>
         )
-      ) : (
-        endorsements.length === 0 ? (
+      ) : activeSection === 'history' ? (
+        decisionHistory.length === 0 ? (
           <div className={`${CARD_BG} border ${BORDER} rounded-lg p-12 text-center`}>
-            <ThumbsUp size={40} className="text-[#333] mx-auto mb-3" />
-            <p className={TEXT_MUTED}>No endorsements recorded yet.</p>
+            <Clock size={40} className="text-[#333] mx-auto mb-3" />
+            <p className={TEXT_MUTED}>No moderation decisions have been recorded yet.</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {endorsements.map(e => (
-              <div key={e.id} className={`${CARD_BG} border ${BORDER} rounded-lg p-4 flex items-center gap-4`}>
-                <ThumbsUp size={16} className="text-blue-400 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <span className="text-white text-sm font-semibold">{e.vendorName ?? e.vendorId}</span>
-                  <span className="text-gray-500 text-xs ml-2">endorsed by</span>
-                  <span className="text-gray-300 text-sm ml-1">
-                    {e.endorserName ?? <span className="font-mono text-xs">{e.endorserId.slice(0, 12)}…</span>}
-                  </span>
-                  {e.createdAt && (
-                    <span className="text-gray-600 text-xs ml-2">
-                      {e.createdAt.toDate().toLocaleDateString()}
-                    </span>
-                  )}
+          <div className="space-y-4">
+            {decisionHistory.map(report => {
+              const resolved = report.status === 'resolved';
+              return (
+                <div key={report.id} className={`${CARD_BG} border ${BORDER} rounded-lg p-5`}>
+                  <div className="flex items-start gap-3">
+                    {resolved ? <CheckCircle size={17} className="text-green-400 mt-0.5" /> : <XCircle size={17} className="text-red-400 mt-0.5" />}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-white font-semibold text-sm">{report.vendorName ?? report.vendorId}</span>
+                        <span className="text-xs text-gray-500">{report.vendorCategory ?? 'Uncategorized'}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded-full border ${resolved ? BADGE_VERIFIED : BADGE_REJECTED}`}>
+                          {decisionLabel(report.status)}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-300">Report reason: {report.reason}</p>
+                      {report.details && <p className="mt-1 text-xs text-gray-500">Details: {report.details}</p>}
+                      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                        <span>Decision recorded: {formatModerationDate(report.resolvedAt ?? report.createdAt)}</span>
+                        <span>Moderator: {memberReference(report.resolvedBy ?? '')}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )
+      ) : endorsements.length === 0 ? (
+        <div className={`${CARD_BG} border ${BORDER} rounded-lg p-12 text-center`}>
+          <ThumbsUp size={40} className="text-[#333] mx-auto mb-3" />
+          <p className={TEXT_MUTED}>No endorsements recorded yet.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {endorsements.map(endorsement => (
+            <div key={endorsement.id} className={`${CARD_BG} border ${BORDER} rounded-lg p-4 flex items-start gap-4`}>
+              <ThumbsUp size={16} className="text-blue-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-white text-sm font-semibold">{endorsement.vendorName ?? endorsement.vendorId}</span>
+                  <span className="text-xs text-gray-500">{endorsement.vendorCategory ?? 'Uncategorized'}</span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                  <span>Endorsed by: {endorsement.endorserName ?? memberReference(endorsement.endorserId)}</span>
+                  {endorsement.relationship && <span>Relationship: {endorsement.relationship.replace(/_/g, ' ')}</span>}
+                  <span>Recorded: {formatModerationDate(endorsement.createdAt)}</span>
+                </div>
+                {endorsement.comment && <p className="mt-2 text-sm text-gray-300">{endorsement.comment}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
