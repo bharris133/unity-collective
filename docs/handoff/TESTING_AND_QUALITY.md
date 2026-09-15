@@ -14,7 +14,7 @@ Read [`../Guidelines.md`](../Guidelines.md) before implementation. It requires s
 
 ## Current Automated Baseline
 
-At handoff creation, the repository has **181 passing tests across 20 test files**.
+Current baseline after the moderation refinement and controlled QA fixture utility: **188 passing tests across 21 test files**.
 
 | Layer | Tooling | Command |
 |---|---|---|

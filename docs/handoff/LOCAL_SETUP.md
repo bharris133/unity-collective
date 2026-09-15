@@ -121,7 +121,7 @@ pnpm run build
 pnpm --dir functions run build
 ```
 
-At the time this handoff package was created, the expected frontend baseline is **181 passing tests across 20 test files**. If the count changes after a legitimate merge, update this guide and the relevant task documentation in the same PR.
+The current expected frontend baseline is **188 passing tests across 21 test files**. If the count changes after a legitimate merge, update this guide and the relevant task documentation in the same PR.
 
 ## Local Visual Test Procedure
 

@@ -246,6 +246,7 @@ temp/
 # PROJECT SPECIFIC
 # ===================================
 # Unity Collective specific ignores
+.qa-fixtures-manifest.json
 
 # Backup files
 *.backup

@@ -3,7 +3,7 @@
 **Repository:** `bharris133/unity-collective`  
 **Primary branch:** `main`  
 **Deployment platform:** Firebase Hosting, Firestore, Storage, and Cloud Functions (Gen 2)  
-**Current automated baseline:** **181 passing tests across 20 test files**  
+**Current automated baseline:** **188 passing tests across 21 test files**
 **Current frontend dependency baseline:** Firebase Web SDK `^12.17.1`, Node.js 20 for Functions, pnpm `10.4.1` for the root project.
 
 ## Product Position
