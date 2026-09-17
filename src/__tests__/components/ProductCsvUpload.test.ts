@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { parseCsvRows } from '../../components/ProductCsvUpload';
 
 const HEADER = 'name,description,price,category,inStock,stockQuantity,tags\n';
@@ -74,5 +75,13 @@ describe('parseCsvRows', () => {
     const csv = HEADER + '"Item","Desc",5.00,"Other",true,1,""';
     const rows = parseCsvRows(csv, 'vendor-uid');
     expect(rows[0].tags).toEqual([]);
+  });
+
+  it('parses the controlled live-QA CSV sample without validation errors', () => {
+    const csv = readFileSync('docs/handoff/fixtures/qa-product-smoke.csv', 'utf8');
+    const rows = parseCsvRows(csv, 'qa_vendor_001');
+
+    expect(rows).toHaveLength(2);
+    expect(rows.every(row => row.errors.length === 0)).toBe(true);
   });
 });

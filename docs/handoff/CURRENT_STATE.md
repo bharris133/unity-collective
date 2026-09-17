@@ -3,7 +3,7 @@
 **Repository:** `bharris133/unity-collective`  
 **Primary branch:** `main`  
 **Deployment platform:** Firebase Hosting, Firestore, Storage, and Cloud Functions (Gen 2)  
-**Current automated baseline:** **188 passing tests across 21 test files**
+**Current automated baseline:** **190 passing tests across 21 test files**
 **Current frontend dependency baseline:** Firebase Web SDK `^12.17.1`, Node.js 20 for Functions, pnpm `10.4.1` for the root project.
 
 ## Product Position
@@ -35,6 +35,7 @@ The public product language emphasizes group economics, conscious consumerism, c
 | Education | Homepage, About, and Education content are seeded | Content expansion and partnership curation remain active product work |
 | Reporting and endorsements | Authenticated users can report or endorse public businesses; admin moderation reads both queues | Queries avoid Firestore composite-index dependence by sorting client-side where appropriate |
 | Tier 1–3 verification | Full vendor submission and admin review flow is working end-to-end | See [`VERIFICATION_OPERATIONS.md`](VERIFICATION_OPERATIONS.md) |
+| Controlled live QA fixtures | Local Admin-SDK utility creates and resets five deterministic Firebase test accounts | Use [`LIVE_QA_ACCEPTANCE.md`](LIVE_QA_ACCEPTANCE.md) for the role-by-role browser pass; the next live fixture cycle remains operator-run work |
 
 ## Tier Verification Status
 
