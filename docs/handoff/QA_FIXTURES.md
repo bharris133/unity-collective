@@ -42,6 +42,8 @@ All fixture orders use explicit placeholder Stripe IDs (`qa_seed_no_stripe_*`). 
 3. Choose a local-only fixture password of at least 12 characters. It will be assigned to all QA accounts so they can be used in browser smoke tests. Do not reuse a personal or production password.
 4. Ensure the Firebase project has the current deployed rules, indexes, and Functions before treating a test result as a release signal.
 
+> **Node 20 compatibility:** The root `firebase-admin` development dependency is intentionally pinned to `13.10.0`. The fixture utility is verified with Node `20.13.1`, matching the project’s documented local/Functions runtime. Do not upgrade this root dependency to Firebase Admin `14.x` as routine maintenance: that major version requires Node 22 or later and makes the CommonJS fixture utility fail before it can reach its safety gates.
+
 ## Commands
 
 ### Seed
