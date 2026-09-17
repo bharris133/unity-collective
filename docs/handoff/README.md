@@ -36,6 +36,7 @@ Read [`FIREBASE_OPERATIONS.md`](FIREBASE_OPERATIONS.md) and [`DEPLOYMENT_AND_ROL
 | [`TESTING_AND_QUALITY.md`](TESTING_AND_QUALITY.md) | Automated tests, visual checks, permission tests, and load-test roadmap |
 | [`VERIFICATION_OPERATIONS.md`](VERIFICATION_OPERATIONS.md) | Tier 1–3 vendor/admin workflow and troubleshooting |
 | [`QA_FIXTURES.md`](QA_FIXTURES.md) | Controlled live Firebase test fixtures, manifest safeguards, cleanup, and Stripe test-mode boundary |
+| [`LIVE_QA_ACCEPTANCE.md`](LIVE_QA_ACCEPTANCE.md) | Role-by-role browser acceptance sequence for the controlled QA fixtures |
 | [`AGENT_OPERATING_GUIDE.md`](AGENT_OPERATING_GUIDE.md) | Cross-agent workflow, constraints, review requirements, and prompt starter |
 | [`FEATURE_CATALOG.md`](FEATURE_CATALOG.md) | Feature-to-source/test/operations map for fast agent orientation |
 | [`BACKLOG_AND_KNOWN_ISSUES.md`](BACKLOG_AND_KNOWN_ISSUES.md) | Deferred product work and known operational follow-ups |

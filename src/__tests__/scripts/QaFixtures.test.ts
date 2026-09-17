@@ -8,6 +8,7 @@ const {
   assertLiveFirebaseGate,
   fixturePlan,
   parseArgs,
+  qaStoragePrefixes,
 } = require('../../../scripts/qa-fixtures.cjs');
 
 describe('controlled QA fixture utility', () => {
@@ -46,5 +47,21 @@ describe('controlled QA fixture utility', () => {
 
   it('exports a stable marker used to protect reset operations', () => {
     expect(FIXTURE_MARKER).toBe('unity-collective-controlled-qa-fixture');
+  });
+
+  it('limits Storage cleanup to prefixes owned by the fixed QA fixture users', () => {
+    expect(qaStoragePrefixes(fixturePlan())).toEqual([
+      'avatars/qa_admin_001/',
+      'avatars/qa_vendor_001/',
+      'avatars/qa_vendor_002/',
+      'avatars/qa_buyer_001/',
+      'avatars/qa_buyer_002/',
+      'businesses/qa_vendor_001/',
+      'onboarding/qa_vendor_001/docs/',
+      'products/qa_vendor_001/',
+      'businesses/qa_vendor_002/',
+      'onboarding/qa_vendor_002/docs/',
+      'products/qa_vendor_002/',
+    ]);
   });
 });

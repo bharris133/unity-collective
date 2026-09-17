@@ -27,10 +27,12 @@ const path = require('node:path');
 const { initializeApp, applicationDefault, getApps } = require('firebase-admin/app');
 const { getAuth } = require('firebase-admin/auth');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { getStorage } = require('firebase-admin/storage');
 
 const FIXTURE_MARKER = 'unity-collective-controlled-qa-fixture';
 const MANIFEST_VERSION = 1;
 const DEFAULT_PROJECT = 'unity-collective';
+const DEFAULT_STORAGE_BUCKET = 'unity-collective.firebasestorage.app';
 const DEFAULT_MANIFEST = '.qa-fixtures-manifest.json';
 
 function printUsage() {
@@ -226,6 +228,31 @@ function documentPaths(plan) {
   return paths;
 }
 
+function qaStoragePrefixes(plan) {
+  const prefixes = plan.users.map(({ uid }) => `avatars/${uid}/`);
+  plan.stores.forEach(({ uid }) => {
+    prefixes.push(
+      `businesses/${uid}/`,
+      `onboarding/${uid}/docs/`,
+      `products/${uid}/`,
+    );
+  });
+  return prefixes;
+}
+
+async function deleteQaStorageObjects(plan) {
+  const bucket = getStorage().bucket(DEFAULT_STORAGE_BUCKET);
+  const prefixes = qaStoragePrefixes(plan);
+
+  // Every prefix belongs to a stable QA-only UID. Never delete a whole bucket or
+  // a generic collection-style prefix as part of fixture cleanup.
+  for (const prefix of prefixes) {
+    await bucket.deleteFiles({ prefix, force: true });
+  }
+
+  return prefixes.length;
+}
+
 async function upsertAuthUser(auth, user, password) {
   try {
     const existing = await auth.getUser(user.uid);
@@ -417,6 +444,7 @@ async function reset(options) {
   const plan = fixturePlan();
   const dynamicQaPaths = await collectDynamicQaDocumentPaths(db, plan);
   const pathsToDelete = [...new Set([...manifest.documentPaths, ...dynamicQaPaths])];
+  const deletedStoragePrefixes = await deleteQaStorageObjects(plan);
 
   // Delete only manifest-tracked documents or records owned by stable QA fixture IDs.
   // Each batch stays well under Firestore's 500-operation limit.
@@ -439,7 +467,7 @@ async function reset(options) {
   }
 
   fs.unlinkSync(resolvedPath);
-  console.log(`✅ Deleted ${pathsToDelete.length} manifest-tracked or QA-owner-scoped Firestore documents and ${manifest.authUserIds.length} QA Auth users.`);
+  console.log(`✅ Deleted ${pathsToDelete.length} manifest-tracked or QA-owner-scoped Firestore documents, contents of ${deletedStoragePrefixes} QA-only Storage prefixes, and ${manifest.authUserIds.length} QA Auth users.`);
 }
 
 async function stripeCheck() {
@@ -475,4 +503,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { FIXTURE_MARKER, DEFAULT_PROJECT, fixturePlan, parseArgs, assertLiveFirebaseGate };
+module.exports = { FIXTURE_MARKER, DEFAULT_PROJECT, qaStoragePrefixes, fixturePlan, parseArgs, assertLiveFirebaseGate };

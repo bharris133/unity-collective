@@ -1,0 +1,3 @@
+name,description,price,category,inStock,stockQuantity,tags
+"QA CSV Shea Butter","QA-only CSV import product for controlled acceptance testing.","12.34","Beauty & Personal Care","true","7","qa-fixture,smoke"
+"QA CSV Art Print","QA-only CSV import product for controlled acceptance testing.","18.90","Art & Collectibles","true","5","qa-fixture,smoke"
