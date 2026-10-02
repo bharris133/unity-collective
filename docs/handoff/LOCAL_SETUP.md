@@ -14,7 +14,7 @@ This guide describes a clean, repeatable setup for a new coding agent or develop
 | Tool | Required version / expectation | Reason |
 |---|---|---|
 | Git | Current supported version | Clone, branch, and PR workflow |
-| Node.js | Node 20 recommended; Functions explicitly require Node 20 | Build, tests, and Functions tooling |
+| Node.js | Node 20.19.0+ recommended; Functions explicitly require Node 20 | Build, tests, and Functions tooling |
 | pnpm | `10.4.1` as pinned by root `package.json` | Root dependency install and scripts |
 | Firebase CLI | Current compatible CLI authenticated to the approved Firebase project | Rules, indexes, Storage, Functions, and Hosting deploys |
 | Browser | Chromium/Chrome or equivalent with DevTools | Manual production and permission smoke tests |
@@ -47,6 +47,14 @@ pnpm install
 # Firebase Functions project
 pnpm --dir functions install
 ```
+
+Before installing, confirm the local runtime is current enough for the locked `jsdom@27` test environment:
+
+```powershell
+node --version
+```
+
+Use **Node 20.19.0 or later** within Node 20 LTS. Node 20.13.1 is too old and causes Vitest to fail before tests begin with `ERR_REQUIRE_ESM` from `html-encoding-sniffer` / `@exodus/bytes`.
 
 If the lockfile or dependency manifest changes, run `pnpm install` again before building. Do not use `npm install` in the root project as a substitute for pnpm; it can create conflicting lockfiles or local dependency state.
 
@@ -121,7 +129,7 @@ pnpm run build
 pnpm --dir functions run build
 ```
 
-The current expected frontend baseline is **188 passing tests across 21 test files**. If the count changes after a legitimate merge, update this guide and the relevant task documentation in the same PR.
+The current expected frontend baseline is **198 passing tests across 24 test files**. If the count changes after a legitimate merge, update this guide and the relevant task documentation in the same PR.
 
 ## Local Visual Test Procedure
 
@@ -139,6 +147,7 @@ The current expected frontend baseline is **188 passing tests across 21 test fil
 | Public directory displays mock businesses | Production/local build loaded `VITE_USE_MOCK_DATA=true` or missing live config | Verify `.env.production.local`, rebuild, then deploy Hosting |
 | Firebase calls fail with permission denied | Rules are stale, query does not match rules, account is not authorized, or mock/live mode is confused | Confirm active mode, inspect rules/query contract, and deploy only the required rule surface |
 | Function callable waits/fails | Functions not deployed, function compile failed, or live config is missing | Build Functions, inspect logs, and use only documented fallback behavior |
+| Vitest reports `ERR_REQUIRE_ESM` from `html-encoding-sniffer` or `@exodus/bytes` before any tests run | Node 20.13.x is older than the locked jsdom test environment supports | Run `node --version`, update to Node 20.19.0+ (or a supported newer LTS), restart PowerShell, run `node --version` again, then run `pnpm install` and retry tests |
 | Admin review cannot see submissions | Missing collection-group rule/index or mismatched admin authorization | Read [`VERIFICATION_OPERATIONS.md`](VERIFICATION_OPERATIONS.md) before changing code |
 | Git pull refuses due to local package changes | Local installer or temporary edits modified `package.json` / `pnpm-lock.yaml` | Stash the specific files before pulling; do not overwrite incoming lockfile changes casually |
 
