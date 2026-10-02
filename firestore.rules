@@ -93,12 +93,27 @@ service cloud.firestore {
     }
 
     // ─── Orders ──────────────────────────────────────────────────────────────
-    // Users can read their own orders. Admins can read all orders.
+    // Buyers and vendors can read their own orders. Vendors can advance only
+    // their own paid/processing/shipped orders through the displayed workflow.
     match /orders/{orderId} {
       allow read: if isAuthenticated() &&
-        (resource.data.userId == request.auth.uid || isAdmin());
+        (resource.data.userId == request.auth.uid ||
+         resource.data.vendorId == request.auth.uid ||
+         isAdmin());
       allow create: if isAuthenticated();
-      allow update: if isAdmin();
+      allow update: if isAdmin() ||
+        (resource.data.vendorId == request.auth.uid &&
+          (
+            (resource.data.status == 'paid' &&
+             request.resource.data.status == 'processing' &&
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])) ||
+            (resource.data.status == 'processing' &&
+             request.resource.data.status == 'shipped' &&
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'shippedAt'])) ||
+            (resource.data.status == 'shipped' &&
+             request.resource.data.status == 'delivered' &&
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deliveredAt']))
+          ));
       allow delete: if false; // Orders are never deleted
     }
 

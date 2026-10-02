@@ -14,7 +14,7 @@ Read [`../Guidelines.md`](../Guidelines.md) before implementation. It requires s
 
 ## Current Automated Baseline
 
-Current baseline after the moderation refinement and controlled QA fixture utility: **190 passing tests across 21 test files**.
+Current baseline after the live-QA regression fixes: **198 passing tests across 24 test files**.
 
 | Layer | Tooling | Command |
 |---|---|---|
@@ -65,6 +65,7 @@ pnpm --dir functions run build
 | `src/__tests__/pages/` | Route/page behavior such as Vendor Settings |
 | `src/__tests__/services/` | Domain services including Stripe/Storage/data behavior |
 | `src/__tests__/contexts/` | Context and session/state behavior |
+| `src/__tests__/orders/` | Buyer/vendor order rule, query, and transition contracts |
 | `src/__tests__/verification/` | Tier 1–3 verification UI, data contracts, rules/index requirements, and authorization regressions |
 | `src/__tests__/types/` | Type-level/domain shape expectations |
 
@@ -108,8 +109,9 @@ Run after verification-related frontend, rules, indexes, Storage, or Functions c
 6. **Approve:** Approve the submission.
 7. **Vendor state:** Refresh Store Settings and dashboard; confirm **Tier 3 — Document Certified**.
 8. **Public state:** Check directory card, detail page, and storefront for a readable **Certified** badge.
-9. **Negative case:** Verify a vendor cannot submit a document under another business path and a non-admin cannot review.
-10. **Observability:** Inspect browser console and Firebase Functions logs for errors.
+9. **CORS preflight:** In DevTools Network, confirm `reviewSubmission` completes without an `OPTIONS` error or a missing `Access-Control-Allow-Origin` header.
+10. **Negative case:** Verify a vendor cannot submit a document under another business path and a non-admin cannot review.
+11. **Observability:** Inspect browser console and Firebase Functions logs for errors.
 
 ## Email Testing Status
 

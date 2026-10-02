@@ -109,6 +109,8 @@ Functions live in `functions/src/index.ts`; the Functions project has its own `p
 | SendGrid | Buyer/vendor email sending and logging | Keys are Firebase secrets; delivery behavior remains a design and validation follow-up |
 | Verification | Document submission, admin review, trust-score recalculation | Must remain aligned with Firestore rules and authoritative tier data contract |
 
+Callable Functions define an explicit CORS allowlist for the Unity Collective production domains and local development. When a browser shows a failed callable `OPTIONS` preflight or a missing `Access-Control-Allow-Origin` header, deploy the current **Functions** source, then verify the callable request and Function logs. Do not replace a callable with a public `onRequest` endpoint as a CORS workaround.
+
 ### Functions Build and Deploy
 
 ```bash

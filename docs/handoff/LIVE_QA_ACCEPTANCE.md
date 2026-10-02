@@ -120,7 +120,7 @@ Sign in as QA Vendor Two.
 
 1. Use **My Store** and confirm the public storefront shows **Community Verified** and **QA Culture Print**.
 2. Open **Dashboard**. Confirm that the dashboard identifies the business as **Community Verified (Tier 2)**.
-3. Open **Store Settings**. Confirm that it loads the QA Culture Studio information without exposing personal-profile data on the public storefront.
+3. Open **Store Settings**. Confirm that it loads the QA Culture Studio information without exposing personal-profile data on the public storefront. Open **Profile**, then use the gold **Store Settings** link to return; the vendor shortcut must remain available.
 4. Open `/vendors/qa_vendor_001` and use **Endorse Business** only if the button has not already been used by this vendor in the session. Record the result; reset removes QA-owned endorsements afterwards.
 
 ### 5. QA Administrator: Moderation and Rejection Path
@@ -143,7 +143,7 @@ Sign in as QA Vendor One.
 3. Update the description to append `QA smoke update`, save it, refresh, and confirm the change remains. Open **View My Store** and verify that the public description reflects the saved business override.
 4. Open **Dashboard**. Confirm the two seeded products appear. Add a new product named `QA One-Off Product`, use category **Other**, price `12.34`, and a short QA-only description. Confirm that it appears on the dashboard. Edit its price to `13.45`, save, and then delete it; the list should return to the prior count.
 5. Return to **Store Settings**, expand **Bulk Product Upload**, and upload `docs/handoff/fixtures/qa-product-smoke.csv`. Confirm that two valid rows are recognized and the import reports two successful products. Verify either imported product appears in the dashboard or marketplace. Reset cleans products owned by QA Vendor One.
-6. Open **Orders**. QA Vendor One must see both seeded orders: one paid-style and one delivered-style. Select the paid order’s **Update status** control and attempt the permitted transition to Processing once. If the status does not change or the browser console reports `permission-denied`, record this as a Firestore-rule/UI contract defect. Do **not** change the rule in the Firebase Console; vendor status updates need a focused implementation and test after this run.
+6. Open **Orders**. QA Vendor One must see both seeded orders: one paid-style and one delivered-style. Select the paid order’s **Update status** control and transition it to **Processing** once. Refresh and confirm the state persists. If the page shows a retry error, the status does not change, or the browser console reports `permission-denied`, record the exact evidence. Do **not** change the rule in the Firebase Console.
 
 ### 7. QA Administrator: Private Document Review and Tier 3 Promotion
 
