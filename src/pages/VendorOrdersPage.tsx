@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, ChevronDown, ArrowLeft } from 'lucide-react';
 import EmailActivitySection from '../components/EmailActivitySection';
@@ -38,13 +38,31 @@ export default function VendorOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState('');
+
+  const loadOrders = useCallback(async () => {
+    if (!currentUser) {
+      setOrders([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setLoadError('');
+    try {
+      setOrders(await orderService.getOrdersByVendor(currentUser.uid));
+    } catch (error) {
+      console.error('Error loading vendor orders:', error);
+      setOrders([]);
+      setLoadError('We could not load your store orders. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
-    if (!currentUser) { setLoading(false); return; }
-    orderService.getOrdersByVendor(currentUser.uid)
-      .then(setOrders)
-      .finally(() => setLoading(false));
-  }, [currentUser]);
+    void loadOrders();
+  }, [loadOrders]);
 
   const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
     setUpdating(orderId);
@@ -79,7 +97,20 @@ export default function VendorOrdersPage() {
           <p className="text-gray-400 text-center py-12">Loading orders...</p>
         )}
 
-        {!loading && orders.length === 0 && (
+        {!loading && loadError && (
+          <div className="bg-red-900/20 border border-red-700/40 rounded-lg p-6 text-center">
+            <p className="text-red-300 text-sm mb-4">{loadError}</p>
+            <button
+              type="button"
+              onClick={() => void loadOrders()}
+              className="px-4 py-2 text-sm font-semibold rounded-lg bg-red-700 hover:bg-red-600 text-white transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {!loading && !loadError && orders.length === 0 && (
           <div className="bg-[#1A1A1A] rounded-lg p-12 text-center border border-white/10">
             <Package size={48} className="mx-auto text-gray-600 mb-4" />
             <h3 className="text-lg font-medium text-white mb-2">No orders yet</h3>

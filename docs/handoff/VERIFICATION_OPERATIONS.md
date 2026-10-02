@@ -159,6 +159,7 @@ No public surface may reveal document URLs, admin notes, reporter identity, user
 | Admin queue demands an index | `firestore.indexes.json` | Add exact index, deploy indexes, wait for **Enabled** |
 | Admin queue shows no records but no browser error | Data/query/deployment mismatch | Inspect actual Firestore path/status, active data mode, and console logging |
 | Admin can see item but review fails | Function authorization/deploy | Confirm `reviewSubmission` deployment and aligned `isAdmin`/role/claim behavior |
+| Admin review request fails at `OPTIONS` or reports missing `Access-Control-Allow-Origin` | Deployed callable Function revision | Confirm the browser is calling `https://unitycollective.app`, deploy the current Functions source with its explicit callable CORS allowlist, then check the new revision's preflight response and logs |
 | Approval succeeds but public badge remains Tier 1 | Stale consumer data mapping | Confirm UI prefers `businesses/{uid}.verificationTier`; refresh/read current business record |
 | Storefront badge appears unreadable | UI contrast/data state | Confirm tier value and use high-contrast `VerificationBadge`/storefront wrapper |
 

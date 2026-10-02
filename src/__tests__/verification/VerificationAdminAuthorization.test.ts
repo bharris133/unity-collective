@@ -61,4 +61,10 @@ describe('Verification administration authorization contract', () => {
     expect(reviewSubmissionSection).toContain("callerData?.role === 'admin'");
     expect(reviewSubmissionSection).toContain('request.auth.token.admin === true');
   });
+
+  it('configures explicit callable origins for verification review requests', () => {
+    const reviewSubmissionSection = functionsSource.slice(functionsSource.indexOf('export const reviewSubmission'));
+    expect(functionsSource).toContain("'https://unitycollective.app'");
+    expect(reviewSubmissionSection).toContain('{ cors: CALLABLE_CORS_ORIGINS }');
+  });
 });

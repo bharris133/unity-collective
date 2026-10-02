@@ -19,6 +19,13 @@ const db = admin.firestore();
 
 const FROM_EMAIL = 'admin@unitycollective.app';
 const FROM_NAME = 'Unity Collective';
+const CALLABLE_CORS_ORIGINS = [
+  'https://unitycollective.app',
+  'https://www.unitycollective.app',
+  'https://unity-collective.web.app',
+  'https://unity-collective.firebaseapp.com',
+  /http:\/\/localhost(?::\d+)?$/,
+];
 
 interface CartItem {
   id?: string;
@@ -262,7 +269,7 @@ async function sendOrderEmails(
  * Security: All price calculations happen server-side
  */
 export const createCheckoutSession = onCall(
-  { secrets: [stripeSecretKey, frontendUrl] },
+  { cors: CALLABLE_CORS_ORIGINS, secrets: [stripeSecretKey, frontendUrl] },
   async (request) => {
   // Ensure user is authenticated
   if (!request.auth) {
@@ -569,7 +576,7 @@ interface SendOrderEmailsData {
 }
 
 export const sendOrderEmailsCallable = onCall(
-  { secrets: [sendgridApiKey, frontendUrl] },
+  { cors: CALLABLE_CORS_ORIGINS, secrets: [sendgridApiKey, frontendUrl] },
   async (request) => {
     const data = request.data as SendOrderEmailsData;
 
@@ -609,6 +616,7 @@ export const sendOrderEmailsCallable = onCall(
  * Output: { submissionId }
  */
 export const submitVerificationDocument = onCall(
+  { cors: CALLABLE_CORS_ORIGINS },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Must be authenticated to submit a verification document.');
@@ -677,6 +685,7 @@ export const submitVerificationDocument = onCall(
  * Output: { success: true, newTier?: number }
  */
 export const reviewSubmission = onCall(
+  { cors: CALLABLE_CORS_ORIGINS },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Must be authenticated.');
@@ -766,6 +775,7 @@ export const reviewSubmission = onCall(
  * Output: { trustScore, tier }
  */
 export const updateTrustScore = onCall(
+  { cors: CALLABLE_CORS_ORIGINS },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Must be authenticated.');

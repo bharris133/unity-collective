@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { User, Camera, Save, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState, useRef, type ChangeEvent, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { User, Camera, Save, Loader2, CheckCircle, AlertCircle, Store } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { uploadProfileAvatar } from '../services/storageService';
 
@@ -39,18 +39,20 @@ export default function ProfilePage() {
     return null;
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const isVendor = userProfile.role === 'vendor' || userProfile.businessOwner;
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSaveState('saving');
     setErrorMsg('');
@@ -80,9 +82,20 @@ export default function ProfilePage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-1">Your Profile</h1>
-          <p className="text-gray-400">Update your personal information and avatar</p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-1">Your Profile</h1>
+            <p className="text-gray-400">Update your personal information and avatar</p>
+          </div>
+          {isVendor && (
+            <Link
+              to="/vendor/settings"
+              className="flex items-center gap-2 text-sm text-[#D4AF37] hover:text-[#C49B2A] transition-colors mt-1"
+            >
+              <Store size={14} />
+              Store Settings
+            </Link>
+          )}
         </div>
 
         <form onSubmit={handleSubmit}>
