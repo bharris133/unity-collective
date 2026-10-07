@@ -14,7 +14,7 @@ Read [`../Guidelines.md`](../Guidelines.md) before implementation. It requires s
 
 ## Current Automated Baseline
 
-Current baseline after the live-QA regression fixes: **198 passing tests across 24 test files**.
+Current baseline after the vendor verification-feedback and unsaved-settings regression fixes: **202 passing tests across 24 test files**.
 
 | Layer | Tooling | Command |
 |---|---|---|
