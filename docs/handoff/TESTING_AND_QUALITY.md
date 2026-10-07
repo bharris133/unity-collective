@@ -14,7 +14,7 @@ Read [`../Guidelines.md`](../Guidelines.md) before implementation. It requires s
 
 ## Current Automated Baseline
 
-Current baseline after the vendor callable-fallback regression coverage: **204 passing tests across 24 test files**.
+Current baseline after QA password-recovery safeguards: **206 passing tests across 24 test files**.
 
 | Layer | Tooling | Command |
 |---|---|---|

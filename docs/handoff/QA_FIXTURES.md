@@ -76,6 +76,18 @@ node scripts/qa-fixtures.cjs inspect --project unity-collective --confirm-live
 
 This prints the manifest path, tracked document count, and the number of tracked Firestore documents currently present. It makes no changes.
 
+### Recover a Lost QA Password
+
+Firebase Auth passwords cannot be recovered because Firebase stores only a non-reversible password hash. A forgotten **local-only QA password** does not require a new QA session or a fixture reseed. Choose a new unique password and run:
+
+```powershell
+$env:QA_FIXTURE_PASSWORD='choose-a-new-local-only-password'
+$env:GOOGLE_APPLICATION_CREDENTIALS='.\serviceAccountKey.json'
+node scripts/qa-fixtures.cjs reset-password --project unity-collective --confirm-live
+```
+
+`reset-password` requires the same project, confirmation, credential, password, and valid local-manifest gates as a live fixture operation. It verifies the exact fixed QA IDs and fixture-only emails before changing only the passwords for the five QA Auth accounts. It does **not** seed, delete, modify, or inspect Firestore records; it does **not** change Storage, Stripe, submissions, orders, products, reports, endorsements, custom claims, or the manifest. Sign out and back in to every QA browser session using the new password.
+
 ### Reset
 
 ```powershell

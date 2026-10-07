@@ -6,6 +6,8 @@ const {
   DEFAULT_PROJECT,
   FIXTURE_MARKER,
   assertLiveFirebaseGate,
+  assertExpectedFixtureAuthUser,
+  assertFixtureAuthManifest,
   fixturePlan,
   parseArgs,
   qaStoragePrefixes,
@@ -45,6 +47,13 @@ describe('controlled QA fixture utility', () => {
     expect(() => parseArgs(['seed', '--unsafe'])).toThrow(/Unknown option/);
   });
 
+  it('accepts reset-password only through the same explicit project confirmation gates', () => {
+    expect(parseArgs(['reset-password', '--project', DEFAULT_PROJECT, '--confirm-live'])).toEqual({
+      command: 'reset-password',
+      options: { project: DEFAULT_PROJECT, confirmLive: true, manifest: '.qa-fixtures-manifest.json' },
+    });
+  });
+
   it('exports a stable marker used to protect reset operations', () => {
     expect(FIXTURE_MARKER).toBe('unity-collective-controlled-qa-fixture');
   });
@@ -63,5 +72,21 @@ describe('controlled QA fixture utility', () => {
       'onboarding/qa_vendor_002/docs/',
       'products/qa_vendor_002/',
     ]);
+  });
+
+  it('requires the local manifest and Auth records to match the fixed QA identities before a password reset', () => {
+    const plan = fixturePlan();
+    const matchingManifest = { authUserIds: plan.users.map((user: { uid: string }) => user.uid) };
+
+    expect(() => assertFixtureAuthManifest(matchingManifest, plan)).not.toThrow();
+    expect(() => assertFixtureAuthManifest({ authUserIds: ['qa_admin_001'] }, plan)).toThrow(/do not match/);
+    expect(() => assertExpectedFixtureAuthUser(
+      { uid: 'qa_vendor_001', email: 'qa-vendor-one@fixture.unitycollective.test' },
+      plan.users[1]
+    )).not.toThrow();
+    expect(() => assertExpectedFixtureAuthUser(
+      { uid: 'qa_vendor_001', email: 'not-a-fixture@example.com' },
+      plan.users[1]
+    )).toThrow(/does not match/);
   });
 });
