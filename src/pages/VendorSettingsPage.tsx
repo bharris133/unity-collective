@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Store, Camera, Save, Loader2, CheckCircle, AlertCircle, ExternalLink, Upload, FileText, Clock } from 'lucide-react';
 import ProductCsvUpload from '../components/ProductCsvUpload';
 import { VerificationProgress } from '../components/VerificationProgress';
-import { doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,8 +12,6 @@ import { uploadBusinessLogo } from '../services/storageService';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import type { OnboardingState } from '../data/mockOnboarding';
 import type { VerificationSubmission, VerificationTier } from '../types/Verification';
-
-const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -28,6 +26,8 @@ interface StoreForm {
 export default function VendorSettingsPage() {
   const navigate = useNavigate();
   const { currentUser, userProfile, loading: authLoading } = useAuth();
+  const currentUserId = currentUser?.uid;
+  const useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
   const [onboarding, setOnboarding] = useState<OnboardingState | null>(null);
   const [form, setForm] = useState<StoreForm>({
@@ -37,6 +37,7 @@ export default function VendorSettingsPage() {
     location: '',
     website: '',
   });
+  const [savedForm, setSavedForm] = useState<StoreForm | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [saveState, setSaveState] = useState<SaveState>('idle');
@@ -56,31 +57,34 @@ export default function VendorSettingsPage() {
 
   // Load onboarding data + any existing override + existing submission
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUserId) return;
 
     const load = async () => {
       setDataLoading(true);
       try {
-        const ob = await getOnboardingState(currentUser.uid);
+          const ob = await getOnboardingState(currentUserId);
 
         // Check for existing verification submission
-        if (!USE_MOCK_DATA) {
+        if (!useMockData) {
           try {
             // Fetch all submissions for this vendor — no status filter to avoid index requirements
             const subSnap = await getDocs(
-              collection(db, 'businesses', currentUser.uid, 'verificationSubmissions')
+              collection(db, 'businesses', currentUserId, 'verificationSubmissions')
             );
             if (!subSnap.empty) {
-              // Find the most recent active submission
-              const active = subSnap.docs
-                .map(d => ({ submissionId: d.id, businessId: currentUser.uid, ...d.data() } as VerificationSubmission))
-                .filter(s => ['pending', 'approved', 'needs_info'].includes(s.status))
+              // Show the active submission when one exists. Otherwise retain the
+              // latest rejection so the vendor can see the reviewer feedback and
+              // submit a corrected document.
+              const submissions = subSnap.docs
+                .map(d => ({ submissionId: d.id, businessId: currentUserId, ...d.data() } as VerificationSubmission))
                 .sort((a, b) => {
                   const aT = (a.createdAt as any)?.toMillis?.() ?? 0;
                   const bT = (b.createdAt as any)?.toMillis?.() ?? 0;
                   return bT - aT;
                 });
-              if (active.length > 0) setExistingSubmission(active[0]);
+              const active = submissions.find(s => ['pending', 'approved', 'needs_info'].includes(s.status));
+              const rejected = submissions.find(s => s.status === 'rejected');
+              setExistingSubmission(active ?? rejected ?? null);
             }
           } catch (err) {
             console.warn('Submission status check failed:', err);
@@ -100,8 +104,8 @@ export default function VendorSettingsPage() {
         };
 
         // Apply any existing override on top
-        if (!USE_MOCK_DATA) {
-          const overrideSnap = await getDoc(doc(db, 'businesses', currentUser.uid));
+        if (!useMockData) {
+          const overrideSnap = await getDoc(doc(db, 'businesses', currentUserId));
           if (overrideSnap.exists()) {
             const ov = overrideSnap.data();
             merged = {
@@ -118,6 +122,7 @@ export default function VendorSettingsPage() {
 
         setVerificationTier(currentTier);
         setForm(merged);
+        setSavedForm(merged);
       } catch (err) {
         console.error('Error loading vendor settings:', err);
       } finally {
@@ -126,7 +131,45 @@ export default function VendorSettingsPage() {
     };
 
     load();
-  }, [currentUser]);
+  }, [currentUserId, useMockData]);
+
+  const hasUnsavedChanges = savedForm !== null && (
+    form.businessName !== savedForm.businessName ||
+    form.category !== savedForm.category ||
+    form.description !== savedForm.description ||
+    form.location !== savedForm.location ||
+    form.website !== savedForm.website ||
+    logoFile !== null ||
+    docFile !== null ||
+    docNotes.trim() !== ''
+  );
+
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    const handleNavigationClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const link = (event.target as Element | null)?.closest('a[href]');
+      if (!link || link.getAttribute('target') === '_blank' || link.getAttribute('href')?.startsWith('#')) return;
+
+      if (!window.confirm('You have unsaved store changes. Leave without saving?')) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('click', handleNavigationClick, true);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('click', handleNavigationClick, true);
+    };
+  }, [hasUnsavedChanges]);
 
   if (authLoading || dataLoading) {
     return (
@@ -143,11 +186,13 @@ export default function VendorSettingsPage() {
     return null;
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const confirmDiscardChanges = () => !hasUnsavedChanges || window.confirm('You have unsaved store changes. Leave without saving?');
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setLogoFile(file);
@@ -239,7 +284,7 @@ export default function VendorSettingsPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSaveState('saving');
     setErrorMsg('');
@@ -260,10 +305,12 @@ export default function VendorSettingsPage() {
         updatedAt: new Date().toISOString(),
       };
 
-      if (!USE_MOCK_DATA) {
+      if (!useMockData) {
         await setDoc(doc(db, 'businesses', currentUser.uid), overrideData, { merge: true });
       }
 
+      setSavedForm(form);
+      setLogoFile(null);
       setSaveState('saved');
       setTimeout(() => setSaveState('idle'), 3000);
     } catch (err) {
@@ -449,24 +496,33 @@ export default function VendorSettingsPage() {
                 Our team will review it and promote your listing to Certified status.
               </p>
 
-              {existingSubmission ? (
+              {existingSubmission && (
                 <div className="flex items-start gap-3 p-4 rounded-lg bg-[#2A2A2A] border border-[#3A3A3A]">
                   {existingSubmission.status === 'pending' && <Clock size={18} className="text-yellow-400 mt-0.5 flex-shrink-0" />}
                   {existingSubmission.status === 'approved' && <CheckCircle size={18} className="text-green-400 mt-0.5 flex-shrink-0" />}
                   {existingSubmission.status === 'needs_info' && <AlertCircle size={18} className="text-orange-400 mt-0.5 flex-shrink-0" />}
+                  {existingSubmission.status === 'rejected' && <AlertCircle size={18} className="text-red-400 mt-0.5 flex-shrink-0" />}
                   <div>
-                    <div className="text-sm font-semibold text-white capitalize">{existingSubmission.status === 'pending' ? 'Under Review' : existingSubmission.status === 'approved' ? 'Approved' : 'More Info Needed'}</div>
+                    <div className="text-sm font-semibold text-white">{existingSubmission.status === 'pending' ? 'Under Review' : existingSubmission.status === 'approved' ? 'Approved' : existingSubmission.status === 'needs_info' ? 'More Info Needed' : 'Submission Rejected'}</div>
                     <div className="text-xs text-gray-400 mt-0.5">
                       {existingSubmission.status === 'pending' && 'Your document has been submitted and is awaiting review by our team.'}
                       {existingSubmission.status === 'approved' && 'Your certification has been approved. Your listing is now Tier 3 Certified.'}
                       {existingSubmission.status === 'needs_info' && 'Our team needs additional information. Please check your messages.'}
+                      {existingSubmission.status === 'rejected' && 'Your document was not approved. Review the feedback below, then submit a corrected document.'}
                     </div>
+                    {existingSubmission.status === 'rejected' && existingSubmission.rejectionReason && (
+                      <div className="mt-2 rounded border border-red-700/50 bg-red-950/30 px-3 py-2 text-xs text-red-200">
+                        <span className="font-semibold">Reviewer feedback: </span>{existingSubmission.rejectionReason}
+                      </div>
+                    )}
                     {existingSubmission.notes && (
                       <div className="text-xs text-gray-500 mt-1 italic">&ldquo;{existingSubmission.notes}&rdquo;</div>
                     )}
                   </div>
                 </div>
-              ) : (
+              )}
+
+              {(!existingSubmission || existingSubmission.status === 'rejected') && (
                 <>
                   {/* File picker */}
                   <div
@@ -555,7 +611,9 @@ export default function VendorSettingsPage() {
           <div className="flex items-center justify-between">
             <button
               type="button"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => {
+                if (confirmDiscardChanges()) navigate('/dashboard');
+              }}
               className="px-5 py-2.5 border border-[#3A3A3A] text-gray-300 rounded-lg hover:bg-[#2A2A2A] transition-colors text-sm"
             >
               Back to Dashboard
