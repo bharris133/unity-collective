@@ -18,6 +18,10 @@
  *   GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json \
  *   node scripts/qa-fixtures.cjs reset --project unity-collective --confirm-live
  *
+ *   QA_FIXTURE_PASSWORD='new-local-only-password' \
+ *   GOOGLE_APPLICATION_CREDENTIALS=./serviceAccountKey.json \
+ *   node scripts/qa-fixtures.cjs reset-password --project unity-collective --confirm-live
+ *
  * Optional Stripe test-key check (no Stripe object is created and no charge is made):
  *   STRIPE_SECRET_KEY=sk_test_... node scripts/qa-fixtures.cjs stripe-check
  */
@@ -36,7 +40,7 @@ const DEFAULT_STORAGE_BUCKET = 'unity-collective.firebasestorage.app';
 const DEFAULT_MANIFEST = '.qa-fixtures-manifest.json';
 
 function printUsage() {
-  console.log(`\nControlled QA fixture manager\n\nCommands:\n  seed          Create or refresh the labeled Firebase Auth and Firestore fixture set\n  inspect       Print the manifest and whether its tracked Firestore records exist\n  reset         Delete only records and Auth accounts listed in the manifest\n  stripe-check  Verify that an explicitly supplied Stripe secret key is test-mode\n\nRequired for seed, inspect, and reset:\n  --project unity-collective --confirm-live\n\nOptional:\n  --manifest <path>   Default: ${DEFAULT_MANIFEST}\n\nSafety:\n  - This utility only permits the ${DEFAULT_PROJECT} Firebase project.\n  - Seed/reset require --confirm-live.\n  - Reset refuses manifests without the ${FIXTURE_MARKER} marker.\n  - Stripe validation refuses keys that do not start with sk_test_.\n`);
+  console.log(`\nControlled QA fixture manager\n\nCommands:\n  seed            Create or refresh the labeled Firebase Auth and Firestore fixture set\n  inspect         Print the manifest and whether its tracked Firestore records exist\n  reset           Delete only records and Auth accounts listed in the manifest\n  reset-password  Change only the fixed QA Auth account passwords\n  stripe-check    Verify that an explicitly supplied Stripe secret key is test-mode\n\nRequired for seed, inspect, reset, and reset-password:\n  --project unity-collective --confirm-live\n\nOptional:\n  --manifest <path>   Default: ${DEFAULT_MANIFEST}\n\nSafety:\n  - This utility only permits the ${DEFAULT_PROJECT} Firebase project.\n  - Live Firebase commands require --confirm-live.\n  - Reset and reset-password refuse manifests without the ${FIXTURE_MARKER} marker.\n  - Stripe validation refuses keys that do not start with sk_test_.\n`);
 }
 
 function parseArgs(argv) {
@@ -421,6 +425,20 @@ function loadManifest(options) {
   return { manifest, resolvedPath };
 }
 
+function assertFixtureAuthManifest(manifest, plan) {
+  const expectedIds = plan.users.map(user => user.uid).sort();
+  const manifestIds = [...manifest.authUserIds].sort();
+  if (manifestIds.length !== expectedIds.length || manifestIds.some((uid, index) => uid !== expectedIds[index])) {
+    throw new Error('Manifest Auth identities do not match the fixed QA fixture plan. Refusing to change passwords.');
+  }
+}
+
+function assertExpectedFixtureAuthUser(authUser, fixtureUser) {
+  if (authUser.uid !== fixtureUser.uid || authUser.email !== fixtureUser.email) {
+    throw new Error(`Auth UID ${fixtureUser.uid} does not match its expected QA fixture identity. Refusing to change passwords.`);
+  }
+}
+
 async function inspect(options) {
   assertLiveFirebaseGate(options);
   const { db } = initializeAdmin(options.project);
@@ -435,6 +453,24 @@ async function inspect(options) {
     trackedFirestoreDocuments: manifest.documentPaths.length,
     existingFirestoreDocuments: existing,
   }, null, 2));
+}
+
+async function resetPassword(options) {
+  assertLiveFirebaseGate(options);
+  const password = requireFixturePassword();
+  const { auth } = initializeAdmin(options.project);
+  const { manifest } = loadManifest(options);
+  const plan = fixturePlan();
+
+  assertFixtureAuthManifest(manifest, plan);
+  for (const fixtureUser of plan.users) {
+    const authUser = await auth.getUser(fixtureUser.uid);
+    assertExpectedFixtureAuthUser(authUser, fixtureUser);
+    await auth.updateUser(fixtureUser.uid, { password });
+  }
+
+  console.log(`✅ Changed passwords for ${plan.users.length} fixed QA Auth accounts. No Firestore, Storage, Stripe, or manifest data was changed.`);
+  console.log('   Sign out and sign back in to every QA browser session with the new local-only password.');
 }
 
 async function reset(options) {
@@ -491,6 +527,7 @@ async function main() {
   if (command === 'seed') return seed(options);
   if (command === 'inspect') return inspect(options);
   if (command === 'reset') return reset(options);
+  if (command === 'reset-password') return resetPassword(options);
   if (command === 'stripe-check') return stripeCheck();
   printUsage();
   process.exitCode = 1;
@@ -503,4 +540,7 @@ if (require.main === module) {
   });
 }
 
-module.exports = { FIXTURE_MARKER, DEFAULT_PROJECT, qaStoragePrefixes, fixturePlan, parseArgs, assertLiveFirebaseGate };
+module.exports = {
+  FIXTURE_MARKER, DEFAULT_PROJECT, qaStoragePrefixes, fixturePlan, parseArgs, assertLiveFirebaseGate,
+  assertFixtureAuthManifest, assertExpectedFixtureAuthUser,
+};
