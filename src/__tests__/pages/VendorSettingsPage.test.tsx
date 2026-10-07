@@ -55,20 +55,38 @@ vi.mock('firebase/firestore', async () => {
     getDoc: vi.fn().mockResolvedValue({ exists: () => false, data: () => null }),
     getDocs: vi.fn().mockResolvedValue({ empty: true, docs: [] }),
     setDoc: vi.fn().mockResolvedValue(undefined),
+    addDoc: vi.fn().mockResolvedValue({ id: 'direct-pending-submission' }),
     doc: vi.fn(),
-    collection: vi.fn(),
+    collection: vi.fn(() => ({})),
+    serverTimestamp: vi.fn(() => 'server-timestamp'),
   };
 });
 
-vi.mock('../../firebase', () => ({ db: {} }));
+vi.mock('firebase/storage', () => ({
+  ref: vi.fn(),
+  uploadBytesResumable: vi.fn(() => ({
+    snapshot: { ref: {} },
+    on: (_event: string, _progress: unknown, _error: unknown, complete: () => void) => complete(),
+  })),
+  getDownloadURL: vi.fn().mockResolvedValue('https://storage.example.test/qa-verification.png'),
+}));
 
-import { getDocs, setDoc } from 'firebase/firestore';
+const { submitVerificationMock } = vi.hoisted(() => ({ submitVerificationMock: vi.fn() }));
+vi.mock('firebase/functions', () => ({
+  getFunctions: vi.fn(() => ({})),
+  httpsCallable: vi.fn(() => submitVerificationMock),
+}));
+
+vi.mock('../../firebase', () => ({ db: {}, storage: {} }));
+
+import { addDoc, getDocs, setDoc } from 'firebase/firestore';
 
 describe('VendorSettingsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv('VITE_USE_MOCK_DATA', 'false');
     vi.mocked(getDocs).mockResolvedValue({ empty: true, docs: [] } as never);
+    vi.mocked(addDoc).mockResolvedValue({ id: 'direct-pending-submission' } as never);
     window.confirm = vi.fn(() => true);
   });
 
@@ -206,5 +224,68 @@ describe('VendorSettingsPage', () => {
     const unloadEvent = new Event('beforeunload', { cancelable: true });
     window.dispatchEvent(unloadEvent);
     expect(unloadEvent.defaultPrevented).toBe(false);
+  });
+
+  it('creates a vendor-owned pending submission when the callable returns INTERNAL', async () => {
+    submitVerificationMock.mockRejectedValue({ code: 'functions/internal', message: 'INTERNAL' });
+    vi.mocked(getDocs)
+      .mockResolvedValueOnce({
+        empty: false,
+        docs: [
+          {
+            id: 'rejected-submission',
+            data: () => ({ type: 'document', status: 'rejected', fileUrls: [], notes: '', reviewedBy: 'admin-uid', reviewedAt: null, rejectionReason: 'Corrected upload required', createdAt: { toMillis: () => 2 } }),
+          },
+        ],
+      } as never)
+      .mockResolvedValueOnce({ empty: true, docs: [] } as never);
+
+    const { container } = renderPage();
+    await screen.findByText('Submission Rejected');
+
+    const fileInputs = container.querySelectorAll('input[type="file"]');
+    fireEvent.change(fileInputs[1], { target: { files: [new File(['qa'], 'qa-document.png', { type: 'image/png' })] } });
+    const submitButton = screen.getByRole('button', { name: 'Submit for Review' });
+    await waitFor(() => expect(submitButton).toBeEnabled());
+    fireEvent.click(submitButton);
+
+    await waitFor(() => expect(addDoc).toHaveBeenCalled());
+    expect(await screen.findByText('Under Review')).toBeInTheDocument();
+    expect(addDoc).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+      businessId: 'test-vendor-uid',
+      status: 'pending',
+      fileUrls: ['https://storage.example.test/qa-verification.png'],
+    }));
+  });
+
+  it('does not duplicate a pending submission when a callable response fails after success', async () => {
+    submitVerificationMock.mockRejectedValue({ code: 'functions/internal', message: 'INTERNAL' });
+    vi.mocked(getDocs)
+      .mockResolvedValueOnce({
+        empty: false,
+        docs: [
+          {
+            id: 'rejected-submission',
+            data: () => ({ type: 'document', status: 'rejected', fileUrls: [], notes: '', reviewedBy: 'admin-uid', reviewedAt: null, rejectionReason: 'Corrected upload required', createdAt: { toMillis: () => 2 } }),
+          },
+        ],
+      } as never)
+      .mockResolvedValueOnce({
+        empty: false,
+        docs: [{ id: 'server-created-pending', data: () => ({ status: 'pending' }) }],
+      } as never);
+
+    const { container } = renderPage();
+    await screen.findByText('Submission Rejected');
+
+    const fileInputs = container.querySelectorAll('input[type="file"]');
+    fireEvent.change(fileInputs[1], { target: { files: [new File(['qa'], 'qa-document.png', { type: 'image/png' })] } });
+    const submitButton = screen.getByRole('button', { name: 'Submit for Review' });
+    await waitFor(() => expect(submitButton).toBeEnabled());
+    fireEvent.click(submitButton);
+
+    await waitFor(() => expect(submitVerificationMock).toHaveBeenCalled());
+    expect(await screen.findByText('Under Review')).toBeInTheDocument();
+    expect(addDoc).not.toHaveBeenCalled();
   });
 });

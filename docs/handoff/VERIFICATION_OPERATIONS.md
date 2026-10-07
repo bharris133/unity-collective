@@ -37,7 +37,7 @@ Tier 1 or Tier 2 vendor
 → selects permitted document and optional notes
 → file uploads to Firebase Storage
 → submitVerificationDocument callable is attempted
-→ when function unavailable, client fallback stores the same submission contract
+→ when the callable is unavailable, times out, or returns a recoverable platform error, client fallback stores the same submission contract through the vendor-owned Firestore path
 → verification submission document is created
 → vendor sees Under Review
 → duplicate pending submission is blocked
@@ -154,6 +154,7 @@ No public surface may reveal document URLs, admin notes, reporter identity, user
 |---|---|---|
 | Upload blocked with `storage/unauthorized` | Storage rule/path/auth | Check actual upload path, active Storage rules, vendor UID, and claim requirement |
 | Upload reaches 100% but submission waits | Callable Function availability/fallback | Check browser error, Function deployment/logs, and fallback Firestore write contract |
+| Upload reaches 100% then shows `INTERNAL` | Callable Function platform response | Confirm the browser has current Hosting code; the vendor-owned direct-submission fallback should create one pending record. Inspect Function logs before treating the callable error as resolved. |
 | Vendor cannot see Under Review after refresh | Firestore subcollection list rule/query | Confirm owner path access and submission status query |
 | Admin queue is blank with permission denied | Firestore collection-group rule/admin authorization | Confirm recursive rule, admin profile/claim, deployed rules, and fresh session |
 | Admin queue demands an index | `firestore.indexes.json` | Add exact index, deploy indexes, wait for **Enabled** |

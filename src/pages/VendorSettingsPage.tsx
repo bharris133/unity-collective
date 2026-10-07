@@ -225,8 +225,10 @@ export default function VendorSettingsPage() {
         );
       });
 
-      // 2. Create submission record — try Cloud Function first, fall back to direct Firestore write
+      // 2. Create submission record — try Cloud Function first, fall back to the
+      // vendor-owned Firestore path only for recoverable callable failures.
       setDocUploadState('submitting');
+      let submissionId = 'pending-refresh';
       try {
         // Wrap the Cloud Function call in a 12-second timeout so it fails fast if not deployed
         const fnTimeout = new Promise<never>((_, reject) =>
@@ -234,27 +236,49 @@ export default function VendorSettingsPage() {
         );
         const functions = getFunctions();
         const submitFn = httpsCallable(functions, 'submitVerificationDocument');
-        await Promise.race([
+        const response = await Promise.race([
           submitFn({ businessId: currentUser.uid, fileUrls: [downloadUrl], notes: docNotes, type: 'document' }),
           fnTimeout,
         ]);
+        submissionId = (response.data as { submissionId?: string }).submissionId ?? submissionId;
       } catch (fnErr: unknown) {
-        // Cloud Function unavailable (not yet deployed) or timed out — write directly to Firestore
+        // The direct path has the same data contract and is protected by the
+        // vendor-owned Firestore rule. It covers a deployed callable that returns
+        // a recoverable platform error after Storage has already succeeded.
         const isTimeout = fnErr instanceof Error && fnErr.message === 'FUNCTION_TIMEOUT';
-        const isFnNotFound = fnErr instanceof Error && fnErr.message.includes('NOT_FOUND');
-        if (isTimeout || isFnNotFound) {
+        const functionCode = typeof fnErr === 'object' && fnErr !== null && 'code' in fnErr
+          ? String((fnErr as { code?: unknown }).code ?? '')
+          : '';
+        const canUseDirectSubmission = isTimeout || [
+          'functions/not-found',
+          'functions/unavailable',
+          'functions/deadline-exceeded',
+          'functions/internal',
+        ].includes(functionCode);
+
+        if (canUseDirectSubmission) {
           const subsRef = collection(db, 'businesses', currentUser.uid, 'verificationSubmissions');
-          await addDoc(subsRef, {
-            businessId: currentUser.uid,
-            type: 'document',
-            status: 'pending',
-            fileUrls: [downloadUrl],
-            notes: docNotes,
-            reviewedBy: null,
-            reviewedAt: null,
-            rejectionReason: null,
-            createdAt: serverTimestamp(),
-          });
+          // A callable can succeed server-side while its browser response fails.
+          // Read first so that fallback never creates a duplicate pending record.
+          const pendingSnap = await getDocs(subsRef);
+          const pendingDoc = pendingSnap.docs.find(docSnapshot => docSnapshot.data().status === 'pending');
+
+          if (pendingDoc) {
+            submissionId = pendingDoc.id;
+          } else {
+            const submissionRef = await addDoc(subsRef, {
+              businessId: currentUser.uid,
+              type: 'document',
+              status: 'pending',
+              fileUrls: [downloadUrl],
+              notes: docNotes,
+              reviewedBy: null,
+              reviewedAt: null,
+              rejectionReason: null,
+              createdAt: serverTimestamp(),
+            });
+            submissionId = submissionRef.id;
+          }
         } else {
           // Re-throw genuine errors (auth, storage, etc.)
           throw fnErr;
@@ -266,7 +290,7 @@ export default function VendorSettingsPage() {
       setDocNotes('');
       // Refresh submission status
       setExistingSubmission({
-        submissionId: 'pending-refresh',
+        submissionId,
         businessId: currentUser.uid,
         type: 'document',
         status: 'pending',
