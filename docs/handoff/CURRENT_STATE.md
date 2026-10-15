@@ -3,7 +3,7 @@
 **Repository:** `bharris133/unity-collective`  
 **Primary branch:** `main`  
 **Deployment platform:** Firebase Hosting, Firestore, Storage, and Cloud Functions (Gen 2)  
-**Current automated baseline:** **206 passing tests across 24 test files**
+**Current automated baseline:** **217 passing tests across 27 test files**
 **Current frontend dependency baseline:** Firebase Web SDK `^12.17.1`, Node.js 20 for Functions, pnpm `10.4.1` for the root project.
 
 ## Product Position
@@ -36,6 +36,7 @@ The public product language emphasizes group economics, conscious consumerism, c
 | Reporting and endorsements | Authenticated users can report or endorse public businesses; admin moderation reads both queues | Queries avoid Firestore composite-index dependence by sorting client-side where appropriate |
 | Tier 1–3 verification | Full vendor submission and admin review flow is working end-to-end | See [`VERIFICATION_OPERATIONS.md`](VERIFICATION_OPERATIONS.md) |
 | Controlled live QA fixtures | Local Admin-SDK utility creates and resets five deterministic Firebase test accounts | Use [`LIVE_QA_ACCEPTANCE.md`](LIVE_QA_ACCEPTANCE.md) for the role-by-role browser pass; the next live fixture cycle remains operator-run work |
+| Partner candidate foundation | Private Partner Portal lets administrators provision organization-scoped staff and lets staff validate/import private candidate records | Candidate records are server-only and tier-neutral; invitations, owner claim, drafts, public labels, email, analytics, badges, and AI remain deferred; see [`../features/partner-candidate-onboarding.md`](../features/partner-candidate-onboarding.md) |
 
 ## Tier Verification Status
 
@@ -71,7 +72,7 @@ The Firebase Web SDK was upgraded to `12.17.1` after a non-blocking Firestore `B
 | 2 | Final product name and rebrand | Await owner decision; plan a single coordinated rebrand rather than piecemeal copy changes |
 | 3 | Community launch content | Refine recruitment and partnership content around the identified Black-owned business communities |
 | 4 | Community collaboration / offers | Evaluate and refine as a distinct engagement workflow |
-| 5 | Partner organization onboarding | Design contract recorded for private candidate intake, owner claim/opt-in, self-attested publication, and owner-controlled membership labels; implementation awaits transactional-email architecture and remaining product decisions |
+| 5 | Partner organization onboarding | Private candidate intake foundation is implemented and awaits targeted deploy/live QA; secure invitations, claim/opt-in, owner-controlled publication, and membership labels remain blocked on transactional-email architecture and remaining decisions |
 | 6 | Stripe Connect / tier-gated commercial features | Future expansion after core marketplace validation |
 | 7 | Performance hardening | Conduct load tests and add pagination, aggregation, alerting, or caching based on measurements |
 

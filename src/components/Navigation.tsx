@@ -12,7 +12,8 @@ import {
   Gift,
   Heart,
   Package,
-  Store
+  Store,
+  Building2
 } from 'lucide-react';
 
 // Import contexts
@@ -21,6 +22,7 @@ import { useMarketplace } from '../contexts/MarketplaceContext';
 
 // Import services
 import { messageService } from '../services';
+import { partnerService } from '../services/partnerService';
 
 // Import authentication components
 import LoginModal from './auth/LoginModal';
@@ -54,6 +56,7 @@ function Navigation() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showResourcesDropdown, setShowResourcesDropdown] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const [hasPartnerAccess, setHasPartnerAccess] = useState(false);
   const { currentUser, userProfile, logout } = useAuth();
   const vendorStoreUrl = currentUser ? `/vendors/${currentUser.uid}` : '/marketplace';
   const { getCartItemCount } = useMarketplace();
@@ -74,6 +77,27 @@ function Navigation() {
     
     loadUnreadCount();
   }, [currentUser]);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadPartnerAccess = async () => {
+      if (!currentUser || userProfile?.isAdmin) {
+        if (active) setHasPartnerAccess(false);
+        return;
+      }
+
+      try {
+        const access = await partnerService.getMyPortalAccess();
+        if (active) setHasPartnerAccess(access !== null);
+      } catch {
+        if (active) setHasPartnerAccess(false);
+      }
+    };
+
+    void loadPartnerAccess();
+    return () => { active = false; };
+  }, [currentUser, userProfile?.isAdmin]);
 
   // Main navigation items (public)
   const mainNavigation = [
@@ -327,15 +351,29 @@ function Navigation() {
                           Settings
                         </Link>
 
+                        {(userProfile?.isAdmin || hasPartnerAccess) && (
+                          <>
+                            <Link
+                              to="/partner-portal"
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors border-t border-gray-200"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <Building2 size={16} className="inline mr-2" />
+                              Partner Portal
+                            </Link>
+                          </>
+                        )}
                         {userProfile?.isAdmin && (
-                          <Link
-                            to="/admin"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors border-t border-gray-200"
-                            onClick={() => setShowUserMenu(false)}
-                          >
-                            <Settings size={16} className="inline mr-2" />
-                            Admin Panel
-                          </Link>
+                          <>
+                            <Link
+                              to="/admin"
+                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <Settings size={16} className="inline mr-2" />
+                              Admin Panel
+                            </Link>
+                          </>
                         )}
 
                         <button
@@ -499,14 +537,27 @@ function Navigation() {
                     >
                       Settings
                     </Link>
+                    {(userProfile?.isAdmin || hasPartnerAccess) && (
+                      <>
+                        <Link
+                          to="/partner-portal"
+                          className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-red-600 transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Partner Portal
+                        </Link>
+                      </>
+                    )}
                     {userProfile?.isAdmin && (
-                      <Link
-                        to="/admin"
-                        className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-red-600 transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Admin Panel
-                      </Link>
+                      <>
+                        <Link
+                          to="/admin"
+                          className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-red-600 transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Admin Panel
+                        </Link>
+                      </>
                     )}
                     <button
                       onClick={() => {

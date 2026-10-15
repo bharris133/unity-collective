@@ -14,7 +14,7 @@ Read [`../Guidelines.md`](../Guidelines.md) before implementation. It requires s
 
 ## Current Automated Baseline
 
-Current baseline after QA password-recovery safeguards: **206 passing tests across 24 test files**.
+Current baseline after the private partner-candidate foundation: **217 passing tests across 27 test files**.
 
 | Layer | Tooling | Command |
 |---|---|---|
@@ -67,6 +67,7 @@ pnpm --dir functions run build
 | `src/__tests__/contexts/` | Context and session/state behavior |
 | `src/__tests__/orders/` | Buyer/vendor order rule, query, and transition contracts |
 | `src/__tests__/verification/` | Tier 1–3 verification UI, data contracts, rules/index requirements, and authorization regressions |
+| `src/__tests__/partner/` | Private partner Firestore rule and callable-boundary contracts |
 | `src/__tests__/types/` | Type-level/domain shape expectations |
 
 Use the nearest existing test style. Do not add a second testing framework for a one-off task.
@@ -96,6 +97,18 @@ Client tests do not execute Firebase’s production security rules. Use role-bas
 | Administrator | Can view review queue and document, approve/reject submission, and moderate reports/endorsements |
 
 Capture exact permission errors; do not replace security rules with broad `allow read, write: if request.auth != null` shortcuts to unblock testing.
+
+## Partner Candidate Foundation Regression Script
+
+Run after changes to partner portal UI, `partnerService`, partner Functions, partner Firestore rules, or the `partnerCandidates` index:
+
+1. Run `pnpm test --run src/__tests__/pages/PartnerPortalPage.test.tsx src/__tests__/services/PartnerService.test.ts src/__tests__/partner/PartnerFoundationAuthorization.test.ts`.
+2. Run the full root suite, production build, and Functions build/type-check.
+3. In live Firebase with synthetic accounts only, sign in as an admin and provision a synthetic organization using a pre-created synthetic staff account.
+4. Sign in as the assigned staff account at `/partner-portal`; confirm the organization is visible, one valid private candidate saves, and a valid CSV imports.
+5. Confirm an invalid/duplicate row is rejected before import and the public directory cannot find any candidate.
+6. Sign in as a regular user and confirm Partner Portal access is denied. Confirm no candidate is readable through direct Firestore client access.
+7. Confirm candidate intake created no invitation/email, Auth account, onboarding/business document, verification tier, product, order, endorsement, report, or public label.
 
 ## Tier 3 Verification Regression Script
 

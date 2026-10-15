@@ -81,6 +81,9 @@ The list below describes the current operational model. Inspect current service 
 | `emailLogs/{logId}` | Email send attempt/audit records | Exists even though delivery validation is deferred |
 | `messageThreads/{threadId}` | Private-message thread metadata | Reads are participant-filtered; do not query all threads |
 | `messages/{messageId}` | Private message data | Access must remain participant-scoped |
+| `partnerOrganizations/{partnerOrgId}` | Private partner agreement/version/status configuration | Server-only; no direct client Firestore access |
+| `partnerStaff/{uid}` | Maps one active staff account to an organization in the current foundation | Server-only, organization-scoped callable authorization |
+| `partnerCandidates/{candidateId}` | Private contact/minimal profile-prefill candidate records | Server-only; current `private_ready` status has no public, email, account, onboarding/business, or tier effect |
 
 ## Authoritative Data Contracts
 
@@ -137,6 +140,7 @@ Public storefronts and directory cards may expose business information only: nam
 | Vendor dashboard | `src/pages/MemberDashboard.tsx` | Must display authoritative business tier |
 | Admin panel | `src/components/admin/AdminPanel.tsx` | Verification, moderation, and data queries should surface—not swallow—operational errors |
 | Verification service | `src/services/verificationService.ts` | Holds submission, endorsements, reports, and verification data behavior |
+| Partner Portal | `src/pages/PartnerPortalPage.tsx` | Uses `partnerService` and callable Functions only; no public or direct Firestore candidate access |
 
 ## Change Checklist for Data Work
 

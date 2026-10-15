@@ -2,7 +2,7 @@
  * 3-Tier Verification System — Type Definitions
  *
  * Tier 1 — Self-Declared:   Owner affirms Black ownership during onboarding.
- * Tier 2 — Community Verified: 3+ weighted endorsements or partner org review.
+ * Tier 2 — Community Verified: 3+ weighted endorsements.
  * Tier 3 — Document Certified: Official cert (NMSDC, state MBE, etc.) reviewed by moderator.
  *
  * Progression is one-directional. Downgrade only via moderator-validated report.
@@ -19,7 +19,6 @@ export interface BusinessVerification {
   documentVerifiedAt: string | null;       // ISO timestamp — set when moderator approves Tier 3 submission
   trustScore: number;                      // 0-100, computed from endorsement weights
   endorserIds: string[];                   // UIDs of users who endorsed this business
-  partnerOrgId: string | null;             // UID of partner org that verified, if any
   flaggedForReview: boolean;               // Set true when 3+ reports in 7 days
 }
 
@@ -71,15 +70,4 @@ export interface Report {
   resolvedBy: string | null;
   createdAt: string;
   resolvedAt: string | null;
-}
-
-// ─── partnerOrganizations/{orgId} ────────────────────────────────────────────
-
-export interface PartnerOrganization {
-  orgId: string;
-  name: string;
-  city: string;
-  badgeLabel: string;       // e.g. "Verified by Atlanta Black Chamber"
-  moderatorUids: string[];
-  active: boolean;
 }

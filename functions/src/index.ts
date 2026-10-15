@@ -819,3 +819,252 @@ export const updateTrustScore = onCall(
     return { trustScore, tier: updates.verificationTier ?? currentTier };
   }
 );
+
+// ─── Partner candidate foundation ────────────────────────────────────────────
+
+const PARTNER_CANDIDATE_CATEGORIES = [
+  'Food & Beverage',
+  'Fashion & Apparel',
+  'Beauty & Personal Care',
+  'Technology',
+  'Professional Services',
+  'Arts & Crafts',
+  'Home & Garden',
+  'Health & Wellness',
+  'Education & Training',
+  'Entertainment',
+  'Other',
+];
+
+interface PartnerCandidateInput {
+  businessName: string;
+  primaryContactName: string;
+  contactEmail: string;
+  city: string;
+  state: string;
+  category: string;
+  website: string;
+  partnerMemberId: string;
+}
+
+function requireText(value: unknown, field: string): string {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new HttpsError('invalid-argument', `${field} is required.`);
+  }
+  return value.trim();
+}
+
+function normalizePartnerCandidate(value: unknown): PartnerCandidateInput {
+  if (!value || typeof value !== 'object') {
+    throw new HttpsError('invalid-argument', 'Each candidate must be an object.');
+  }
+  const source = value as Record<string, unknown>;
+  const contactEmail = requireText(source.contactEmail, 'contactEmail').toLowerCase();
+  if (!/^\S+@\S+\.\S+$/.test(contactEmail)) {
+    throw new HttpsError('invalid-argument', 'contactEmail must be valid.');
+  }
+
+  const category = typeof source.category === 'string' ? source.category.trim() : '';
+  if (category && !PARTNER_CANDIDATE_CATEGORIES.includes(category)) {
+    throw new HttpsError('invalid-argument', 'category is not supported.');
+  }
+
+  const website = typeof source.website === 'string' ? source.website.trim() : '';
+  if (website) {
+    try {
+      const url = new URL(website);
+      if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Unsupported protocol');
+    } catch {
+      throw new HttpsError('invalid-argument', 'website must be a valid http(s) URL.');
+    }
+  }
+
+  return {
+    businessName: requireText(source.businessName, 'businessName'),
+    primaryContactName: requireText(source.primaryContactName, 'primaryContactName'),
+    contactEmail,
+    city: requireText(source.city, 'city'),
+    state: requireText(source.state, 'state'),
+    category,
+    website,
+    partnerMemberId: typeof source.partnerMemberId === 'string' ? source.partnerMemberId.trim() : '',
+  };
+}
+
+async function requirePartnerStaff(uid: string) {
+  const staffSnap = await db.collection('partnerStaff').doc(uid).get();
+  const staff = staffSnap.data();
+  if (!staffSnap.exists || staff?.active !== true || typeof staff.partnerOrgId !== 'string') {
+    throw new HttpsError('permission-denied', 'Active Partner Portal access is required.');
+  }
+
+  const organizationSnap = await db.collection('partnerOrganizations').doc(staff.partnerOrgId).get();
+  const organization = organizationSnap.data();
+  if (!organizationSnap.exists || organization?.active !== true) {
+    throw new HttpsError('permission-denied', 'This Partner Portal organization is not active.');
+  }
+
+  return { staff, organization };
+}
+
+async function requireAdmin(uid: string, token: Record<string, unknown>) {
+  const callerSnap = await db.collection('users').doc(uid).get();
+  const caller = callerSnap.data();
+  if (token.admin !== true && caller?.isAdmin !== true && caller?.role !== 'admin') {
+    throw new HttpsError('permission-denied', 'Only administrators can provision Partner Portal access.');
+  }
+}
+
+export const provisionPartnerOrganization = onCall(
+  { cors: CALLABLE_CORS_ORIGINS },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated.');
+    await requireAdmin(request.auth.uid, request.auth.token as Record<string, unknown>);
+
+    const source = request.data as Record<string, unknown>;
+    const staffEmail = requireText(source.staffEmail, 'staffEmail').toLowerCase();
+    if (source.trainingConfirmed !== true) {
+      throw new HttpsError('failed-precondition', 'Confirm partner portal and candidate-template training before granting access.');
+    }
+    const staffUser = await admin.auth().getUserByEmail(staffEmail).catch(() => {
+      throw new HttpsError('not-found', 'The partner staff member must create a Unity Collective account first.');
+    });
+
+    const organizationRef = db.collection('partnerOrganizations').doc();
+    const staffRef = db.collection('partnerStaff').doc(staffUser.uid);
+    const existingStaff = await staffRef.get();
+    if (existingStaff.exists && existingStaff.data()?.active === true) {
+      throw new HttpsError('already-exists', 'This account already has active Partner Portal access.');
+    }
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const batch = db.batch();
+    batch.set(organizationRef, {
+      partnerOrgId: organizationRef.id,
+      name: requireText(source.name, 'name'),
+      city: requireText(source.city, 'city'),
+      state: requireText(source.state, 'state'),
+      agreementVersion: requireText(source.agreementVersion, 'agreementVersion'),
+      active: true,
+      createdAt: now,
+      createdBy: request.auth.uid,
+      trainingConfirmedAt: now,
+      trainingConfirmedBy: request.auth.uid,
+    });
+    batch.set(staffRef, {
+      userId: staffUser.uid,
+      partnerOrgId: organizationRef.id,
+      role: 'staff',
+      active: true,
+      createdAt: now,
+      createdBy: request.auth.uid,
+    });
+    await batch.commit();
+
+    console.log(`Partner organization ${organizationRef.id} provisioned by ${request.auth.uid}`);
+    return { success: true };
+  }
+);
+
+export const getMyPartnerPortalAccess = onCall(
+  { cors: CALLABLE_CORS_ORIGINS },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated.');
+    try {
+      const { staff, organization } = await requirePartnerStaff(request.auth.uid);
+      return {
+        staff: {
+          role: staff.role,
+          active: staff.active,
+        },
+        organization: {
+          name: organization.name,
+          city: organization.city,
+          state: organization.state,
+          agreementVersion: organization.agreementVersion,
+          active: organization.active,
+        },
+      };
+    } catch (error) {
+      if (error instanceof HttpsError && error.code === 'permission-denied') return null;
+      throw error;
+    }
+  }
+);
+
+export const listMyPartnerCandidates = onCall(
+  { cors: CALLABLE_CORS_ORIGINS },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated.');
+    const { staff } = await requirePartnerStaff(request.auth.uid);
+    const candidatesSnap = await db.collection('partnerCandidates')
+      .where('partnerOrgId', '==', staff.partnerOrgId)
+      .get();
+
+    return candidatesSnap.docs.map(candidate => {
+      const data = candidate.data();
+      return {
+        candidateId: candidate.id,
+        businessName: data.businessName,
+        primaryContactName: data.primaryContactName,
+        contactEmail: data.contactEmail,
+        city: data.city,
+        state: data.state,
+        category: data.category,
+        website: data.website,
+        partnerMemberId: data.partnerMemberId,
+        status: data.status,
+      };
+    });
+  }
+);
+
+export const createPartnerCandidates = onCall(
+  { cors: CALLABLE_CORS_ORIGINS },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated.');
+    const callerUid = request.auth.uid;
+    const { staff } = await requirePartnerStaff(callerUid);
+    const values = (request.data as { candidates?: unknown }).candidates;
+    if (!Array.isArray(values) || values.length === 0 || values.length > 100) {
+      throw new HttpsError('invalid-argument', 'Submit between 1 and 100 candidates.');
+    }
+
+    const candidates = values.map(normalizePartnerCandidate);
+    const seenInRequest = new Set<string>();
+    for (const candidate of candidates) {
+      const candidateKey = `${candidate.businessName.toLowerCase()}|${candidate.contactEmail}`;
+      if (seenInRequest.has(candidateKey)) {
+        throw new HttpsError('already-exists', 'The request contains duplicate business and contact pairs.');
+      }
+      seenInRequest.add(candidateKey);
+
+      const existing = await db.collection('partnerCandidates')
+        .where('partnerOrgId', '==', staff.partnerOrgId)
+        .where('contactEmailNormalized', '==', candidate.contactEmail)
+        .limit(1)
+        .get();
+      if (!existing.empty) {
+        throw new HttpsError('already-exists', 'A private candidate already exists for this partner contact.');
+      }
+    }
+
+    const batch = db.batch();
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    candidates.forEach(candidate => {
+      const candidateRef = db.collection('partnerCandidates').doc();
+      batch.set(candidateRef, {
+        candidateId: candidateRef.id,
+        partnerOrgId: staff.partnerOrgId,
+        ...candidate,
+        contactEmailNormalized: candidate.contactEmail,
+        status: 'private_ready',
+        createdBy: callerUid,
+        createdAt: now,
+      });
+    });
+    await batch.commit();
+
+    console.log(`${candidates.length} private partner candidate(s) created by ${callerUid}`);
+    return { createdCount: candidates.length };
+  }
+);
