@@ -13,7 +13,7 @@ This is a decision-oriented backlog, not an automatic implementation queue. Befo
 | 3 | Launch/community content refinement | Active strategic work | Define target communities, recruiting language, partners, and initial campaign content |
 | 4 | Moderation display refinement | Ready when prioritized | Improve reporter/endorser context, readable names where safe, business context, and audit trail |
 | 5 | Community offers/collaboration | Product expansion | Define posting, moderation, safety, and ownership workflow before implementation |
-| 6 | Partner organization onboarding | Product expansion | Define organization roles, verification authority, permissions, and review workflow |
+| 6 | Partner organization onboarding | Foundation implemented; next slice deferred | Deploy and controlled-live-QA private intake, then decide transactional email before invitation/claim work |
 | 7 | Stripe Connect and tier-gated commercial features | Product expansion | Confirm business model, payment/payout responsibilities, compliance, and user experience |
 | 8 | Load testing/performance hardening | Pre-broader-launch milestone | Run measured tests once functional scope is stable |
 | 9 | Documentation consolidation | Ongoing | Keep current handoff docs accurate; archive/mark historical docs as needed |
@@ -84,13 +84,13 @@ A community-offers feature exists in historical documentation, but its intended 
 
 ## 5. Partner Organization Onboarding
 
-This is a future verification and community-trust expansion. It may allow approved organizations—such as certifiers, chambers, or trusted business networks—to help onboard, endorse, or certify businesses.
+The private candidate intake foundation is implemented in source and requires a targeted deploy plus controlled live QA before operational use. It does not grant partners verification authority or create any public profile.
 
 ### Current Design Direction
 
-The proposed first release is **partner candidate onboarding**, documented in [`../features/partner-candidate-onboarding.md`](../features/partner-candidate-onboarding.md). An authorized local partner may create private candidates or use a validated CSV template; an actual business owner must authenticate, claim, review, self-attest, and explicitly publish before any public business profile or Tier 1 status exists. The initial public relationship label is owner-controlled **Member of [Partner]** and has no tier effect.
+The implemented first slice is documented in [`../features/partner-candidate-onboarding.md`](../features/partner-candidate-onboarding.md). An administrator provisions a single organization-scoped staff account; authorized staff can create private candidates or import a validated CSV only after acknowledging contact authority. The server records `private_ready` candidates and nothing more: no email, account, onboarding/business profile, public listing, verification tier, product, or membership label is created.
 
-This feature is intentionally blocked on a focused transactional-email architecture decision because secure claim invitations and post-claim next-step messages are core workflow dependencies. It must not extend the unvalidated order-email path as a shortcut.
+Invitation/claim work remains intentionally blocked on a focused transactional-email architecture decision because secure invitations and post-claim next-step messages are core workflow dependencies. It must not extend the unvalidated order-email path as a shortcut.
 
 Required pre-implementation decisions:
 

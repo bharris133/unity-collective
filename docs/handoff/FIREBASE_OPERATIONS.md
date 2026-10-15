@@ -108,6 +108,7 @@ Functions live in `functions/src/index.ts`; the Functions project has its own `p
 | Stripe | Payment/webhook integration | Do not assume the webhook creates current client-side orders; inspect active order flow first |
 | SendGrid | Buyer/vendor email sending and logging | Keys are Firebase secrets; delivery behavior remains a design and validation follow-up |
 | Verification | Document submission, admin review, trust-score recalculation | Must remain aligned with Firestore rules and authoritative tier data contract |
+| Partner candidate foundation | Admin provisioning and organization-scoped private candidate intake | Callable-only access; never give client Firestore rules to private partner records |
 
 Callable Functions define an explicit CORS allowlist for the Unity Collective production domains and local development. When a browser shows a failed callable `OPTIONS` preflight or a missing `Access-Control-Allow-Origin` header, deploy the current **Functions** source, then verify the callable request and Function logs. Do not replace a callable with a public `onRequest` endpoint as a CORS workaround.
 
@@ -159,6 +160,16 @@ Do not batch-grant admin claims to all users. It is a per-administrator action.
 | `FRONTEND_URL` | Functions CORS/redirect settings | Deployed domain alignment |
 
 The actual names/versioning in the Firebase Console are operational data. Never add secret values to local documentation, source, test fixtures, screenshots, or pull requests.
+
+## Partner Candidate Foundation Deployment
+
+The implemented foundation changes all four surfaces: React portal/service, callable Functions, Firestore rules, and the `partnerCandidates` composite duplicate-check index. Deploy them deliberately as one explicit set:
+
+```bash
+firebase deploy --only firestore:rules,firestore:indexes,functions,hosting --project unity-collective
+```
+
+Wait for the `partnerCandidates` index to become **Enabled** before running a real import. Then use only synthetic accounts/data to confirm: an admin can provision a QA partner/staff user, that staff can import candidates after contact-authority acknowledgement, candidates are not in the public directory, and a regular user cannot view them. Do not enable or simulate invitation emails until the transactional-email design is approved.
 
 ## Incident Triage Order
 

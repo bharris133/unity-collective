@@ -1,6 +1,6 @@
 # Partner Candidate Onboarding & Owner Claim
 
-**Status:** Proposed feature specification — **not implemented**. This is the required refresher before designing, coding, debugging, testing, or extending the partner portal, candidate upload, invitation, owner claim, membership-label, or partner-candidate email workflows.
+**Status:** **Private partner-candidate foundation implemented.** Candidate intake is live in source but requires a targeted Firebase deployment and controlled live QA before operational use. Invitations, owner claim, profile drafts, membership labels, analytics, badges, and AI assistance remain explicitly deferred.
 
 **Last decision update:** October 15, 2026
 
@@ -42,7 +42,40 @@ This feature must never publish an unclaimed candidate, treat a partner roster a
 
 ---
 
-## 3. Required Terminology
+## 3. Implemented Foundation (October 2026)
+
+This repository now implements the intentionally narrow first slice: **private candidate intake only**. It is not a recruitment or invitation release.
+
+| Implemented surface | Contract |
+|---|---|
+| Admin provisioning | An authenticated Unity Collective administrator can create one active partner organization and assign one existing Unity Collective account as organization-scoped staff only after recording the portal/template-training confirmation. A staff member cannot be silently reassigned while already active. |
+| Partner Portal | `/partner-portal` displays organization-scoped operations to an active partner staff member. Administrators use its provisioning section from the account menu; an active staff member receives the Partner Portal menu link after signed-in access is confirmed. |
+| Individual entry | Staff can create one candidate only after completing the required data fields and affirming that their organization is authorized to share the contact for the program. |
+| CSV intake | Staff can download the approved eight-column template, preview row-level errors, and import only when every submitted row is valid and the same authorization acknowledgement is checked. |
+| Server authority | The client uses callable Functions only. Direct Firestore access to partner organizations, staff assignments, and candidates is denied for every client, including administrators. |
+| Privacy and tier boundary | Import creates only a private `partnerCandidates` record with status `private_ready`. It does not send an email, create an account, create a profile/onboarding/business record, publish a listing, change verification, endorse a business, or create products/orders. |
+
+### 3.1 Current source map
+
+| File | Responsibility |
+|---|---|
+| `src/pages/PartnerPortalPage.tsx` | Administrator provisioning UI and staff portal for individual/CSV candidate intake. |
+| `src/services/partnerService.ts` | CSV parsing/validation and callable client contract. |
+| `src/types/Partner.ts` | Shared candidate, organization, staff, template, and status types. |
+| `functions/src/index.ts` | `provisionPartnerOrganization`, `getMyPartnerPortalAccess`, `listMyPartnerCandidates`, and `createPartnerCandidates`. |
+| `firestore.rules` | No direct client access to partner collections. |
+| `firestore.indexes.json` | `partnerCandidates` organization/email duplicate-check index. |
+| `src/__tests__/pages/PartnerPortalPage.test.tsx` | Portal authorization-acknowledgement and private-entry behavior. |
+| `src/__tests__/services/PartnerService.test.ts` | Template and row validation behavior. |
+| `src/__tests__/partner/PartnerFoundationAuthorization.test.ts` | Private-rule, scoped-function, and no-public-write contract. |
+
+### 3.2 Current operational limitation
+
+The portal deliberately tells staff that **invitation delivery is not enabled**. Do not use a `private_ready` record as proof that an owner has been contacted, accepted participation, joined Unity Collective, self-attested, or become public. Proceed to invitation/claim work only after the deferred transactional-email architecture is approved.
+
+---
+
+## 4. Required Terminology
 
 Use the following terms consistently in UI, email, support material, code, and logs.
 
@@ -59,14 +92,14 @@ Use the following terms consistently in UI, email, support material, code, and l
 
 ---
 
-## 4. Lifecycle and State Machine
+## 5. Lifecycle and State Machine
 
-### 4.1 Candidate lifecycle
+### 5.1 Candidate lifecycle
 
 ```text
-partner draft
-→ validated candidate
-→ invitation queued
+partner entry / CSV row
+→ validated private candidate (`private_ready` — implemented foundation endpoint)
+→ invitation queued (future)
 → invitation sent
 → claim page opened
 → claimed by authenticated owner
@@ -86,7 +119,7 @@ Alternative outcomes:
 - candidate claim abandoned
 ```
 
-### 4.2 Publication rule
+### 5.2 Publication rule
 
 > **No candidate record, invitation, draft profile, or partner relationship is public until the owner explicitly publishes a completed profile.**
 
@@ -94,7 +127,7 @@ The current directory reads from `onboarding/{uid}`. Since every onboarding reco
 
 **Design rule:** Store partner-candidate and pre-claim data in private partner/claim records. Create the public-facing onboarding/business records only after the owner completes the publish path—or first change the directory’s publication filter/rules as part of a specifically reviewed data-contract migration.
 
-### 4.3 Tier rule
+### 5.3 Tier rule
 
 ```text
 Partner creates/loads candidate
@@ -111,7 +144,7 @@ Do not write `businesses/{uid}.verificationTier`, invoke `updateTrustScore`, or 
 
 ---
 
-## 5. Roles and Permissions
+## 6. Roles and Permissions
 
 | Role | May do | Must not do |
 |---|---|---|
@@ -124,9 +157,9 @@ Partner permissions must be organization-scoped and least-privilege. Do not reus
 
 ---
 
-## 6. Partner Setup, Training, and Candidate Template
+## 7. Partner Setup, Training, and Candidate Template
 
-### 6.1 Partner setup prerequisites
+### 7.1 Partner setup prerequisites
 
 Before enabling a partner portal account, Unity Collective must record:
 
@@ -139,7 +172,7 @@ Before enabling a partner portal account, Unity Collective must record:
 
 Portal access must be revocable immediately when the agreement, staff authorization, or training status becomes invalid.
 
-### 6.2 Candidate upload template: minimum data
+### 7.2 Candidate upload template: minimum data
 
 The first CSV template should collect only what is necessary to invite and prefill a draft.
 
@@ -156,7 +189,7 @@ The first CSV template should collect only what is necessary to invite and prefi
 | `partner_notes` | No in MVP | Do not accept free-form internal notes in the initial template; they create privacy/moderation risk. |
 | `Black-owned status`, certificates, documents, race/ethnicity fields | **No** | Not appropriate candidate-import evidence and never a substitute for owner self-attestation or later certification. |
 
-### 6.3 Import validation
+### 7.3 Import validation
 
 The portal must validate and report row-level errors before invitations are created:
 
@@ -174,9 +207,9 @@ The portal must validate and report row-level errors before invitations are crea
 
 ---
 
-## 7. Invitation, Claim, and Email Workflow
+## 8. Invitation, Claim, and Email Workflow
 
-### 7.1 Email is a prerequisite, not a UI afterthought
+### 8.1 Email is a prerequisite, not a UI afterthought
 
 This feature requires at least two transactional email types:
 
@@ -197,7 +230,7 @@ The current SendGrid order-email path and `emailLogs` observability are not end-
 
 A partner must never see an invitation as “sent” merely because a client clicked a button. The portal should distinguish **queued**, **accepted by provider**, **delivery failed**, **expired**, **revoked**, and **claimed** states.
 
-### 7.2 Secure invitation contract
+### 8.2 Secure invitation contract
 
 The invitation flow must use a server-generated, opaque, random, one-time token:
 
@@ -212,7 +245,7 @@ The invitation flow must use a server-generated, opaque, random, one-time token:
 
 A click can display the claim information but cannot by itself create a public profile, link arbitrary accounts, or grant Tier 1.
 
-### 7.3 Claim workflow
+### 8.3 Claim workflow
 
 ```text
 Candidate receives invitation email
@@ -228,7 +261,7 @@ Candidate receives invitation email
 
 For an existing Unity Collective user, the flow must protect against claiming a candidate intended for a different person. Show only the minimum candidate information before authenticated claim confirmation and provide an escalation path for a mistaken invitation.
 
-### 7.4 Proposed candidate invitation copy
+### 8.4 Proposed candidate invitation copy
 
 **Subject:** `Sunshine Enterprise invited [Business Name] to the Unity Collective Business Accelerator`
 
@@ -244,7 +277,7 @@ For an existing Unity Collective user, the flow must protect against claiming a 
 
 The actual sender name, partner name, support destination, privacy/terms links, and wording require review before launch. Use the partner’s approved legal/public name; do not use “Sunshine Enterprise” in production until confirmed.
 
-### 7.5 Proposed post-claim welcome copy
+### 8.5 Proposed post-claim welcome copy
 
 **Subject:** `Your Unity Collective business profile draft is ready`
 
@@ -260,15 +293,15 @@ Avoid the misleading statement “your business profile has been added” withou
 
 ---
 
-## 8. Data-Ownership and Security Direction
+## 9. Data-Ownership and Security Direction
 
 The exact schema must be approved before coding. The conceptual separation below prevents private candidate data from entering the public directory prematurely.
 
 | Conceptual path | Privacy / owner model | Notes |
 |---|---|---|
-| `partnerOrganizations/{partnerId}` | Unity admin-managed; partner-visible only as authorized | Agreement/training/status configuration. Public display fields must be deliberately separated. |
-| `partnerOrganizations/{partnerId}/staff/{uid}` | Admin-managed; member can read own membership where needed | Scoped staff role and status; do not grant global admin. |
-| `partnerCandidates/{candidateId}` | Partner-scoped/private; Unity admin oversight | Candidate/prefill lifecycle. Must never be publicly readable. |
+| `partnerOrganizations/{partnerId}` | Server-managed; no direct client reads/writes | Active agreement/version and organization configuration. Public display fields must be deliberately separated. |
+| `partnerStaff/{uid}` | Server-managed; UID maps to exactly one active organization in this first slice | Scoped staff role/status; do not grant global admin. |
+| `partnerCandidates/{candidateId}` | Server-managed; callable Functions filter by staff organization | Private candidate lifecycle. Must never be publicly readable. |
 | `partnerInvitations/{inviteId}` | Backend/owner-claim handling only | Token hash, delivery/expiry/revocation/claim status. Never public or directly editable by partner/client. |
 | `partnerClaims/{claimId}` or owner-scoped claim record | Claimed owner plus authorized operations | Associates candidate with Firebase Auth UID and preserves audit history. |
 | `partnerMemberships/{membershipId}` | Owner-controlled relationship record; constrained partner/admin access | Supports optional **Member of [Partner]** display. |
@@ -291,7 +324,7 @@ Never expose on public storefronts/directory:
 
 ---
 
-## 9. Required Application Layers
+## 10. Required Application Layers
 
 Implementation will likely affect all of the following. Confirm the exact files/paths before editing; this list is a design map, not permission to make broad changes.
 
@@ -311,7 +344,7 @@ Implementation will likely affect all of the following. Confirm the exact files/
 
 ---
 
-## 10. What Is Explicitly Out of Scope
+## 11. What Is Explicitly Out of Scope
 
 Do not quietly include the following in the initial partner candidate release:
 
@@ -331,49 +364,39 @@ These are separate feature decisions and must not be merged into the candidate o
 
 ---
 
-## 11. Success Criteria
+## 12. Success Criteria
 
 ### Automated / contract checks
 
 - Unauthorized users cannot access a partner portal, candidate, invitation, claim, or organization-scoped query.
 - Authorized partner staff can access only their own organization’s records.
-- Invalid CSV data is rejected before candidate/invitation creation, with precise row-level errors.
-- Duplicate policy prevents a second active invitation/candidate for the same verified candidate relationship.
+- Invalid CSV data is rejected before candidate creation, with precise row-level errors.
+- Duplicate policy prevents another private candidate with the same contact within the same partner organization.
 - A candidate record remains unavailable to public business directory/storefront queries.
-- An invitation cannot be claimed without valid token, expiry, authentication, and intended claim conditions.
-- A used, revoked, or replaced invitation cannot be reused.
-- Claim acceptance creates a private draft exactly once; retries do not duplicate profile drafts, membership records, audit records, or welcome emails.
-- Owner self-attestation is required before setting/presenting Tier 1.
-- Partner membership label is displayed only after owner consent and active relationship, with no tier/trust effect.
-- No partner/candidate email, token, internal ID, or audit data renders publicly.
-- Email event processing has an idempotency key, attempts/outcome records, and a safe visible failure state.
+- No partner/candidate email, internal ID, or operational data renders publicly.
+- Future invitation, claim, membership, and email criteria remain required before those capabilities are enabled.
 
 ### Manual / controlled live QA checks
 
 Use only fixture-owned, synthetic partner/candidate data after the stable schema is implemented.
 
-1. Unity admin provisions one QA partner and one QA partner staff account.
-2. Partner staff creates an individual private candidate; public visitor cannot find it.
-3. Partner staff uploads a harmless valid CSV and sees row-level import result.
-4. Invalid/duplicate CSV rows fail safely without public listing creation.
-5. A QA candidate receives the invitation in a controlled test mailbox; provider log and actual inbox receipt are both checked.
-6. Candidate signs in/creates an account, claims once, and sees a private prefilled draft.
-7. Candidate declines a second invitation; no public/onboarding business profile is created.
-8. Claimed owner completes profile, personally self-attests, and explicitly publishes.
-9. Public visitor sees **Self-Declared** and, only if owner opted in, **Member of [Partner]**—without private contact, invitation, or audit data.
-10. Partner staff cannot edit owner-approved profile after claim and cannot access unrelated partner records, documents, or admin actions.
-11. Revoke/expire an invitation and partner membership; confirm links/labels/statuses reconcile safely.
-12. Reset only fixture-owned records through a manifest-gated QA utility; no real candidate, partner, user, or email data is touched.
+1. Unity admin provisions one synthetic QA partner and a pre-created synthetic QA staff account.
+2. The QA staff member signs in at `/partner-portal`, creates one candidate after acknowledging contact authority, and sees it in only their private list.
+3. The QA staff member uploads a harmless valid CSV and sees a successful private import.
+4. Invalid/duplicate CSV rows fail safely without creating a candidate or public listing.
+5. A regular user and unauthenticated visitor cannot access partner data. A public directory search cannot find the candidate.
+6. Verify no `onboarding`, `businesses`, products, orders, endorsements, reports, or email records were created by intake.
+7. Reset only fixture-owned records through a future manifest-gated extension; no real candidate, partner, user, or email data is touched.
 
 ---
 
-## 12. Deployment and Operational Requirements
+## 13. Deployment and Operational Requirements
 
 Expected Firebase deployment surfaces depend on the final implementation:
 
 | Changed surface | Expected targeted deployment |
 |---|---|
-| Frontend-only portal/claim UI | `firebase deploy --only hosting --project unity-collective` |
+| Current private candidate foundation | `firebase deploy --only firestore:rules,firestore:indexes,functions,hosting --project unity-collective` |
 | Firestore rules | `firebase deploy --only firestore:rules --project unity-collective` |
 | New Firestore indexes | `firebase deploy --only firestore:indexes --project unity-collective`, then wait for **Enabled** |
 | Cloud Functions / transactional email | `firebase deploy --only functions --project unity-collective` |
@@ -393,7 +416,7 @@ Then run role-based controlled live QA with synthetic records, recipient mailbox
 
 ---
 
-## 13. Open Decisions Required Before Coding
+## 14. Open Decisions Required Before the Next Slice
 
 The following questions materially affect user experience, permissions, data contracts, and email behavior. Do not silently assume answers.
 
@@ -409,7 +432,7 @@ The following questions materially affect user experience, permissions, data con
 
 ---
 
-## 14. Safe Change Procedure and Debugging Guide
+## 15. Safe Change Procedure and Debugging Guide
 
 ### Before changing code
 

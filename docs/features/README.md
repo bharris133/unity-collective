@@ -23,7 +23,7 @@ These feature documentation files provide:
 | **Private Messaging** | Secure, private communication between users for offers, inquiries, or networking. | [private-messaging.md](private-messaging.md) |
 | **Favorites** | Allows users to save businesses, products, or offers to a personal list for easy access. | [favorites.md](favorites.md) |
 | **Authentication** | Manages user login, registration, and session state using Firebase Authentication. | [authentication.md](authentication.md) |
-| **Partner Candidate Onboarding** | Proposed private partner-candidate intake, owner claim/opt-in, self-attestation, publication, and membership-label contract. | [partner-candidate-onboarding.md](partner-candidate-onboarding.md) |
+| **Partner Candidate Onboarding** | Implemented private partner-candidate intake foundation; invitation, claim/opt-in, self-attestation, publication, and membership labels remain deferred. | [partner-candidate-onboarding.md](partner-candidate-onboarding.md) |
 | **Community Hub** | A central gathering place for resources, announcements, discussions, and community activities. | [community-hub.md](community-hub.md) |
 | **Events** | Showcases upcoming community events with details, allowing users to browse and potentially RSVP. | [events.md](events.md) |
 

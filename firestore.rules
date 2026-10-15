@@ -38,6 +38,22 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ─── Partner candidate foundation ─────────────────────────────────────────
+    // All partner organizations, staff assignments, and candidate contacts are
+    // private operations data. Callable Functions perform scoped access checks.
+    // Do not add direct client access here: candidates are not public listings.
+    match /partnerOrganizations/{partnerOrgId} {
+      allow read, write: if false;
+    }
+
+    match /partnerStaff/{staffUid} {
+      allow read, write: if false;
+    }
+
+    match /partnerCandidates/{candidateId} {
+      allow read, write: if false;
+    }
+
     // ─── Onboarding ──────────────────────────────────────────────────────────
     // Members can read and write their own onboarding state.
     // Admins can read and update all onboarding states (for verification).

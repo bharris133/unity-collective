@@ -16,6 +16,7 @@ import VendorOrdersPage from './pages/VendorOrdersPage';
 import VendorSettingsPage from './pages/VendorSettingsPage';
 import BuyerOrdersPage from './pages/BuyerOrdersPage';
 import ProfilePage from './pages/ProfilePage';
+import PartnerPortalPage from './pages/PartnerPortalPage';
 
 // Contexts
 import { AuthProvider } from './contexts/AuthContext';
@@ -118,6 +119,7 @@ export default function App() {
                   <Route path="/vendor/orders" element={<VendorOrdersPage />} />
                   <Route path="/vendor/settings" element={<VendorSettingsPage />} />
                   <Route path="/orders" element={<BuyerOrdersPage />} />
+                  <Route path="/partner-portal" element={<PartnerPortalPage />} />
                 </Routes>
               </main>
               <Footer />
