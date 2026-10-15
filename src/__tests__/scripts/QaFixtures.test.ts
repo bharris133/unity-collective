@@ -8,6 +8,7 @@ const {
   assertLiveFirebaseGate,
   assertExpectedFixtureAuthUser,
   assertFixtureAuthManifest,
+  documentPaths,
   fixturePlan,
   parseArgs,
   qaStoragePrefixes,
@@ -19,6 +20,7 @@ describe('controlled QA fixture utility', () => {
 
     expect(plan.users.map((user: { uid: string }) => user.uid)).toEqual([
       'qa_admin_001',
+      'qa_partner_staff_001',
       'qa_vendor_001',
       'qa_vendor_002',
       'qa_buyer_001',
@@ -30,6 +32,15 @@ describe('controlled QA fixture utility', () => {
     expect(plan.reports.map((report: { status: string }) => report.status)).toEqual(['open', 'resolved']);
     expect(plan.endorsements).toHaveLength(2);
     expect(plan.submissions).toHaveLength(1);
+    expect(plan.partners).toEqual([expect.objectContaining({
+      partnerOrgId: 'qa_partner_org_001',
+      staffUid: 'qa_partner_staff_001',
+    })]);
+    expect(documentPaths(plan)).toEqual(expect.arrayContaining([
+      'partnerOrganizations/qa_partner_org_001',
+      'partnerStaff/qa_partner_staff_001',
+    ]));
+    expect(documentPaths(plan)).toHaveLength(22);
     expect(plan.products.every((product: { productId: string }) => product.productId.startsWith('qa_'))).toBe(true);
     expect(plan.orders.every((order: { orderId: string }) => order.orderId.startsWith('qa_'))).toBe(true);
   });
@@ -61,6 +72,7 @@ describe('controlled QA fixture utility', () => {
   it('limits Storage cleanup to prefixes owned by the fixed QA fixture users', () => {
     expect(qaStoragePrefixes(fixturePlan())).toEqual([
       'avatars/qa_admin_001/',
+      'avatars/qa_partner_staff_001/',
       'avatars/qa_vendor_001/',
       'avatars/qa_vendor_002/',
       'avatars/qa_buyer_001/',
@@ -82,11 +94,11 @@ describe('controlled QA fixture utility', () => {
     expect(() => assertFixtureAuthManifest({ authUserIds: ['qa_admin_001'] }, plan)).toThrow(/do not match/);
     expect(() => assertExpectedFixtureAuthUser(
       { uid: 'qa_vendor_001', email: 'qa-vendor-one@fixture.unitycollective.test' },
-      plan.users[1]
+      plan.users[2]
     )).not.toThrow();
     expect(() => assertExpectedFixtureAuthUser(
       { uid: 'qa_vendor_001', email: 'not-a-fixture@example.com' },
-      plan.users[1]
+      plan.users[2]
     )).toThrow(/does not match/);
   });
 });

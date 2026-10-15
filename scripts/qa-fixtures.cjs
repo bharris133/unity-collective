@@ -96,6 +96,10 @@ function fixturePlan() {
       firstName: 'QA', lastName: 'Administrator', role: 'admin', isAdmin: true, businessOwner: false,
     },
     {
+      uid: 'qa_partner_staff_001', email: 'qa-partner-staff@fixture.unitycollective.test', displayName: 'QA Partner Staff',
+      firstName: 'QA', lastName: 'Partner Staff', role: 'partner', isAdmin: false, businessOwner: false,
+    },
+    {
       uid: 'qa_vendor_001', email: 'qa-vendor-one@fixture.unitycollective.test', displayName: 'QA Vendor One',
       firstName: 'QA', lastName: 'Vendor One', role: 'vendor', isAdmin: false, businessOwner: true,
       businessName: 'QA Heritage Market', location: 'Chicago, IL',
@@ -198,7 +202,14 @@ function fixturePlan() {
     },
   ];
 
-  return { users, stores, products, orders, reports, endorsements, submissions };
+  const partners = [
+    {
+      partnerOrgId: 'qa_partner_org_001', name: 'QA Chicago Enterprise Network', city: 'Chicago', state: 'IL',
+      agreementVersion: 'qa-fixture-v1', staffUid: 'qa_partner_staff_001',
+    },
+  ];
+
+  return { users, stores, products, orders, reports, endorsements, submissions, partners };
 }
 
 function fixtureMetadata(runId) {
@@ -229,6 +240,10 @@ function documentPaths(plan) {
   plan.reports.forEach(({ reportId }) => paths.push(`reports/${reportId}`));
   plan.endorsements.forEach(({ endorsementId }) => paths.push(`endorsements/${endorsementId}`));
   plan.submissions.forEach(({ businessId, submissionId }) => paths.push(`businesses/${businessId}/verificationSubmissions/${submissionId}`));
+  plan.partners.forEach(({ partnerOrgId, staffUid }) => {
+    paths.push(`partnerOrganizations/${partnerOrgId}`);
+    paths.push(`partnerStaff/${staffUid}`);
+  });
   return paths;
 }
 
@@ -354,6 +369,19 @@ async function seed(options) {
     }, { merge: true });
   }
 
+  for (const partner of plan.partners) {
+    batch.set(db.doc(`partnerOrganizations/${partner.partnerOrgId}`), {
+      partnerOrgId: partner.partnerOrgId, name: partner.name, city: partner.city, state: partner.state,
+      agreementVersion: partner.agreementVersion, active: true, createdAt: FieldValue.serverTimestamp(),
+      createdBy: 'qa_admin_001', trainingConfirmedAt: FieldValue.serverTimestamp(), trainingConfirmedBy: 'qa_admin_001',
+      ...metadata,
+    }, { merge: true });
+    batch.set(db.doc(`partnerStaff/${partner.staffUid}`), {
+      userId: partner.staffUid, partnerOrgId: partner.partnerOrgId, role: 'staff', active: true,
+      createdAt: FieldValue.serverTimestamp(), createdBy: 'qa_admin_001', ...metadata,
+    }, { merge: true });
+  }
+
   await batch.commit();
   const manifest = {
     version: MANIFEST_VERSION, marker: FIXTURE_MARKER, projectId: options.project, runId,
@@ -372,6 +400,7 @@ async function collectDynamicQaDocumentPaths(db, plan) {
   const vendorIds = plan.stores.map(store => store.uid);
   const buyerIds = plan.users.filter(user => user.role === 'buyer').map(user => user.uid);
   const qaUserIds = plan.users.map(user => user.uid);
+  const qaPartnerOrgIds = plan.partners.map(partner => partner.partnerOrgId);
 
   const collectByField = async (collectionName, field, values) => {
     for (let index = 0; index < values.length; index += 10) {
@@ -389,6 +418,7 @@ async function collectDynamicQaDocumentPaths(db, plan) {
     collectByField('reports', 'businessId', vendorIds),
     collectByField('endorsements', 'fromUserId', qaUserIds),
     collectByField('endorsements', 'businessId', vendorIds),
+    collectByField('partnerCandidates', 'partnerOrgId', qaPartnerOrgIds),
   ]);
 
   const orderIds = [...paths]
@@ -541,6 +571,6 @@ if (require.main === module) {
 }
 
 module.exports = {
-  FIXTURE_MARKER, DEFAULT_PROJECT, qaStoragePrefixes, fixturePlan, parseArgs, assertLiveFirebaseGate,
+  FIXTURE_MARKER, DEFAULT_PROJECT, documentPaths, qaStoragePrefixes, fixturePlan, parseArgs, assertLiveFirebaseGate,
   assertFixtureAuthManifest, assertExpectedFixtureAuthUser,
 };

@@ -14,7 +14,7 @@ Read [`../Guidelines.md`](../Guidelines.md) before implementation. It requires s
 
 ## Current Automated Baseline
 
-Current baseline after the private partner-candidate foundation: **217 passing tests across 27 test files**.
+Current baseline after the private partner-candidate foundation and its controlled-fixture cleanup coverage: **217 passing tests across 27 test files**.
 
 | Layer | Tooling | Command |
 |---|---|---|
