@@ -16,7 +16,7 @@ This script tests the QA accounts and records created by `scripts/qa-fixtures.cj
 | Persistence | Persists until the guarded `reset` command removes it | Usually disappears on refresh or when browser storage is cleared |
 | Proper use | Role-based release smoke testing | Fast visual/component development checks |
 
-The fixture utility creates only five accounts and records whose identifiers begin with `qa_`. It writes a local manifest before it can reset anything. The reset path removes only manifest-tracked or QA-owner-scoped Firestore records, the QA Auth accounts, and the fixed QA Storage prefixes. It never scans or deletes a whole collection or Storage bucket.[1]
+The fixture utility creates only six accounts and records whose identifiers begin with `qa_`. It writes a local manifest before it can reset anything. The reset path removes only manifest-tracked or QA-owner-scoped Firestore records, the QA Auth accounts, and the fixed QA Storage prefixes. It never scans or deletes a whole collection or Storage bucket.[1]
 
 ## Scope and Intentional Boundaries
 
@@ -48,7 +48,7 @@ Use the project checkout that contains the fixture manifest after seeding. Do no
    $env:GOOGLE_APPLICATION_CREDENTIALS='.\serviceAccountKey.json'
    ```
 
-4. Seed and inspect. The expected inspection result is **5 tracked Auth users**, **19 tracked Firestore documents**, and **19 existing Firestore documents**.
+4. Seed and inspect. The expected inspection result is **6 tracked Auth users**, **22 tracked Firestore documents**, and **22 existing Firestore documents**.
 
    ```powershell
    node scripts/qa-fixtures.cjs seed --project unity-collective --confirm-live
@@ -67,11 +67,12 @@ Use the project checkout that contains the fixture manifest after seeding. Do no
 
 ## QA Accounts and Seeded Data
 
-All five accounts use the local `QA_FIXTURE_PASSWORD` chosen during seed.
+All six accounts use the local `QA_FIXTURE_PASSWORD` chosen during seed.
 
 | Persona | Sign-in address | Seeded role and data | Primary checks |
 |---|---|---|---|
 | QA Administrator | `qa-admin@fixture.unitycollective.test` | Admin profile and `admin: true` claim | Verification review, moderation, privacy-safe decision history |
+| QA Partner Staff | `qa-partner-staff@fixture.unitycollective.test` | Active staff access to the synthetic QA Chicago Enterprise Network; no admin claim | Private candidate intake and public-privacy boundary |
 | QA Vendor One | `qa-vendor-one@fixture.unitycollective.test` | QA Heritage Market; Tier 1; one pending Tier 3 submission; two products; two vendor orders | Store settings, upload, product management, CSV import, order view, Tier 3 result |
 | QA Vendor Two | `qa-vendor-two@fixture.unitycollective.test` | QA Culture Studio; Tier 2; one product | Community Verified presentation and public storefront |
 | QA Buyer One | `qa-buyer-one@fixture.unitycollective.test` | One paid-style placeholder order; existing endorsement of QA Culture Studio | Profile persistence, report, idempotent endorsement, buyer order view |
@@ -123,7 +124,17 @@ Sign in as QA Vendor Two.
 3. Open **Store Settings**. Confirm that it loads the QA Culture Studio information without exposing personal-profile data on the public storefront. Open **Profile**, then use the gold **Store Settings** link to return; the vendor shortcut must remain available.
 4. Open `/vendors/qa_vendor_001` and use **Endorse Business** only if the button has not already been used by this vendor in the session. Record the result; reset removes QA-owned endorsements afterwards.
 
-### 5. QA Administrator: Moderation and Rejection Path
+### 5. QA Partner Staff: Private Candidate Intake
+
+Sign in as QA Partner Staff.
+
+1. Open the user menu and choose **Partner Portal**. Confirm the page identifies **QA Chicago Enterprise Network** and has no administrator provisioning section.
+2. Under **Add One Private Candidate**, enter: business name `QA Partner Candidate Market`; primary contact name `QA Candidate`; email `qa-candidate@fixture.unitycollective.test`; city `Chicago`; state `IL`; and category `Food & Beverage`. Confirm the authority acknowledgement and choose **Save Private Candidate**.
+3. Confirm the success notice says the candidate is private and invitation delivery is not enabled. Refresh and confirm the candidate remains in **Private Candidate List** with status **Private · ready for future invitation**.
+4. Sign out. Search the public directory for `QA Partner Candidate Market`. It must not appear. Direct navigation to `/partner-portal` while signed out must show the access-required state, and a regular QA buyer account must not see the Partner Portal menu link or private candidate list.
+5. Do not add a real business, personal contact, document, email recipient, or candidate invitation. The candidate is synthetic and reset removes it as a record scoped to the fixed QA partner organization.
+
+### 6. QA Administrator: Moderation and Rejection Path
 
 Sign in as QA Administrator. If this is the first administrator sign-in after seed, sign out and back in once more to ensure the Firebase Auth custom claim is refreshed.
 
@@ -134,7 +145,7 @@ Sign in as QA Administrator. If this is the first administrator sign-in after se
 5. Select **Verifications**. Confirm **QA Heritage Market** appears with a single **Pending** record. Its seeded record deliberately has no document link; the absence of a file is expected and is not a Storage test.
 6. Select QA Heritage Market, choose **Reject Submission**, enter `QA acceptance rejection before upload test`, then choose **Confirm Rejection**. The list should update to **Rejected**.
 
-### 6. QA Vendor One: Rejection, Storage Upload, Store, Products, CSV, and Orders
+### 7. QA Vendor One: Rejection, Storage Upload, Store, Products, CSV, and Orders
 
 Sign in as QA Vendor One.
 
@@ -145,7 +156,7 @@ Sign in as QA Vendor One.
 5. Return to **Store Settings**, expand **Bulk Product Upload**, and upload `docs/handoff/fixtures/qa-product-smoke.csv`. Confirm that two valid rows are recognized and the import reports two successful products. Verify either imported product appears in the dashboard or marketplace. Reset cleans products owned by QA Vendor One.
 6. Open **Orders**. QA Vendor One must see both seeded orders: one paid-style and one delivered-style. Select the paid order’s **Update status** control and transition it to **Processing** once. Refresh and confirm the state persists. If the page shows a retry error, the status does not change, or the browser console reports `permission-denied`, record the exact evidence. Do **not** change the rule in the Firebase Console.
 
-### 7. QA Administrator: Private Document Review and Tier 3 Promotion
+### 8. QA Administrator: Private Document Review and Tier 3 Promotion
 
 Sign in again as QA Administrator.
 
@@ -155,7 +166,7 @@ Sign in again as QA Administrator.
 4. Return to **Moderation** and confirm that the records created during the run still show expected business context while preserving privacy-safe member references.
 5. Open **Email Logs** only to observe the existing state. An empty state is expected when no checkout/email flow was deliberately invoked. An email log, if one exists, is not proof of inbox delivery.
 
-### 8. Post-Promotion Vendor and Public Verification Check
+### 9. Post-Promotion Vendor and Public Verification Check
 
 Sign in as QA Vendor One and then repeat the public check while signed out.
 
@@ -177,7 +188,7 @@ node scripts/qa-fixtures.cjs reset --project unity-collective --confirm-live
 node scripts/qa-fixtures.cjs inspect --project unity-collective --confirm-live
 ```
 
-The reset success message should identify QA-owner-scoped Firestore records, the QA-only Storage prefixes, and five Auth users. The final `inspect` command should refuse because the manifest has been removed. That refusal is the expected proof that reset completed; it is not an error to repair.
+The reset success message should identify QA-owner-scoped Firestore records, the QA-only Storage prefixes, and six Auth users. The final `inspect` command should refuse because the manifest has been removed. That refusal is the expected proof that reset completed; it is not an error to repair.
 
 If reset fails, do not manually bulk-delete Firestore collections, Storage folders, Auth users, or the manifest. Save the exact command output and stop. The failure should be handled as a focused fixture-utility issue because the manifest is the safety boundary.[1]
 
@@ -192,6 +203,7 @@ Record a pass or failure for each row. A failed expected security check, such as
 | Buyer One profile/report/order |  |  |  |
 | Buyer Two endorsement/order |  |  |  |
 | Vendor Two Tier 2/storefront |  |  |  |
+| Partner staff private intake/privacy |  |  |  |
 | Admin moderation/rejection |  |  |  |
 | Vendor One upload/products/CSV/orders |  |  |  |
 | Admin document review/approval |  |  |  |

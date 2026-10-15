@@ -12,7 +12,7 @@
 |---|---|
 | Project allowlist | Firebase commands refuse every project except `unity-collective`. |
 | Explicit confirmation | `seed`, `inspect`, and `reset` require `--confirm-live`. |
-| Fixture naming | Every Auth UID, Firestore ID, email, and document carries a `qa_` or `qaFixture` marker. |
+| Fixture naming | Every Auth UID, Firestore ID, email, and seeded document carries a `qa_` or `qaFixture` marker. |
 | Local manifest | Seeding writes `.qa-fixtures-manifest.json`, ignored by Git and restricted to the local operator account. |
 | Narrow reset | Reset deletes manifest paths plus records owned by the fixed `qa_` users; it never scans or bulk-deletes a collection. |
 | Storage cleanup | Reset removes only the Storage prefixes for the fixed `qa_` users, including their avatars, business assets, and legacy onboarding documents. It never deletes a bucket or a non-QA prefix. |
@@ -26,6 +26,8 @@ The service-account JSON and fixture password remain local environment inputs. N
 | Fixture type | Quantity | Purpose |
 |---|---:|---|
 | Admin account | 1 | Moderation and verification review access; the fixture admin receives the `admin: true` custom claim. |
+| Partner staff account | 1 | Private Partner Portal access for the seeded QA partner organization; it has no admin or verification authority. |
+| Partner organization | 1 | QA Chicago Enterprise Network with a synthetic agreement/training record; used only to test private candidate intake. |
 | Vendor accounts and stores | 2 | Directory, storefront, store-settings, endorsement, and vendor-order testing. |
 | Buyer accounts | 2 | Report, endorsement, checkout, and buyer-order-history testing. |
 | Products | 3 | Marketplace search, cart, multi-item order, and storefront catalog testing. |
@@ -95,7 +97,7 @@ $env:GOOGLE_APPLICATION_CREDENTIALS='.\serviceAccountKey.json'
 node scripts/qa-fixtures.cjs reset --project unity-collective --confirm-live
 ```
 
-Reset requires the manifest created by `seed`. If the manifest is missing, malformed, pointed at another project, or not marked as a Unity Collective QA fixture manifest, the command refuses to delete anything. With a valid manifest, reset also removes normal-flow records attached to the fixed QA users—such as newly created products, orders, reports, endorsements, verification submissions, and order-linked email logs—so browser testing does not leave orphaned QA data behind.
+Reset requires the manifest created by `seed`. If the manifest is missing, malformed, pointed at another project, or not marked as a Unity Collective QA fixture manifest, the command refuses to delete anything. With a valid manifest, reset also removes normal-flow records attached to the fixed QA users—such as newly created products, orders, reports, endorsements, verification submissions, and order-linked email logs—and private candidates scoped to the one fixed QA partner organization. It does not query or delete another partner’s candidates.
 
 It also removes files only below the QA accounts’ fixed Storage prefixes before deleting Firestore records or Auth users. This makes a harmless QA avatar, logo, or Tier 3 document upload reversible without putting production business assets at risk. If Storage cleanup cannot complete, the command stops before it removes Firestore or Auth records.
 
@@ -115,8 +117,9 @@ This performs a read-only Stripe account check. It refuses keys that are not tes
 3. Sign in with a QA buyer account and submit a new report or endorsement against a QA vendor; confirm the admin queue updates.
 4. Sign in with a QA vendor account and verify Store Settings, product display, vendor orders, and public directory/storefront visibility.
 5. Sign in with a QA buyer account and confirm the seeded orders appear in buyer history; confirm the same orders appear in the linked vendor history.
-6. Use the application’s real checkout workflow only with Stripe test mode and a Stripe-provided test payment method. Do not treat seeded Firestore orders as payment confirmation.
-7. Run `reset` after the testing session and verify `inspect` refuses because the manifest has been removed.
+6. Sign in with the QA Partner Staff account, confirm **Partner Portal** appears in the user menu, and add a synthetic candidate. Confirm the candidate appears only in its private list and does not appear in the public directory.
+7. Use the application’s real checkout workflow only with Stripe test mode and a Stripe-provided test payment method. Do not treat seeded Firestore orders as payment confirmation.
+8. Run `reset` after the testing session and verify `inspect` refuses because the manifest has been removed.
 
 ## Scope Notes
 

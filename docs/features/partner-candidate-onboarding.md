@@ -386,7 +386,7 @@ Use only fixture-owned, synthetic partner/candidate data after the stable schema
 4. Invalid/duplicate CSV rows fail safely without creating a candidate or public listing.
 5. A regular user and unauthenticated visitor cannot access partner data. A public directory search cannot find the candidate.
 6. Verify no `onboarding`, `businesses`, products, orders, endorsements, reports, or email records were created by intake.
-7. Reset only fixture-owned records through a future manifest-gated extension; no real candidate, partner, user, or email data is touched.
+7. Reset through the existing manifest-gated QA extension. It deletes only the seeded QA partner organization/staff records and candidates proven to belong to that fixed QA organization; no real candidate, partner, user, or email data is touched.
 
 ---
 
