@@ -17,6 +17,7 @@ This catalog helps a new agent locate the right feature boundary before editing.
 | Product CSV upload | Active vendor product bulk upload | `src/components/ProductCsvUpload.tsx` | Relevant component tests |
 | Orders | Buyer and vendor order surfaces active | `src/services/orderService.ts`, vendor/user order components | [`ARCHITECTURE_AND_DATA.md`](ARCHITECTURE_AND_DATA.md) |
 | Tier 1–3 verification | Active end-to-end vendor submission and admin review | `src/services/verificationService.ts`, `src/components/VerificationProgress.tsx`, `src/components/admin/AdminPanel.tsx`, `functions/src/index.ts` | [`VERIFICATION_OPERATIONS.md`](VERIFICATION_OPERATIONS.md) |
+| Partner candidate onboarding | Proposed private partner intake, owner claim/opt-in, publication, and membership-label workflow | Future partner portal/claim/services/Functions/rules; do not infer implementation from the type-only partner model | [`../features/partner-candidate-onboarding.md`](../features/partner-candidate-onboarding.md) |
 | Endorsements and reports | Active community actions and admin moderation | `src/components/EndorseButton.tsx`, `src/components/ReportDialog.tsx`, `src/components/admin/AdminPanel.tsx` | [`VERIFICATION_OPERATIONS.md`](VERIFICATION_OPERATIONS.md) |
 | Private messaging | Active participant-filtered messaging | `src/services/messageService.ts`, `src/components/MessagesPage.tsx`, `src/components/Navigation.tsx` | [`../features/private-messaging.md`](../features/private-messaging.md) |
 | Community Hub, events, offers | Feature surfaces exist; scope should be reconfirmed before expansion | `src/pages/` and feature components/services | [`../features/community-hub.md`](../features/community-hub.md), [`../features/events.md`](../features/events.md), [`../features/community-offers.md`](../features/community-offers.md) |
@@ -33,6 +34,7 @@ These areas routinely require more than a frontend edit.
 | Verification | Client data source, business/onboarding contract, submission path, Firestore rules, collection-group index, Storage rule, Function authorization, public badge surfaces |
 | Orders and payments | Client checkout behavior, order creation source, Stripe Function/webhook behavior, required Firestore indexes, email/log side effects |
 | Email | Trigger authority, Function secret, sender-domain verification, provider delivery logs, Firestore `emailLogs`, duplicate prevention |
+| Partner candidate onboarding | Private candidate/claim records, organization-scoped roles, invitation token and email idempotency, owner-controlled publication, membership label, Firestore rules/indexes, and public privacy boundary |
 | Messaging | Participant-filtered query, `messageThreads` and `messages` rules, navigation unread count behavior |
 | Public directory | Live/mock mode, onboarding/business merge, public privacy boundary, verification tier override |
 | Admin panel | Admin profile/claim contract, Firestore query index/rule behavior, Function authorization for mutations |

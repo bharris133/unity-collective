@@ -86,6 +86,12 @@ A community-offers feature exists in historical documentation, but its intended 
 
 This is a future verification and community-trust expansion. It may allow approved organizations—such as certifiers, chambers, or trusted business networks—to help onboard, endorse, or certify businesses.
 
+### Current Design Direction
+
+The proposed first release is **partner candidate onboarding**, documented in [`../features/partner-candidate-onboarding.md`](../features/partner-candidate-onboarding.md). An authorized local partner may create private candidates or use a validated CSV template; an actual business owner must authenticate, claim, review, self-attest, and explicitly publish before any public business profile or Tier 1 status exists. The initial public relationship label is owner-controlled **Member of [Partner]** and has no tier effect.
+
+This feature is intentionally blocked on a focused transactional-email architecture decision because secure claim invitations and post-claim next-step messages are core workflow dependencies. It must not extend the unvalidated order-email path as a shortcut.
+
 Required pre-implementation decisions:
 
 1. Organization data model and relationship to individual users.
