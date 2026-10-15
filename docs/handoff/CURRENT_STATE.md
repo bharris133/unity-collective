@@ -71,7 +71,7 @@ The Firebase Web SDK was upgraded to `12.17.1` after a non-blocking Firestore `B
 | 2 | Final product name and rebrand | Await owner decision; plan a single coordinated rebrand rather than piecemeal copy changes |
 | 3 | Community launch content | Refine recruitment and partnership content around the identified Black-owned business communities |
 | 4 | Community collaboration / offers | Evaluate and refine as a distinct engagement workflow |
-| 5 | Partner organization onboarding | Future work for certifiers, chambers, and trusted organizations |
+| 5 | Partner organization onboarding | Design contract recorded for private candidate intake, owner claim/opt-in, self-attested publication, and owner-controlled membership labels; implementation awaits transactional-email architecture and remaining product decisions |
 | 6 | Stripe Connect / tier-gated commercial features | Future expansion after core marketplace validation |
 | 7 | Performance hardening | Conduct load tests and add pagination, aggregation, alerting, or caching based on measurements |
 
